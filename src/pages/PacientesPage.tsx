@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { apiFetch } from '@/lib/api'
 import type { PacienteResponse } from '@/types'
 import { Button } from '@/components/ui/button'
@@ -6,13 +7,13 @@ import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { PacienteFormDialog } from '@/components/pacientes/paciente-form-dialog'
 import { toast } from 'sonner'
-import { Plus } from 'lucide-react'
+import { ChevronRight, Plus } from 'lucide-react'
 
 export function PacientesPage() {
+  const navigate = useNavigate()
   const [pacientes, setPacientes] = useState<PacienteResponse[]>([])
   const [cargando, setCargando] = useState(true)
   const [dialogAbierto, setDialogAbierto] = useState(false)
-  const [pacienteEditando, setPacienteEditando] = useState<PacienteResponse | null>(null)
 
   async function cargar() {
     setCargando(true)
@@ -30,21 +31,11 @@ export function PacientesPage() {
     cargar()
   }, [])
 
-  function abrirNuevo() {
-    setPacienteEditando(null)
-    setDialogAbierto(true)
-  }
-
-  function abrirEditar(paciente: PacienteResponse) {
-    setPacienteEditando(paciente)
-    setDialogAbierto(true)
-  }
-
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Pacientes</h1>
-        <Button onClick={abrirNuevo}>
+        <Button onClick={() => setDialogAbierto(true)}>
           <Plus />
           Nuevo paciente
         </Button>
@@ -59,7 +50,7 @@ export function PacientesPage() {
               <TableHead>Telefono</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Estado</TableHead>
-              <TableHead className="text-right">Acciones</TableHead>
+              <TableHead />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -71,7 +62,11 @@ export function PacientesPage() {
               </TableRow>
             )}
             {pacientes.map((paciente) => (
-              <TableRow key={paciente.id}>
+              <TableRow
+                key={paciente.id}
+                className="cursor-pointer"
+                onClick={() => navigate(`/pacientes/${paciente.id}`)}
+              >
                 <TableCell className="font-medium">{paciente.nombre}</TableCell>
                 <TableCell>{paciente.documentoIdentidad ?? '-'}</TableCell>
                 <TableCell>{paciente.telefono ?? '-'}</TableCell>
@@ -81,10 +76,8 @@ export function PacientesPage() {
                     {paciente.activo ? 'Activo' : 'Inactivo'}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-right">
-                  <Button variant="ghost" size="sm" onClick={() => abrirEditar(paciente)}>
-                    Editar
-                  </Button>
+                <TableCell className="w-8 text-muted-foreground">
+                  <ChevronRight className="size-4" />
                 </TableCell>
               </TableRow>
             ))}
@@ -95,7 +88,7 @@ export function PacientesPage() {
       <PacienteFormDialog
         open={dialogAbierto}
         onOpenChange={setDialogAbierto}
-        paciente={pacienteEditando}
+        paciente={null}
         onGuardado={() => {
           setDialogAbierto(false)
           cargar()

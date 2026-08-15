@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import { LoginPage } from '@/pages/LoginPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { PacientesPage } from '@/pages/PacientesPage'
+import { PacienteDetailPage } from '@/pages/PacienteDetailPage'
 import { AgendaPage } from '@/pages/AgendaPage'
 import { ConsultasPage } from '@/pages/ConsultasPage'
 import { FacturasPage } from '@/pages/FacturasPage'
@@ -18,6 +19,7 @@ function App() {
         <Route element={<AppLayout />}>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/pacientes" element={<PacientesPage />} />
+          <Route path="/pacientes/:id" element={<PacienteDetailPage />} />
           <Route path="/agenda" element={<AgendaPage />} />
           <Route path="/consultas" element={<ConsultasPage />} />
           <Route path="/facturas" element={<FacturasPage />} />
