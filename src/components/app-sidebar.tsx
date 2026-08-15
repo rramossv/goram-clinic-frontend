@@ -27,6 +27,7 @@ import {
   Receipt,
   UserCog,
   CreditCard,
+  BarChart3,
   LogOut,
 } from 'lucide-react'
 
@@ -36,6 +37,7 @@ const NAV_ITEMS = [
   { to: '/agenda', label: 'Agenda', icon: CalendarDays, end: false },
   { to: '/consultas', label: 'Consultas', icon: Stethoscope, end: false },
   { to: '/facturas', label: 'Facturacion', icon: Receipt, end: false },
+  { to: '/reportes', label: 'Reportes', icon: BarChart3, end: false },
   { to: '/personal', label: 'Personal', icon: UserCog, end: false },
   { to: '/suscripcion', label: 'Suscripcion', icon: CreditCard, end: false },
 ]

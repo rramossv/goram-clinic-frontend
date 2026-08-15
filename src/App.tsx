@@ -6,6 +6,7 @@ import { PacienteDetailPage } from '@/pages/PacienteDetailPage'
 import { AgendaPage } from '@/pages/AgendaPage'
 import { ConsultasPage } from '@/pages/ConsultasPage'
 import { FacturasPage } from '@/pages/FacturasPage'
+import { ReportesPage } from '@/pages/ReportesPage'
 import { PersonalPage } from '@/pages/PersonalPage'
 import { SuscripcionPage } from '@/pages/SuscripcionPage'
 import { ProtectedRoute } from '@/lib/protected-route'
@@ -23,6 +24,7 @@ function App() {
           <Route path="/agenda" element={<AgendaPage />} />
           <Route path="/consultas" element={<ConsultasPage />} />
           <Route path="/facturas" element={<FacturasPage />} />
+          <Route path="/reportes" element={<ReportesPage />} />
           <Route path="/personal" element={<PersonalPage />} />
           <Route path="/suscripcion" element={<SuscripcionPage />} />
         </Route>
