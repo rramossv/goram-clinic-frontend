@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import { LoginPage } from '@/pages/LoginPage'
+import { RegistroPage } from '@/pages/RegistroPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { PacientesPage } from '@/pages/PacientesPage'
 import { PacienteDetailPage } from '@/pages/PacienteDetailPage'
@@ -16,6 +17,7 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/registro" element={<RegistroPage />} />
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           <Route path="/" element={<DashboardPage />} />
