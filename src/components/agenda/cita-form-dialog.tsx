@@ -16,13 +16,20 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
 
+function aDatetimeLocal(fecha: Date) {
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${fecha.getFullYear()}-${pad(fecha.getMonth() + 1)}-${pad(fecha.getDate())}T${pad(fecha.getHours())}:${pad(fecha.getMinutes())}`
+}
+
 interface CitaFormDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onGuardado: () => void
+  /** Pre-llena doctor y horario cuando se abre desde un clic en el calendario. */
+  prefill?: { doctorId: string; fechaHora: Date } | null
 }
 
-export function CitaFormDialog({ open, onOpenChange, onGuardado }: CitaFormDialogProps) {
+export function CitaFormDialog({ open, onOpenChange, onGuardado, prefill }: CitaFormDialogProps) {
   const [pacientes, setPacientes] = useState<PacienteResponse[]>([])
   const [doctores, setDoctores] = useState<UsuarioResumen[]>([])
   const [pacienteId, setPacienteId] = useState('')
@@ -35,8 +42,8 @@ export function CitaFormDialog({ open, onOpenChange, onGuardado }: CitaFormDialo
   useEffect(() => {
     if (open) {
       setPacienteId('')
-      setDoctorId('')
-      setFechaHora('')
+      setDoctorId(prefill?.doctorId ?? '')
+      setFechaHora(prefill ? aDatetimeLocal(prefill.fechaHora) : '')
       setDuracionMinutos('30')
       setMotivo('')
 
@@ -47,7 +54,7 @@ export function CitaFormDialog({ open, onOpenChange, onGuardado }: CitaFormDialo
         .then((usuarios) => setDoctores(usuarios.filter((u) => u.rol === 'DOCTOR')))
         .catch(() => {})
     }
-  }, [open])
+  }, [open, prefill])
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
