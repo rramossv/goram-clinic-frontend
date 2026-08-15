@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { PersonalFormDialog } from '@/components/personal/personal-form-dialog'
+import { RestablecerPasswordDialog } from '@/components/personal/restablecer-password-dialog'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,6 +33,7 @@ export function PersonalPage() {
   const [cargando, setCargando] = useState(true)
   const [dialogAbierto, setDialogAbierto] = useState(false)
   const [usuarioADesactivar, setUsuarioADesactivar] = useState<UsuarioResumen | null>(null)
+  const [usuarioARestablecer, setUsuarioARestablecer] = useState<UsuarioResumen | null>(null)
   const [actualizando, setActualizando] = useState<string | null>(null)
 
   async function cargar() {
@@ -113,16 +115,21 @@ export function PersonalPage() {
                   </TableCell>
                   <TableCell className="text-right">
                     {!esUnoMismo && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        disabled={actualizando === usuario.id}
-                        onClick={() =>
-                          usuario.activo ? setUsuarioADesactivar(usuario) : cambiarActivo(usuario, true)
-                        }
-                      >
-                        {usuario.activo ? 'Desactivar' : 'Activar'}
-                      </Button>
+                      <div className="flex justify-end gap-2">
+                        <Button variant="ghost" size="sm" onClick={() => setUsuarioARestablecer(usuario)}>
+                          Restablecer contrasena
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled={actualizando === usuario.id}
+                          onClick={() =>
+                            usuario.activo ? setUsuarioADesactivar(usuario) : cambiarActivo(usuario, true)
+                          }
+                        >
+                          {usuario.activo ? 'Desactivar' : 'Activar'}
+                        </Button>
+                      </div>
                     )}
                   </TableCell>
                 </TableRow>
@@ -159,6 +166,11 @@ export function PersonalPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <RestablecerPasswordDialog
+        usuario={usuarioARestablecer}
+        onOpenChange={(open) => !open && setUsuarioARestablecer(null)}
+      />
     </div>
   )
 }

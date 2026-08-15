@@ -10,6 +10,7 @@ import { FacturasPage } from '@/pages/FacturasPage'
 import { ReportesPage } from '@/pages/ReportesPage'
 import { PersonalPage } from '@/pages/PersonalPage'
 import { SuscripcionPage } from '@/pages/SuscripcionPage'
+import { PerfilPage } from '@/pages/PerfilPage'
 import { ProtectedRoute } from '@/lib/protected-route'
 import { AppLayout } from '@/components/app-layout'
 
@@ -29,6 +30,7 @@ function App() {
           <Route path="/reportes" element={<ReportesPage />} />
           <Route path="/personal" element={<PersonalPage />} />
           <Route path="/suscripcion" element={<SuscripcionPage />} />
+          <Route path="/perfil" element={<PerfilPage />} />
         </Route>
       </Route>
     </Routes>

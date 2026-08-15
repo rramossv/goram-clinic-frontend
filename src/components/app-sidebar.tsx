@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import {
   Sidebar,
   SidebarContent,
@@ -29,6 +29,7 @@ import {
   CreditCard,
   BarChart3,
   LogOut,
+  User,
 } from 'lucide-react'
 
 const NAV_ITEMS = [
@@ -53,6 +54,7 @@ function iniciales(nombre: string) {
 
 export function AppSidebar() {
   const { sesion, logout } = useAuth()
+  const navigate = useNavigate()
 
   return (
     <Sidebar collapsible="icon">
@@ -103,6 +105,10 @@ export function AppSidebar() {
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent side="top" align="start" className="w-56">
+            <DropdownMenuItem onSelect={() => navigate('/perfil')}>
+              <User />
+              Mi perfil
+            </DropdownMenuItem>
             <DropdownMenuItem onSelect={logout}>
               <LogOut />
               Cerrar sesion
