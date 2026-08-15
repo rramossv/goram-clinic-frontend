@@ -1,12 +1,22 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { apiFetch } from '@/lib/api'
+import { apiFetch, ApiRequestError } from '@/lib/api'
 import type { CitaResponse, FacturaResponse, PacienteResponse } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { PacienteFormDialog } from '@/components/pacientes/paciente-form-dialog'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { toast } from 'sonner'
 import { ArrowLeft, Pencil } from 'lucide-react'
 
@@ -42,6 +52,8 @@ export function PacienteDetailPage() {
   const [facturas, setFacturas] = useState<FacturaResponse[]>([])
   const [cargando, setCargando] = useState(true)
   const [dialogEditarAbierto, setDialogEditarAbierto] = useState(false)
+  const [confirmarDesactivar, setConfirmarDesactivar] = useState(false)
+  const [actualizandoActivo, setActualizandoActivo] = useState(false)
 
   async function cargar() {
     if (!id) return
@@ -72,6 +84,25 @@ export function PacienteDetailPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
+  async function cambiarActivo(activo: boolean) {
+    if (!id) return
+    setActualizandoActivo(true)
+    try {
+      await apiFetch(`/api/v1/pacientes/${id}/activo`, { method: 'PATCH', body: { activo } })
+      toast.success(activo ? 'Paciente activado' : 'Paciente desactivado')
+      await cargar()
+    } catch (err) {
+      if (err instanceof ApiRequestError) {
+        toast.error(err.body?.message ?? 'No se pudo actualizar el paciente')
+      } else {
+        toast.error('No se pudo conectar con el servidor')
+      }
+    } finally {
+      setActualizandoActivo(false)
+      setConfirmarDesactivar(false)
+    }
+  }
+
   if (cargando || !paciente) {
     return <p className="text-sm text-muted-foreground">Cargando...</p>
   }
@@ -85,11 +116,23 @@ export function PacienteDetailPage() {
           </Link>
         </Button>
         <div className="flex-1">
-          <h1 className="text-2xl font-semibold">{paciente.nombre}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-semibold">{paciente.nombre}</h1>
+            <Badge variant={paciente.activo ? 'default' : 'secondary'}>
+              {paciente.activo ? 'Activo' : 'Inactivo'}
+            </Badge>
+          </div>
           <p className="text-sm text-muted-foreground">
             {paciente.documentoIdentidad ?? 'Sin documento registrado'}
           </p>
         </div>
+        <Button
+          variant="outline"
+          disabled={actualizandoActivo}
+          onClick={() => (paciente.activo ? setConfirmarDesactivar(true) : cambiarActivo(true))}
+        >
+          {paciente.activo ? 'Desactivar' : 'Activar'}
+        </Button>
         <Button variant="outline" onClick={() => setDialogEditarAbierto(true)}>
           <Pencil />
           Editar
@@ -198,6 +241,21 @@ export function PacienteDetailPage() {
           cargar()
         }}
       />
+
+      <AlertDialog open={confirmarDesactivar} onOpenChange={setConfirmarDesactivar}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Desactivar a {paciente.nombre}</AlertDialogTitle>
+            <AlertDialogDescription>
+              El paciente quedara marcado como inactivo. Podes reactivarlo en cualquier momento.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={() => cambiarActivo(false)}>Desactivar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

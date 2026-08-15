@@ -17,6 +17,7 @@ export interface UsuarioResumen {
   nombre: string
   email: string
   rol: string
+  activo: boolean
 }
 
 export interface CitaResponse {
