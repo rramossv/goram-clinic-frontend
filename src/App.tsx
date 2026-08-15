@@ -1,7 +1,12 @@
 import { Routes, Route } from 'react-router-dom'
 import { LoginPage } from '@/pages/LoginPage'
 import { DashboardPage } from '@/pages/DashboardPage'
-import { ProximamentePage } from '@/pages/ProximamentePage'
+import { PacientesPage } from '@/pages/PacientesPage'
+import { AgendaPage } from '@/pages/AgendaPage'
+import { ConsultasPage } from '@/pages/ConsultasPage'
+import { FacturasPage } from '@/pages/FacturasPage'
+import { PersonalPage } from '@/pages/PersonalPage'
+import { SuscripcionPage } from '@/pages/SuscripcionPage'
 import { ProtectedRoute } from '@/lib/protected-route'
 import { AppLayout } from '@/components/app-layout'
 
@@ -12,12 +17,12 @@ function App() {
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           <Route path="/" element={<DashboardPage />} />
-          <Route path="/pacientes" element={<ProximamentePage titulo="Pacientes" />} />
-          <Route path="/agenda" element={<ProximamentePage titulo="Agenda" />} />
-          <Route path="/consultas" element={<ProximamentePage titulo="Consultas" />} />
-          <Route path="/facturas" element={<ProximamentePage titulo="Facturacion" />} />
-          <Route path="/personal" element={<ProximamentePage titulo="Personal" />} />
-          <Route path="/suscripcion" element={<ProximamentePage titulo="Suscripcion" />} />
+          <Route path="/pacientes" element={<PacientesPage />} />
+          <Route path="/agenda" element={<AgendaPage />} />
+          <Route path="/consultas" element={<ConsultasPage />} />
+          <Route path="/facturas" element={<FacturasPage />} />
+          <Route path="/personal" element={<PersonalPage />} />
+          <Route path="/suscripcion" element={<SuscripcionPage />} />
         </Route>
       </Route>
     </Routes>
