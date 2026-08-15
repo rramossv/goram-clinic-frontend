@@ -1,13 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { apiFetch, ApiRequestError } from '@/lib/api'
 import type { FacturaResponse } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { FacturaFormDialog } from '@/components/facturas/factura-form-dialog'
 import { AnularFacturaDialog } from '@/components/facturas/anular-factura-dialog'
+import { PaginationControls } from '@/components/pagination-controls'
 import { toast } from 'sonner'
-import { Plus } from 'lucide-react'
+import { Plus, Search } from 'lucide-react'
 
 const VARIANTE_ESTADO: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
   PENDIENTE: 'outline',
@@ -16,12 +18,16 @@ const VARIANTE_ESTADO: Record<string, 'default' | 'secondary' | 'destructive' | 
   ANULADA: 'secondary',
 }
 
+const TAMANO_PAGINA = 10
+
 export function FacturasPage() {
   const [facturas, setFacturas] = useState<FacturaResponse[]>([])
   const [cargando, setCargando] = useState(true)
   const [dialogAbierto, setDialogAbierto] = useState(false)
   const [facturaAnular, setFacturaAnular] = useState<FacturaResponse | null>(null)
   const [emitiendo, setEmitiendo] = useState<string | null>(null)
+  const [busqueda, setBusqueda] = useState('')
+  const [pagina, setPagina] = useState(1)
 
   async function cargar() {
     setCargando(true)
@@ -56,6 +62,21 @@ export function FacturasPage() {
     }
   }
 
+  const filtradas = useMemo(() => {
+    const termino = busqueda.trim().toLowerCase()
+    if (!termino) return facturas
+    return facturas.filter((f) => f.pacienteNombre.toLowerCase().includes(termino))
+  }, [facturas, busqueda])
+
+  const totalPaginas = Math.max(1, Math.ceil(filtradas.length / TAMANO_PAGINA))
+  const paginaActual = Math.min(pagina, totalPaginas)
+  const visibles = filtradas.slice((paginaActual - 1) * TAMANO_PAGINA, paginaActual * TAMANO_PAGINA)
+
+  function alBuscar(valor: string) {
+    setBusqueda(valor)
+    setPagina(1)
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
@@ -64,6 +85,16 @@ export function FacturasPage() {
           <Plus />
           Nueva factura
         </Button>
+      </div>
+
+      <div className="relative max-w-sm">
+        <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          placeholder="Buscar por paciente..."
+          className="pl-9"
+          value={busqueda}
+          onChange={(e) => alBuscar(e.target.value)}
+        />
       </div>
 
       <div className="rounded-md border">
@@ -79,14 +110,14 @@ export function FacturasPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {!cargando && facturas.length === 0 && (
+            {!cargando && visibles.length === 0 && (
               <TableRow>
                 <TableCell colSpan={6} className="text-center text-muted-foreground">
-                  Todavia no hay facturas.
+                  {busqueda ? 'Ninguna factura coincide con la busqueda.' : 'Todavia no hay facturas.'}
                 </TableCell>
               </TableRow>
             )}
-            {facturas.map((factura) => (
+            {visibles.map((factura) => (
               <TableRow key={factura.id}>
                 <TableCell>{new Date(factura.creadoEn).toLocaleDateString('es-SV')}</TableCell>
                 <TableCell className="font-medium">{factura.pacienteNombre}</TableCell>
@@ -117,6 +148,14 @@ export function FacturasPage() {
           </TableBody>
         </Table>
       </div>
+
+      <PaginationControls
+        pagina={paginaActual}
+        totalPaginas={totalPaginas}
+        totalItems={filtradas.length}
+        tamanoPagina={TAMANO_PAGINA}
+        onCambiarPagina={setPagina}
+      />
 
       <FacturaFormDialog
         open={dialogAbierto}
