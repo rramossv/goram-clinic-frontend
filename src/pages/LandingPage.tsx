@@ -85,13 +85,21 @@ export function LandingPage() {
       </header>
 
       <main className="flex-1">
-        <section className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-20 lg:grid-cols-2 lg:py-28">
-          <div className="flex flex-col items-start gap-6 text-left">
-            <Badge variant="outline">Para clinicas y consultorios en El Salvador</Badge>
-            <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
+        <section className="relative isolate overflow-hidden">
+          <img
+            src="/images/landing/hero-doctor-paciente.jpg"
+            alt="Doctora conversando con su paciente en el consultorio"
+            className="absolute inset-0 -z-10 h-full w-full object-cover grayscale"
+          />
+          <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black via-black/75 to-black/50" />
+          <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 px-4 py-32 text-center sm:py-40">
+            <Badge variant="outline" className="border-white/30 text-white">
+              Para clinicas y consultorios en El Salvador
+            </Badge>
+            <h1 className="text-4xl font-semibold tracking-tight text-white sm:text-6xl">
               El dia a dia de tu clinica, en un solo lugar
             </h1>
-            <p className="max-w-xl text-lg text-muted-foreground">
+            <p className="max-w-xl text-lg text-white/80">
               Agenda, expedientes, consultas, facturacion y reportes. GoRam Clinic reemplaza la libreta, el
               Excel y el WhatsApp con un sistema hecho para como trabaja tu clinica de verdad.
             </p>
@@ -99,62 +107,47 @@ export function LandingPage() {
               <Button size="lg" asChild>
                 <Link to="/registro">Registra tu clinica</Link>
               </Button>
-              <Button size="lg" variant="outline" asChild>
+              <Button size="lg" variant="outline" className="border-white/40 bg-transparent text-white hover:bg-white/10 hover:text-white" asChild>
                 <Link to="/login">Ya tengo cuenta</Link>
               </Button>
             </div>
           </div>
-          <div className="relative">
-            <div className="absolute -inset-4 -z-10 rounded-3xl bg-primary/5" />
-            <img
-              src="/images/landing/hero-doctor-paciente.jpg"
-              alt="Doctora conversando con su paciente en el consultorio"
-              className="aspect-4/3 w-full rounded-2xl object-cover shadow-xl"
-              width={1200}
-              height={782}
-            />
-          </div>
         </section>
 
-        <section className="border-t py-12">
-          <div className="mx-auto grid max-w-6xl gap-4 px-4 sm:grid-cols-3">
-            <figure className="group relative overflow-hidden rounded-xl">
-              <img
-                src="/images/landing/cuidado-paciente.jpg"
-                alt="Doctora atendiendo a un paciente mayor"
-                className="aspect-4/3 w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                width={700}
-                height={463}
-              />
-              <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-4 text-sm font-medium text-white">
-                Cuidado cercano de tus pacientes
-              </figcaption>
-            </figure>
-            <figure className="group relative overflow-hidden rounded-xl">
-              <img
-                src="/images/landing/doctor-tecnologia.jpg"
-                alt="Doctor revisando su telefono con GoRam Clinic"
-                className="aspect-4/3 w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                width={700}
-                height={467}
-              />
-              <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-4 text-sm font-medium text-white">
-                Tu clinica desde el celular
-              </figcaption>
-            </figure>
-            <figure className="group relative overflow-hidden rounded-xl">
-              <img
-                src="/images/landing/equipo-datos.jpg"
-                alt="Equipo medico revisando reportes en pantalla"
-                className="aspect-4/3 w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                width={700}
-                height={467}
-              />
-              <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-4 text-sm font-medium text-white">
-                Datos claros para decidir mejor
-              </figcaption>
-            </figure>
-          </div>
+        <section className="grid grid-cols-1 sm:grid-cols-3">
+          <figure className="group relative aspect-4/3 overflow-hidden sm:aspect-auto">
+            <img
+              src="/images/landing/cuidado-paciente.jpg"
+              alt="Doctora atendiendo a un paciente mayor"
+              className="h-full w-full object-cover grayscale transition-all duration-500 group-hover:grayscale-0"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+            <figcaption className="absolute inset-x-0 bottom-0 p-5 text-xs font-medium tracking-wide text-white/90 uppercase">
+              Cuidado cercano de tus pacientes
+            </figcaption>
+          </figure>
+          <figure className="group relative aspect-4/3 overflow-hidden sm:aspect-auto">
+            <img
+              src="/images/landing/doctor-tecnologia.jpg"
+              alt="Doctor revisando su telefono con GoRam Clinic"
+              className="h-full w-full object-cover grayscale transition-all duration-500 group-hover:grayscale-0"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+            <figcaption className="absolute inset-x-0 bottom-0 p-5 text-xs font-medium tracking-wide text-white/90 uppercase">
+              Tu clinica desde el celular
+            </figcaption>
+          </figure>
+          <figure className="group relative aspect-4/3 overflow-hidden sm:aspect-auto">
+            <img
+              src="/images/landing/equipo-datos.jpg"
+              alt="Equipo medico revisando reportes en pantalla"
+              className="h-full w-full object-cover grayscale transition-all duration-500 group-hover:grayscale-0"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+            <figcaption className="absolute inset-x-0 bottom-0 p-5 text-xs font-medium tracking-wide text-white/90 uppercase">
+              Datos claros para decidir mejor
+            </figcaption>
+          </figure>
         </section>
 
         <section className="border-t bg-muted/30 py-20">
