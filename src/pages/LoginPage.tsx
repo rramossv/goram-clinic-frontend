@@ -14,7 +14,6 @@ export function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [enviando, setEnviando] = useState(false)
-  const [mostrarAyudaPassword, setMostrarAyudaPassword] = useState(false)
 
   if (sesion) {
     return <Navigate to="/" replace />
@@ -68,19 +67,12 @@ export function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-              <button
-                type="button"
-                onClick={() => setMostrarAyudaPassword((v) => !v)}
+              <Link
+                to="/olvide-password"
                 className="self-start text-xs text-muted-foreground underline underline-offset-4"
               >
                 Olvidaste tu contrasena?
-              </button>
-              {mostrarAyudaPassword && (
-                <p className="text-xs text-muted-foreground">
-                  El administrador de tu clinica puede restablecerla desde la seccion Personal. Si vos sos
-                  el administrador y perdiste el acceso, escribinos a soporte para verificar tu identidad.
-                </p>
-              )}
+              </Link>
             </div>
             {error && <p className="text-sm text-destructive">{error}</p>}
             <Button type="submit" disabled={enviando} className="mt-2">

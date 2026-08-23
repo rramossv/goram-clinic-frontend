@@ -1,6 +1,8 @@
 import { Routes, Route } from 'react-router-dom'
 import { LoginPage } from '@/pages/LoginPage'
 import { RegistroPage } from '@/pages/RegistroPage'
+import { OlvidePasswordPage } from '@/pages/OlvidePasswordPage'
+import { RestablecerPasswordPage } from '@/pages/RestablecerPasswordPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { PacientesPage } from '@/pages/PacientesPage'
 import { PacienteDetailPage } from '@/pages/PacienteDetailPage'
@@ -19,6 +21,8 @@ function App() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/registro" element={<RegistroPage />} />
+      <Route path="/olvide-password" element={<OlvidePasswordPage />} />
+      <Route path="/restablecer-password" element={<RestablecerPasswordPage />} />
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           <Route path="/" element={<DashboardPage />} />
