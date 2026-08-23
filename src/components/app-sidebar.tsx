@@ -1,4 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom'
+import { useTheme } from 'next-themes'
 import {
   Sidebar,
   SidebarContent,
@@ -30,6 +31,8 @@ import {
   BarChart3,
   LogOut,
   User,
+  Sun,
+  Moon,
 } from 'lucide-react'
 
 const NAV_ITEMS = [
@@ -55,6 +58,8 @@ function iniciales(nombre: string) {
 export function AppSidebar() {
   const { sesion, logout } = useAuth()
   const navigate = useNavigate()
+  const { resolvedTheme, setTheme } = useTheme()
+  const esOscuro = resolvedTheme === 'dark'
 
   return (
     <Sidebar collapsible="icon">
@@ -108,6 +113,10 @@ export function AppSidebar() {
             <DropdownMenuItem onSelect={() => navigate('/perfil')}>
               <User />
               Mi perfil
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => setTheme(esOscuro ? 'light' : 'dark')}>
+              {esOscuro ? <Sun /> : <Moon />}
+              {esOscuro ? 'Modo claro' : 'Modo oscuro'}
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={logout}>
               <LogOut />

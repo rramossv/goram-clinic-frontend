@@ -1,18 +1,38 @@
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
+import { useScrollShadows } from "@/hooks/use-scroll-shadows"
 
+// El overflow-x-auto de abajo YA permite hacer scroll horizontal en tablas
+// angostas (celular), pero sin ninguna pista visual el usuario nunca se
+// entera de que hay mas columnas -- por eso el degradado a los costados,
+// que solo aparece cuando de verdad hay algo mas que ver hacia ese lado.
 function Table({ className, ...props }: React.ComponentProps<"table">) {
+  const containerRef = React.useRef<HTMLDivElement>(null)
+  const tableRef = React.useRef<HTMLTableElement>(null)
+  const { puedeScrollIzq, puedeScrollDer, alHacerScroll } = useScrollShadows(containerRef, tableRef)
+
   return (
-    <div
-      data-slot="table-container"
-      className="relative w-full overflow-x-auto"
-    >
-      <table
-        data-slot="table"
-        className={cn("w-full caption-bottom text-sm", className)}
-        {...props}
-      />
+    <div className="relative">
+      <div
+        ref={containerRef}
+        onScroll={alHacerScroll}
+        data-slot="table-container"
+        className="w-full overflow-x-auto"
+      >
+        <table
+          ref={tableRef}
+          data-slot="table"
+          className={cn("w-full caption-bottom text-sm", className)}
+          {...props}
+        />
+      </div>
+      {puedeScrollIzq && (
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-background to-transparent" />
+      )}
+      {puedeScrollDer && (
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-background to-transparent" />
+      )}
     </div>
   )
 }

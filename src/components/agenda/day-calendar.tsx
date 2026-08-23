@@ -1,4 +1,6 @@
+import { useRef } from 'react'
 import type { CitaResponse, UsuarioResumen } from '@/types'
+import { useScrollShadows } from '@/hooks/use-scroll-shadows'
 
 const HORA_INICIO = 7
 const HORA_FIN = 19
@@ -37,6 +39,10 @@ interface DayCalendarProps {
 }
 
 export function DayCalendar({ fecha, doctores, citas, onCeldaVacia, onCita }: DayCalendarProps) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const gridRef = useRef<HTMLDivElement>(null)
+  const { puedeScrollIzq, puedeScrollDer, alHacerScroll } = useScrollShadows(containerRef, gridRef)
+
   if (doctores.length === 0) {
     return (
       <div className="rounded-md border p-8 text-center text-muted-foreground">
@@ -65,8 +71,17 @@ export function DayCalendar({ fecha, doctores, citas, onCeldaVacia, onCita }: Da
   const filaAhora = esHoy ? 2 + (minutosAhora - HORA_INICIO * 60) / SLOT_MINUTOS : null
 
   return (
-    <div className="relative max-h-[calc(100vh-14rem)] overflow-auto rounded-md border">
-      <div className="grid" style={{ gridTemplateColumns: columnasTemplate, gridTemplateRows: filasTemplate }}>
+    <div className="relative">
+      <div
+        ref={containerRef}
+        onScroll={alHacerScroll}
+        className="max-h-[calc(100vh-14rem)] overflow-auto rounded-md border"
+      >
+      <div
+        ref={gridRef}
+        className="grid"
+        style={{ gridTemplateColumns: columnasTemplate, gridTemplateRows: filasTemplate }}
+      >
         <div className="sticky top-0 left-0 z-30 border-b bg-background" style={{ gridColumn: 1, gridRow: 1 }} />
         {doctores.map((doctor, indice) => (
           <div
@@ -146,6 +161,13 @@ export function DayCalendar({ fecha, doctores, citas, onCeldaVacia, onCita }: Da
           </div>
         )}
       </div>
+      </div>
+      {puedeScrollIzq && (
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-background to-transparent" />
+      )}
+      {puedeScrollDer && (
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-background to-transparent" />
+      )}
     </div>
   )
 }
