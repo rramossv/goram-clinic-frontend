@@ -90,12 +90,7 @@ export function LandingPage() {
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <div className="flex items-center gap-2">
-            <div
-              className={cn(
-                'flex size-8 shrink-0 items-center justify-center rounded-md font-semibold transition-colors',
-                conScroll ? 'bg-primary text-primary-foreground' : 'bg-white text-black',
-              )}
-            >
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-blue-600 font-semibold text-white">
               G
             </div>
             <span className={cn('font-semibold transition-colors', conScroll ? 'text-foreground' : 'text-white')}>
@@ -110,10 +105,7 @@ export function LandingPage() {
             >
               <Link to="/login">Iniciar sesion</Link>
             </Button>
-            <Button
-              className={conScroll ? undefined : 'bg-white text-black hover:bg-white/90'}
-              asChild
-            >
+            <Button className="bg-blue-600 text-white hover:bg-blue-700" asChild>
               <Link to="/registro">Registra tu clinica</Link>
             </Button>
           </nav>
@@ -125,23 +117,23 @@ export function LandingPage() {
           <img
             src="/images/landing/hero-doctor-paciente.jpg"
             alt="Doctora conversando con su paciente en el consultorio"
-            className="absolute inset-0 -z-10 h-full w-full object-cover grayscale"
+            className="absolute inset-0 -z-10 h-full w-full object-cover"
           />
-          <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black via-black/55 to-black/20" />
+          <div className="absolute inset-0 -z-10 bg-gradient-to-t from-blue-950/90 via-blue-950/50 to-blue-950/10" />
           <div className="mx-auto w-full max-w-6xl px-4 pt-40 pb-20">
             <div className="max-w-2xl">
-              <Badge variant="outline" className="border-white/30 text-white">
+              <Badge variant="outline" className="border-blue-300/50 bg-blue-500/10 text-blue-50">
                 Para clinicas y consultorios en El Salvador
               </Badge>
               <h1 className="mt-6 text-5xl leading-[1.05] font-semibold tracking-tight text-white sm:text-7xl">
                 El dia a dia de tu clinica, en un solo lugar
               </h1>
-              <p className="mt-6 max-w-lg text-lg text-white/75">
+              <p className="mt-6 max-w-lg text-lg text-white/80">
                 Agenda, expedientes, consultas, facturacion y reportes. GoRam Clinic reemplaza la libreta, el
                 Excel y el WhatsApp con un sistema hecho para como trabaja tu clinica de verdad.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Button size="lg" className="bg-white text-black hover:bg-white/90" asChild>
+                <Button size="lg" className="bg-blue-500 text-white hover:bg-blue-400" asChild>
                   <Link to="/registro">Registra tu clinica</Link>
                 </Button>
                 <Button
@@ -162,7 +154,7 @@ export function LandingPage() {
             <img
               src="/images/landing/cuidado-paciente.jpg"
               alt="Doctora atendiendo a un paciente mayor"
-              className="h-full w-full object-cover grayscale transition-all duration-500 group-hover:grayscale-0"
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
             <figcaption className="absolute inset-x-0 bottom-0 p-5 text-xs font-medium tracking-wide text-white/90 uppercase">
@@ -173,7 +165,7 @@ export function LandingPage() {
             <img
               src="/images/landing/doctor-tecnologia.jpg"
               alt="Doctor revisando su telefono con GoRam Clinic"
-              className="h-full w-full object-cover grayscale transition-all duration-500 group-hover:grayscale-0"
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
             <figcaption className="absolute inset-x-0 bottom-0 p-5 text-xs font-medium tracking-wide text-white/90 uppercase">
@@ -184,7 +176,7 @@ export function LandingPage() {
             <img
               src="/images/landing/equipo-datos.jpg"
               alt="Equipo medico revisando reportes en pantalla"
-              className="h-full w-full object-cover grayscale transition-all duration-500 group-hover:grayscale-0"
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
             <figcaption className="absolute inset-x-0 bottom-0 p-5 text-xs font-medium tracking-wide text-white/90 uppercase">
@@ -213,7 +205,7 @@ export function LandingPage() {
                     <span className="pt-0.5 font-mono text-sm text-muted-foreground/50">
                       {String(indice + 1).padStart(2, '0')}
                     </span>
-                    <item.icon className="mt-0.5 size-5 shrink-0 text-primary" />
+                    <item.icon className="mt-0.5 size-5 shrink-0 text-blue-600" />
                     <div>
                       <h3 className="font-medium">{item.titulo}</h3>
                       <p className="mt-1 text-sm text-muted-foreground">{item.descripcion}</p>
@@ -225,12 +217,12 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section className="border-t bg-primary py-16 text-primary-foreground">
+        <section className="border-t bg-blue-600 py-16 text-white">
           <div className="mx-auto grid max-w-6xl gap-10 px-4 sm:grid-cols-3">
             {ESTADISTICAS.map((stat) => (
               <div key={stat.descripcion}>
                 <p className="text-4xl font-semibold tracking-tight sm:text-5xl">{stat.valor}</p>
-                <p className="mt-3 text-sm text-primary-foreground/70">{stat.descripcion}</p>
+                <p className="mt-3 text-sm text-white/80">{stat.descripcion}</p>
               </div>
             ))}
           </div>
@@ -253,11 +245,11 @@ export function LandingPage() {
                   <Card
                     key={plan.id}
                     className={cn(
-                      indice === 1 && 'relative z-10 border-primary shadow-xl sm:scale-105',
+                      indice === 1 && 'relative z-10 border-blue-600 shadow-xl sm:scale-105',
                     )}
                   >
                     <CardHeader>
-                      {indice === 1 && <Badge className="w-fit">Mas elegido</Badge>}
+                      {indice === 1 && <Badge className="w-fit bg-blue-600 text-white">Mas elegido</Badge>}
                       <CardTitle className="text-xl">{plan.nombre}</CardTitle>
                       <p className="text-3xl font-semibold">
                         ${plan.precioMensual.toFixed(2)}
@@ -267,22 +259,22 @@ export function LandingPage() {
                     <CardContent className="flex flex-col gap-3">
                       <ul className="flex flex-col gap-2 text-sm">
                         <li className="flex items-center gap-2">
-                          <Check className="size-4 shrink-0 text-primary" />
+                          <Check className="size-4 shrink-0 text-blue-600" />
                           {plan.limiteUsuarios ? `Hasta ${plan.limiteUsuarios} usuarios` : 'Usuarios ilimitados'}
                         </li>
                         <li className="flex items-center gap-2">
-                          <Check className="size-4 shrink-0 text-primary" />
+                          <Check className="size-4 shrink-0 text-blue-600" />
                           {plan.limitePacientes
                             ? `Hasta ${plan.limitePacientes} pacientes`
                             : 'Pacientes ilimitados'}
                         </li>
                         <li className="flex items-center gap-2">
-                          <Check className="size-4 shrink-0 text-primary" />
+                          <Check className="size-4 shrink-0 text-blue-600" />
                           Agenda, consultas y reportes
                         </li>
                         {plan.incluyeFacturacionElectronica ? (
                           <li className="flex items-center gap-2">
-                            <Check className="size-4 shrink-0 text-primary" />
+                            <Check className="size-4 shrink-0 text-blue-600" />
                             Facturacion electronica (DTE)
                           </li>
                         ) : (
@@ -292,7 +284,7 @@ export function LandingPage() {
                           </li>
                         )}
                       </ul>
-                      <Button asChild className="mt-2">
+                      <Button asChild className="mt-2 bg-blue-600 text-white hover:bg-blue-700">
                         <Link to="/registro">Elegir {plan.nombre}</Link>
                       </Button>
                     </CardContent>
@@ -311,7 +303,7 @@ export function LandingPage() {
             <p className="text-muted-foreground">
               El registro toma menos de dos minutos. Vos elegis el plan, nosotros nos encargamos del resto.
             </p>
-            <Button size="lg" asChild>
+            <Button size="lg" className="bg-blue-600 text-white hover:bg-blue-700" asChild>
               <Link to="/registro">Registra tu clinica</Link>
             </Button>
           </div>
@@ -321,7 +313,7 @@ export function LandingPage() {
       <footer className="border-t py-8">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-4 text-sm text-muted-foreground sm:flex-row">
           <div className="flex items-center gap-2">
-            <div className="flex size-6 shrink-0 items-center justify-center rounded bg-primary text-xs font-semibold text-primary-foreground">
+            <div className="flex size-6 shrink-0 items-center justify-center rounded bg-blue-600 text-xs font-semibold text-white">
               G
             </div>
             <span>GoRam Clinic, un producto de GoRam</span>
