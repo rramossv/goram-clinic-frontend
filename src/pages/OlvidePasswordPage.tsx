@@ -14,7 +14,7 @@ export function OlvidePasswordPage() {
   const [enviando, setEnviando] = useState(false)
 
   if (sesion) {
-    return <Navigate to="/" replace />
+    return <Navigate to="/panel" replace />
   }
 
   async function handleSubmit(event: FormEvent) {

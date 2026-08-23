@@ -1,8 +1,10 @@
 import { Routes, Route } from 'react-router-dom'
+import { LandingPage } from '@/pages/LandingPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { RegistroPage } from '@/pages/RegistroPage'
 import { OlvidePasswordPage } from '@/pages/OlvidePasswordPage'
 import { RestablecerPasswordPage } from '@/pages/RestablecerPasswordPage'
+import { NotFoundPage } from '@/pages/NotFoundPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { PacientesPage } from '@/pages/PacientesPage'
 import { PacienteDetailPage } from '@/pages/PacienteDetailPage'
@@ -19,13 +21,14 @@ import { AppLayout } from '@/components/app-layout'
 function App() {
   return (
     <Routes>
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/registro" element={<RegistroPage />} />
       <Route path="/olvide-password" element={<OlvidePasswordPage />} />
       <Route path="/restablecer-password" element={<RestablecerPasswordPage />} />
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
-          <Route path="/" element={<DashboardPage />} />
+          <Route path="/panel" element={<DashboardPage />} />
           <Route path="/pacientes" element={<PacientesPage />} />
           <Route path="/pacientes/:id" element={<PacienteDetailPage />} />
           <Route path="/agenda" element={<AgendaPage />} />
@@ -37,6 +40,7 @@ function App() {
           <Route path="/perfil" element={<PerfilPage />} />
         </Route>
       </Route>
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   )
 }

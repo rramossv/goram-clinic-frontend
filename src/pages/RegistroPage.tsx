@@ -49,7 +49,7 @@ export function RegistroPage() {
   }, [])
 
   if (sesion) {
-    return <Navigate to="/" replace />
+    return <Navigate to="/panel" replace />
   }
 
   async function handleSubmit(event: FormEvent) {
@@ -73,7 +73,7 @@ export function RegistroPage() {
         },
       })
       await login(emailAdmin, password)
-      navigate('/', { replace: true })
+      navigate('/panel', { replace: true })
     } catch (err) {
       if (err instanceof ApiRequestError) {
         setError(err.body?.message ?? 'No se pudo registrar la clinica')

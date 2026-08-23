@@ -36,7 +36,7 @@ import {
 } from 'lucide-react'
 
 const NAV_ITEMS = [
-  { to: '/', label: 'Panel', icon: LayoutDashboard, end: true },
+  { to: '/panel', label: 'Panel', icon: LayoutDashboard, end: true },
   { to: '/pacientes', label: 'Pacientes', icon: Users, end: false },
   { to: '/agenda', label: 'Agenda', icon: CalendarDays, end: false },
   { to: '/consultas', label: 'Consultas', icon: Stethoscope, end: false },
