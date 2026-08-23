@@ -78,7 +78,7 @@ export function LandingPage() {
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <div className="flex items-center gap-2">
-            <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-[#b5502e] font-semibold text-white">
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-[#0ea5e9] font-semibold text-white">
               G
             </div>
             <span className={cn('font-semibold transition-colors', conScroll ? 'text-[#1c1a18]' : 'text-white')}>
@@ -93,7 +93,7 @@ export function LandingPage() {
             >
               <Link to="/login">Iniciar sesion</Link>
             </Button>
-            <Button className="bg-[#b5502e] text-white hover:bg-[#9c4224]" asChild>
+            <Button className="bg-[#0ea5e9] text-white hover:bg-[#0284c7]" asChild>
               <Link to="/registro">Registra tu clinica</Link>
             </Button>
           </nav>
@@ -109,7 +109,7 @@ export function LandingPage() {
           />
           <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#161311]/95 via-[#161311]/45 to-[#161311]/10" />
           <div className="mx-auto w-full max-w-6xl px-4 pt-40 pb-24">
-            <p className="text-sm font-medium tracking-[0.2em] text-[#e8a688] uppercase">
+            <p className="text-sm font-medium tracking-[0.2em] text-[#7dd3fc] uppercase">
               Para clinicas y consultorios en El Salvador
             </p>
             <h1
@@ -118,14 +118,14 @@ export function LandingPage() {
             >
               El dia a dia de
               <br />
-              tu clinica<span className="text-[#e8a688]">.</span>
+              tu clinica<span className="text-[#7dd3fc]">.</span>
             </h1>
             <p className="mt-7 max-w-md text-lg text-white/70">
               Agenda, expedientes, consultas, facturacion y reportes. GoRam Clinic reemplaza la libreta, el
               Excel y el WhatsApp con un sistema hecho para como trabaja tu clinica de verdad.
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <Button size="lg" className="bg-[#b5502e] text-white hover:bg-[#9c4224]" asChild>
+              <Button size="lg" className="bg-[#0ea5e9] text-white hover:bg-[#0284c7]" asChild>
                 <Link to="/registro">Registra tu clinica</Link>
               </Button>
               <Button
@@ -140,47 +140,6 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section
-          className="relative grid grid-cols-1 gap-1 bg-[#faf8f6] pt-1 sm:grid-cols-12"
-          style={{ clipPath: 'polygon(0 3.5vw, 100% 0, 100% 100%, 0 100%)' }}
-        >
-          <figure className="group relative col-span-1 aspect-4/3 overflow-hidden sm:col-span-7 sm:aspect-auto">
-            <img
-              src="/images/landing/cuidado-paciente.jpg"
-              alt="Doctora atendiendo a un paciente mayor"
-              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent" />
-            <figcaption className="absolute inset-x-0 bottom-0 p-6 text-sm font-medium text-white">
-              Cuidado cercano de tus pacientes
-            </figcaption>
-          </figure>
-          <div className="col-span-1 grid grid-rows-2 gap-1 sm:col-span-5">
-            <figure className="group relative aspect-4/3 overflow-hidden sm:aspect-auto">
-              <img
-                src="/images/landing/doctor-tecnologia.jpg"
-                alt="Doctor revisando su telefono con GoRam Clinic"
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent" />
-              <figcaption className="absolute inset-x-0 bottom-0 p-5 text-sm font-medium text-white">
-                Tu clinica desde el celular
-              </figcaption>
-            </figure>
-            <figure className="group relative aspect-4/3 overflow-hidden sm:aspect-auto">
-              <img
-                src="/images/landing/equipo-datos.jpg"
-                alt="Equipo medico revisando reportes en pantalla"
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent" />
-              <figcaption className="absolute inset-x-0 bottom-0 p-5 text-sm font-medium text-white">
-                Datos claros para decidir mejor
-              </figcaption>
-            </figure>
-          </div>
-        </section>
-
         <section className="py-24 sm:py-32">
           <div className="mx-auto max-w-6xl px-4">
             <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)]">
@@ -191,6 +150,13 @@ export function LandingPage() {
                 <p className="mt-4 max-w-xs text-[#5c564f]">
                   Sin instalar nada. Entras desde el navegador, en la computadora de recepcion o tu celular.
                 </p>
+                <div className="mt-10 aspect-3/4 max-w-xs overflow-hidden rounded-2xl">
+                  <img
+                    src="/images/landing/cuidado-paciente.jpg"
+                    alt="Doctora atendiendo a un paciente mayor"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
               </div>
               <div className="flex flex-col">
                 {CARACTERISTICAS.map((item, indice) => (
@@ -198,7 +164,7 @@ export function LandingPage() {
                     key={item.titulo}
                     className="flex items-baseline gap-6 border-t border-black/10 py-7 first:border-t-0 first:pt-0"
                   >
-                    <span style={serif} className="w-8 shrink-0 text-2xl text-[#b5502e]/50">
+                    <span style={serif} className="w-8 shrink-0 text-2xl text-[#0ea5e9]/50">
                       {String(indice + 1).padStart(2, '0')}
                     </span>
                     <div>
@@ -212,16 +178,23 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section className="bg-[#161311] py-20 text-white">
-          <div className="mx-auto grid max-w-6xl gap-10 px-4 sm:grid-cols-3">
+        <section className="grid grid-cols-1 bg-[#161311] text-white lg:grid-cols-2">
+          <div className="flex flex-col justify-center gap-10 px-4 py-20 sm:px-8 lg:py-0 lg:pl-16">
             {ESTADISTICAS.map((stat) => (
-              <div key={stat.descripcion}>
-                <p style={serif} className="text-5xl font-normal text-[#e8a688] sm:text-6xl">
+              <div key={stat.descripcion} className="flex items-baseline gap-6">
+                <p style={serif} className="w-28 shrink-0 text-5xl font-normal text-[#7dd3fc]">
                   {stat.valor}
                 </p>
-                <p className="mt-3 text-sm text-white/60">{stat.descripcion}</p>
+                <p className="text-sm text-white/60">{stat.descripcion}</p>
               </div>
             ))}
+          </div>
+          <div className="h-64 lg:h-auto">
+            <img
+              src="/images/landing/doctor-tecnologia.jpg"
+              alt="Doctor revisando su telefono con GoRam Clinic"
+              className="h-full w-full object-cover"
+            />
           </div>
         </section>
 
@@ -241,11 +214,11 @@ export function LandingPage() {
                     key={plan.id}
                     className={cn(
                       'border-black/10 bg-white',
-                      indice === 1 && 'relative z-10 border-[#b5502e] shadow-xl sm:scale-105',
+                      indice === 1 && 'relative z-10 border-[#0ea5e9] shadow-xl sm:scale-105',
                     )}
                   >
                     <CardHeader>
-                      {indice === 1 && <Badge className="w-fit bg-[#b5502e] text-white">Mas elegido</Badge>}
+                      {indice === 1 && <Badge className="w-fit bg-[#0ea5e9] text-white">Mas elegido</Badge>}
                       <CardTitle className="text-xl text-[#1c1a18]">{plan.nombre}</CardTitle>
                       <p style={serif} className="text-4xl font-normal text-[#1c1a18]">
                         ${plan.precioMensual.toFixed(2)}
@@ -255,22 +228,22 @@ export function LandingPage() {
                     <CardContent className="flex flex-col gap-3">
                       <ul className="flex flex-col gap-2 text-sm text-[#1c1a18]">
                         <li className="flex items-center gap-2">
-                          <Check className="size-4 shrink-0 text-[#b5502e]" />
+                          <Check className="size-4 shrink-0 text-[#0ea5e9]" />
                           {plan.limiteUsuarios ? `Hasta ${plan.limiteUsuarios} usuarios` : 'Usuarios ilimitados'}
                         </li>
                         <li className="flex items-center gap-2">
-                          <Check className="size-4 shrink-0 text-[#b5502e]" />
+                          <Check className="size-4 shrink-0 text-[#0ea5e9]" />
                           {plan.limitePacientes
                             ? `Hasta ${plan.limitePacientes} pacientes`
                             : 'Pacientes ilimitados'}
                         </li>
                         <li className="flex items-center gap-2">
-                          <Check className="size-4 shrink-0 text-[#b5502e]" />
+                          <Check className="size-4 shrink-0 text-[#0ea5e9]" />
                           Agenda, consultas y reportes
                         </li>
                         {plan.incluyeFacturacionElectronica ? (
                           <li className="flex items-center gap-2">
-                            <Check className="size-4 shrink-0 text-[#b5502e]" />
+                            <Check className="size-4 shrink-0 text-[#0ea5e9]" />
                             Facturacion electronica (DTE)
                           </li>
                         ) : (
@@ -280,7 +253,7 @@ export function LandingPage() {
                           </li>
                         )}
                       </ul>
-                      <Button asChild className="mt-2 bg-[#b5502e] text-white hover:bg-[#9c4224]">
+                      <Button asChild className="mt-2 bg-[#0ea5e9] text-white hover:bg-[#0284c7]">
                         <Link to="/registro">Elegir {plan.nombre}</Link>
                       </Button>
                     </CardContent>
@@ -293,13 +266,20 @@ export function LandingPage() {
 
         <section className="border-t border-black/10 py-24">
           <div className="mx-auto flex max-w-3xl flex-col items-center gap-4 px-4 text-center">
+            <div className="mb-6 aspect-16/9 w-full max-w-lg overflow-hidden rounded-2xl">
+              <img
+                src="/images/landing/equipo-datos.jpg"
+                alt="Equipo medico revisando reportes en pantalla"
+                className="h-full w-full object-cover"
+              />
+            </div>
             <h2 style={serif} className="text-4xl font-normal text-[#1c1a18] sm:text-5xl">
               Empeza a usar GoRam Clinic hoy
             </h2>
             <p className="text-[#5c564f]">
               El registro toma menos de dos minutos. Vos elegis el plan, nosotros nos encargamos del resto.
             </p>
-            <Button size="lg" className="bg-[#b5502e] text-white hover:bg-[#9c4224]" asChild>
+            <Button size="lg" className="bg-[#0ea5e9] text-white hover:bg-[#0284c7]" asChild>
               <Link to="/registro">Registra tu clinica</Link>
             </Button>
           </div>
@@ -309,7 +289,7 @@ export function LandingPage() {
       <footer className="border-t border-black/10 py-8">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-4 text-sm text-[#5c564f] sm:flex-row">
           <div className="flex items-center gap-2">
-            <div className="flex size-6 shrink-0 items-center justify-center rounded bg-[#b5502e] text-xs font-semibold text-white">
+            <div className="flex size-6 shrink-0 items-center justify-center rounded bg-[#0ea5e9] text-xs font-semibold text-white">
               G
             </div>
             <span>GoRam Clinic, un producto de GoRam</span>
