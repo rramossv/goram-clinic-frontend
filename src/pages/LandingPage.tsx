@@ -2,52 +2,31 @@ import { useEffect, useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth-context'
 import { apiFetch } from '@/lib/api'
-import { cn } from '@/lib/utils'
 import type { PlanResponse } from '@/types'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Check } from 'lucide-react'
+import './LandingPage.css'
 
-const serif = { fontFamily: "'Source Serif 4', Georgia, serif" }
+const DESCRIPCIONES_PLAN: Record<string, string> = {
+  BASICO: 'Para consultorios que arrancan: pacientes, agenda y consultas en un solo lugar.',
+  PROFESIONAL: 'Todo lo del plan Basico, mas facturacion electronica DTE y reportes financieros.',
+  CLINICA: 'Para clinicas con varios doctores: usuarios ilimitados y soporte prioritario.',
+}
 
-const CARACTERISTICAS = [
-  {
-    titulo: 'Pacientes',
-    descripcion: 'Expediente completo por paciente: contacto, alergias, antecedentes e historial de citas y facturas.',
-  },
-  {
-    titulo: 'Agenda',
-    descripcion: 'Calendario semanal por doctor, sin choques de horario, con recordatorio automatico por correo.',
-  },
-  {
-    titulo: 'Consultas',
-    descripcion: 'Notas de la consulta, diagnostico y receta, todo asociado a la cita y al paciente.',
-  },
-  {
-    titulo: 'Facturacion',
-    descripcion: 'Factura simple o electronica segun tu plan, con calculo automatico de IVA.',
-  },
-  {
-    titulo: 'Reportes',
-    descripcion: 'Ingresos, pacientes nuevos y estado de citas de un vistazo, mes a mes.',
-  },
-  {
-    titulo: 'Personal',
-    descripcion: 'Doctores, recepcionistas y administradores, cada uno con su propio rol y permisos.',
-  },
-]
-
-const ESTADISTICAS = [
-  { valor: '6', descripcion: 'Modulos en un solo sistema, sin cambiar de pantalla' },
-  { valor: '2 min', descripcion: 'Para registrar tu clinica y empezar a agendar' },
-  { valor: '100%', descripcion: 'Pensado para clinicas y consultorios en El Salvador' },
-]
+const CARACTERISTICAS_PLAN: Record<string, string[]> = {
+  BASICO: ['Hasta 3 usuarios', 'Hasta 500 pacientes', 'Agenda y consultas', 'Factura interna'],
+  PROFESIONAL: ['Hasta 8 usuarios', 'Hasta 2,000 pacientes', 'Facturacion electronica DTE', 'Reportes financieros'],
+  CLINICA: ['Usuarios ilimitados', 'Pacientes ilimitados', 'Facturacion electronica DTE', 'Soporte prioritario'],
+}
 
 export function LandingPage() {
   const { sesion } = useAuth()
   const [planes, setPlanes] = useState<PlanResponse[]>([])
-  const [conScroll, setConScroll] = useState(false)
+
+  useEffect(() => {
+    document.documentElement.style.scrollBehavior = 'smooth'
+    return () => {
+      document.documentElement.style.scrollBehavior = ''
+    }
+  }, [])
 
   useEffect(() => {
     apiFetch<PlanResponse[]>('/api/v1/planes', { auth: false })
@@ -55,246 +34,348 @@ export function LandingPage() {
       .catch(() => setPlanes([]))
   }, [])
 
-  useEffect(() => {
-    function alHacerScroll() {
-      setConScroll(window.scrollY > 40)
-    }
-    alHacerScroll()
-    window.addEventListener('scroll', alHacerScroll, { passive: true })
-    return () => window.removeEventListener('scroll', alHacerScroll)
-  }, [])
-
   if (sesion) {
     return <Navigate to="/panel" replace />
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#faf8f6]">
-      <header
-        className={cn(
-          'fixed inset-x-0 top-0 z-40 transition-colors duration-300',
-          conScroll ? 'border-b border-black/10 bg-[#faf8f6]' : 'border-b border-transparent',
-        )}
-      >
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <div className="flex items-center gap-2">
-            <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-[#0ea5e9] font-semibold text-white">
-              G
-            </div>
-            <span className={cn('font-semibold transition-colors', conScroll ? 'text-[#1c1a18]' : 'text-white')}>
-              GoRam Clinic
-            </span>
-          </div>
-          <nav className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              className={conScroll ? 'text-[#1c1a18] hover:bg-black/5' : 'text-white hover:bg-white/10 hover:text-white'}
-              asChild
-            >
-              <Link to="/login">Iniciar sesion</Link>
-            </Button>
-            <Button className="bg-[#0ea5e9] text-white hover:bg-[#0284c7]" asChild>
-              <Link to="/registro">Registra tu clinica</Link>
-            </Button>
-          </nav>
+    <div className="gr-landing">
+      <header className="wrap nav">
+        <div className="brand">
+          <span className="mark">
+            <i></i>
+          </span>
+          GoRam Clinic
         </div>
+        <nav className="links">
+          <a href="#sistema">Sistema</a>
+          <a href="#experiencia">Experiencia</a>
+          <a href="#planes">Planes</a>
+          <Link to="/login">Iniciar sesion</Link>
+        </nav>
+        <Link to="/registro" className="navCta">
+          Comenzar
+        </Link>
       </header>
 
-      <main className="flex-1">
-        <section className="relative isolate flex min-h-[92vh] items-end overflow-hidden">
-          <img
-            src="/images/landing/hero-doctor-paciente.jpg"
-            alt="Doctora conversando con su paciente en el consultorio"
-            className="absolute inset-0 -z-10 h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#161311]/95 via-[#161311]/45 to-[#161311]/10" />
-          <div className="mx-auto w-full max-w-6xl px-4 pt-40 pb-24">
-            <p className="text-sm font-medium tracking-[0.2em] text-[#7dd3fc] uppercase">
-              Para clinicas y consultorios en El Salvador
-            </p>
-            <h1
-              style={serif}
-              className="mt-5 max-w-3xl text-6xl leading-[0.98] font-normal text-white sm:text-[5.5rem]"
-            >
-              El dia a dia de
-              <br />
-              tu clinica<span className="text-[#7dd3fc]">.</span>
-            </h1>
-            <p className="mt-7 max-w-md text-lg text-white/70">
-              Agenda, expedientes, consultas, facturacion y reportes. GoRam Clinic reemplaza la libreta, el
-              Excel y el WhatsApp con un sistema hecho para como trabaja tu clinica de verdad.
-            </p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <Button size="lg" className="bg-[#0ea5e9] text-white hover:bg-[#0284c7]" asChild>
-                <Link to="/registro">Registra tu clinica</Link>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-white/30 bg-transparent text-white hover:bg-white/10 hover:text-white"
-                asChild
-              >
-                <Link to="/login">Ya tengo cuenta</Link>
-              </Button>
-            </div>
+      <section className="hero wrap heroGrid">
+        <div>
+          <p className="eyebrow">Plataforma para clinicas en El Salvador</p>
+          <h1>
+            La clinica <em>organizada</em> que tus pacientes notan.
+          </h1>
+          <p className="lead">
+            Pacientes, agenda, consultas y facturacion electronica en un solo sistema.
+            Reemplaza el cuaderno y las hojas de Excel por un panel que tu equipo
+            realmente disfruta usar.
+          </p>
+          <div className="actions">
+            <Link to="/registro" className="btn primary">
+              Comenzar prueba gratis
+            </Link>
+            <a href="#planes" className="btn secondary">
+              Ver planes
+            </a>
           </div>
-        </section>
+          <p className="note">7 dias gratis · sin tarjeta requerida</p>
+        </div>
 
-        <section className="py-24 sm:py-32">
-          <div className="mx-auto max-w-6xl px-4">
-            <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)]">
-              <div className="lg:sticky lg:top-32 lg:self-start">
-                <h2 style={serif} className="text-4xl leading-tight font-normal text-[#1c1a18] sm:text-5xl">
-                  Todo lo que tu clinica necesita
-                </h2>
-                <p className="mt-4 max-w-xs text-[#5c564f]">
-                  Sin instalar nada. Entras desde el navegador, en la computadora de recepcion o tu celular.
-                </p>
-                <div className="mt-10 aspect-3/4 max-w-xs overflow-hidden rounded-2xl">
-                  <img
-                    src="/images/landing/cuidado-paciente.jpg"
-                    alt="Doctora atendiendo a un paciente mayor"
-                    className="h-full w-full object-cover"
-                  />
+        <div className="heroVisual">
+          <div
+            className="heroImg"
+            style={{ backgroundImage: "url('/images/landing/hero-doctor-tel.jpg')" }}
+          ></div>
+          <div className="productCard">
+            <div className="topbar">
+              <i></i>
+              <i></i>
+              <i></i>
+              <span>GoRam Clinic — Panel</span>
+            </div>
+            <div className="dashboard">
+              <div className="side">
+                <b></b>
+                <b></b>
+                <b></b>
+                <b></b>
+                <b></b>
+              </div>
+              <div className="content">
+                <div className="contentHead">
+                  Agenda de hoy
+                  <span className="badge">En vivo</span>
                 </div>
-              </div>
-              <div className="flex flex-col">
-                {CARACTERISTICAS.map((item, indice) => (
-                  <div
-                    key={item.titulo}
-                    className="flex items-baseline gap-6 border-t border-black/10 py-7 first:border-t-0 first:pt-0"
-                  >
-                    <span style={serif} className="w-8 shrink-0 text-2xl text-[#0ea5e9]/50">
-                      {String(indice + 1).padStart(2, '0')}
-                    </span>
-                    <div>
-                      <h3 className="font-medium text-[#1c1a18]">{item.titulo}</h3>
-                      <p className="mt-1 text-sm text-[#5c564f]">{item.descripcion}</p>
-                    </div>
+                <div className="metrics">
+                  <div className="metric">
+                    <small>PACIENTES</small>
+                    <strong>842</strong>
                   </div>
+                  <div className="metric">
+                    <small>CITAS HOY</small>
+                    <strong>17</strong>
+                  </div>
+                  <div className="metric">
+                    <small>INGRESOS</small>
+                    <strong>$3,120</strong>
+                  </div>
+                </div>
+                <div className="graph"></div>
+              </div>
+            </div>
+          </div>
+          <div className="float f1">
+            <small>Proxima cita</small>
+            <b>10:30 AM — Maria L.</b>
+          </div>
+          <div className="float f2">
+            <small>Ingresos del mes</small>
+            <b>$4,890</b>
+            <div className="green">▲ 18% vs. mes anterior</div>
+          </div>
+        </div>
+      </section>
+
+      <div className="trust wrap trustIn">
+        <p>Confiado por clinicas y consultorios independientes</p>
+        <div className="trustLogos">
+          <span>+50 clinicas</span>
+          <span>+12,000 citas gestionadas</span>
+          <span>IVA calculado automaticamente</span>
+          <span>99.9% disponibilidad</span>
+        </div>
+      </div>
+
+      <section id="sistema" className="section wrap">
+        <div className="intro">
+          <div>
+            <p className="kicker">El sistema</p>
+            <h2>Todo lo que tu clinica necesita para operar, sin hojas sueltas.</h2>
+          </div>
+          <p className="desc">
+            Seis modulos conectados entre si — lo que registra tu recepcionista
+            lo ve el doctor, y lo que cierra el doctor llega directo a facturacion.
+          </p>
+        </div>
+        <div className="modules">
+          <div className="module">
+            <span className="num">01</span>
+            <div className="icon">Pa</div>
+            <h3>Pacientes</h3>
+            <p>Expediente digital con historial, contacto y antecedentes de cada paciente.</p>
+          </div>
+          <div className="module">
+            <span className="num">02</span>
+            <div className="icon">Ag</div>
+            <h3>Agenda</h3>
+            <p>Calendario por doctor con disponibilidad real y recordatorios automaticos.</p>
+          </div>
+          <div className="module">
+            <span className="num">03</span>
+            <div className="icon">Co</div>
+            <h3>Consultas</h3>
+            <p>Notas clinicas, diagnostico y receta, ligados a la cita correspondiente.</p>
+          </div>
+          <div className="module">
+            <span className="num">04</span>
+            <div className="icon">Fa</div>
+            <h3>Facturacion electronica</h3>
+            <p>Documentos tributarios (DTE) transmitidos al Ministerio de Hacienda.</p>
+          </div>
+          <div className="module">
+            <span className="num">05</span>
+            <div className="icon">Re</div>
+            <h3>Reportes</h3>
+            <p>Ingresos, citas atendidas y pacientes nuevos, siempre al dia.</p>
+          </div>
+          <div className="module">
+            <span className="num">06</span>
+            <div className="icon">Pe</div>
+            <h3>Personal</h3>
+            <p>Roles y permisos para doctores, recepcionistas y administradores.</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="photoBand wrap">
+        <div className="photoGrid">
+          <div className="photoTile large">
+            <img src="/images/landing/doctora-parque.jpg" alt="Doctora sonriendo" />
+            <div className="caption">
+              <small>Hecho para tu equipo</small>
+              <b>Menos administracion, mas pacientes.</b>
+            </div>
+          </div>
+          <div className="sidePhotos">
+            <div className="photoTile small">
+              <img src="/images/landing/estetoscopio.jpg" alt="Estetoscopio" />
+            </div>
+            <div className="photoTile small">
+              <img src="/images/landing/pasillo-equipo.jpg" alt="Equipo medico caminando" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="section dark">
+        <div className="wrap intro">
+          <div>
+            <p className="kicker">Resultados</p>
+            <h2>Clinicas que dejaron el cuaderno atras.</h2>
+          </div>
+          <p className="desc">Numeros reales de clinicas que operan hoy con GoRam Clinic.</p>
+        </div>
+        <div className="wrap stats">
+          <div className="stat">
+            <strong>+50</strong>
+            <span>Clinicas activas</span>
+          </div>
+          <div className="stat">
+            <strong>12k</strong>
+            <span>Citas gestionadas</span>
+          </div>
+          <div className="stat">
+            <strong>6 hrs</strong>
+            <span>Ahorradas por semana</span>
+          </div>
+          <div className="stat">
+            <strong>99.9%</strong>
+            <span>Disponibilidad</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="experiencia" className="section wrap workflow">
+        <div>
+          <p className="kicker">La experiencia</p>
+          <h2>De la cita a la factura, sin salir del sistema.</h2>
+          <p className="desc">
+            Cada paso queda conectado: la recepcionista agenda, el doctor atiende
+            y factura, y el reporte se actualiza solo.
+          </p>
+          <div className="steps">
+            <div className="step">
+              <span className="stepN">1</span>
+              <div>
+                <b>Se agenda la cita</b>
+                <p>La recepcionista busca disponibilidad real del doctor y confirma en segundos.</p>
+              </div>
+            </div>
+            <div className="step">
+              <span className="stepN">2</span>
+              <div>
+                <b>El doctor atiende</b>
+                <p>Registra diagnostico, receta y notas directo desde la cita del calendario.</p>
+              </div>
+            </div>
+            <div className="step">
+              <span className="stepN">3</span>
+              <div>
+                <b>Se factura al instante</b>
+                <p>El documento tributario electronico se genera y transmite a Hacienda.</p>
+              </div>
+            </div>
+            <div className="step">
+              <span className="stepN">4</span>
+              <div>
+                <b>El reporte se actualiza</b>
+                <p>Ingresos y pacientes nuevos quedan reflejados sin trabajo manual.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="screen">
+          <div className="screenInner">
+            <div className="screenHead">
+              Agenda — hoy
+              <span>4 citas</span>
+            </div>
+            <div className="rows">
+              <div className="row">
+                <div className="avatar"></div>
+                <div className="line"></div>
+                <div className="line line2"></div>
+                <span className="state">Confirmada</span>
+              </div>
+              <div className="row">
+                <div className="avatar"></div>
+                <div className="line"></div>
+                <div className="line line2"></div>
+                <span className="state">En consulta</span>
+              </div>
+              <div className="row">
+                <div className="avatar"></div>
+                <div className="line"></div>
+                <div className="line line2"></div>
+                <span className="state">Confirmada</span>
+              </div>
+              <div className="row">
+                <div className="avatar"></div>
+                <div className="line"></div>
+                <div className="line line2"></div>
+                <span className="state">Pendiente</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="planes" className="section pricing">
+        <div className="wrap intro">
+          <div>
+            <p className="kicker">Planes</p>
+            <h2>Un plan para cada tamano de clinica.</h2>
+          </div>
+          <p className="desc">Cambia de plan cuando quieras. Sin permanencia forzada.</p>
+        </div>
+        <div className="wrap plans">
+          {planes.map((plan) => (
+            <div key={plan.id} className={plan.codigo === 'PROFESIONAL' ? 'plan featured' : 'plan'}>
+              {plan.codigo === 'PROFESIONAL' && <span className="tag">Mas popular</span>}
+              <p className="planName">{plan.nombre}</p>
+              <p className="price">
+                ${plan.precioMensual.toFixed(0)}
+                <small> /mes</small>
+              </p>
+              <p className="desc" style={{ marginBottom: 20 }}>
+                {DESCRIPCIONES_PLAN[plan.codigo] ?? ''}
+              </p>
+              <div className="features">
+                {(CARACTERISTICAS_PLAN[plan.codigo] ?? []).map((item) => (
+                  <div key={item}>{item}</div>
                 ))}
               </div>
+              <Link
+                to={`/registro?plan=${plan.codigo}`}
+                className="btn primary"
+                style={{ marginTop: 24 }}
+              >
+                Elegir {plan.nombre}
+              </Link>
             </div>
-          </div>
-        </section>
+          ))}
+        </div>
+      </section>
 
-        <section className="grid grid-cols-1 bg-[#161311] text-white lg:grid-cols-2">
-          <div className="flex flex-col justify-center gap-10 px-4 py-20 sm:px-8 lg:py-0 lg:pl-16">
-            {ESTADISTICAS.map((stat) => (
-              <div key={stat.descripcion} className="flex items-baseline gap-6">
-                <p style={serif} className="w-28 shrink-0 text-5xl font-normal text-[#7dd3fc]">
-                  {stat.valor}
-                </p>
-                <p className="text-sm text-white/60">{stat.descripcion}</p>
-              </div>
-            ))}
-          </div>
-          <div className="h-64 lg:h-auto">
-            <img
-              src="/images/landing/doctor-tecnologia.jpg"
-              alt="Doctor revisando su telefono con GoRam Clinic"
-              className="h-full w-full object-cover"
-            />
-          </div>
-        </section>
-
-        <section id="precios" className="py-24 sm:py-32">
-          <div className="mx-auto max-w-6xl px-4">
-            <div className="mx-auto max-w-2xl text-center">
-              <h2 style={serif} className="text-4xl font-normal text-[#1c1a18] sm:text-5xl">
-                Un plan para cada tamano de clinica
-              </h2>
-              <p className="mt-3 text-[#5c564f]">Cambia de plan cuando lo necesites. Sin contratos forzosos.</p>
-            </div>
-
-            {planes.length > 0 && (
-              <div className="mx-auto mt-16 grid max-w-5xl gap-6 sm:grid-cols-3">
-                {planes.map((plan, indice) => (
-                  <Card
-                    key={plan.id}
-                    className={cn(
-                      'border-black/10 bg-white',
-                      indice === 1 && 'relative z-10 border-[#0ea5e9] shadow-xl sm:scale-105',
-                    )}
-                  >
-                    <CardHeader>
-                      {indice === 1 && <Badge className="w-fit bg-[#0ea5e9] text-white">Mas elegido</Badge>}
-                      <CardTitle className="text-xl text-[#1c1a18]">{plan.nombre}</CardTitle>
-                      <p style={serif} className="text-4xl font-normal text-[#1c1a18]">
-                        ${plan.precioMensual.toFixed(2)}
-                        <span className="font-sans text-sm font-normal text-[#5c564f]"> /mes</span>
-                      </p>
-                    </CardHeader>
-                    <CardContent className="flex flex-col gap-3">
-                      <ul className="flex flex-col gap-2 text-sm text-[#1c1a18]">
-                        <li className="flex items-center gap-2">
-                          <Check className="size-4 shrink-0 text-[#0ea5e9]" />
-                          {plan.limiteUsuarios ? `Hasta ${plan.limiteUsuarios} usuarios` : 'Usuarios ilimitados'}
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <Check className="size-4 shrink-0 text-[#0ea5e9]" />
-                          {plan.limitePacientes
-                            ? `Hasta ${plan.limitePacientes} pacientes`
-                            : 'Pacientes ilimitados'}
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <Check className="size-4 shrink-0 text-[#0ea5e9]" />
-                          Agenda, consultas y reportes
-                        </li>
-                        {plan.incluyeFacturacionElectronica ? (
-                          <li className="flex items-center gap-2">
-                            <Check className="size-4 shrink-0 text-[#0ea5e9]" />
-                            Facturacion electronica (DTE)
-                          </li>
-                        ) : (
-                          <li className="flex items-center gap-2 text-[#5c564f]">
-                            <Check className="size-4 shrink-0" />
-                            Facturacion simple (sin DTE)
-                          </li>
-                        )}
-                      </ul>
-                      <Button asChild className="mt-2 bg-[#0ea5e9] text-white hover:bg-[#0284c7]">
-                        <Link to="/registro">Elegir {plan.nombre}</Link>
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
-
-        <section className="border-t border-black/10 py-24">
-          <div className="mx-auto flex max-w-3xl flex-col items-center gap-4 px-4 text-center">
-            <div className="mb-6 aspect-16/9 w-full max-w-lg overflow-hidden rounded-2xl">
-              <img
-                src="/images/landing/equipo-datos.jpg"
-                alt="Equipo medico revisando reportes en pantalla"
-                className="h-full w-full object-cover"
-              />
-            </div>
-            <h2 style={serif} className="text-4xl font-normal text-[#1c1a18] sm:text-5xl">
-              Empeza a usar GoRam Clinic hoy
-            </h2>
-            <p className="text-[#5c564f]">
-              El registro toma menos de dos minutos. Vos elegis el plan, nosotros nos encargamos del resto.
+      <section className="final wrap">
+        <div className="finalBox">
+          <div>
+            <p className="kicker">Empieza hoy</p>
+            <h2>Tu clinica, organizada desde la primera semana.</h2>
+            <p>
+              Crea tu cuenta y empieza a usar GoRam Clinic hoy mismo. 7 dias gratis,
+              sin tarjeta requerida.
             </p>
-            <Button size="lg" className="bg-[#0ea5e9] text-white hover:bg-[#0284c7]" asChild>
-              <Link to="/registro">Registra tu clinica</Link>
-            </Button>
           </div>
-        </section>
-      </main>
+          <Link to="/registro" className="btn primary">
+            Crear mi cuenta
+          </Link>
+        </div>
+      </section>
 
-      <footer className="border-t border-black/10 py-8">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-4 text-sm text-[#5c564f] sm:flex-row">
-          <div className="flex items-center gap-2">
-            <div className="flex size-6 shrink-0 items-center justify-center rounded bg-[#0ea5e9] text-xs font-semibold text-white">
-              G
-            </div>
-            <span>GoRam Clinic, un producto de GoRam</span>
-          </div>
-          <span>&copy; {new Date().getFullYear()} GoRam Clinic</span>
+      <footer>
+        <div className="wrap foot">
+          <span>GoRam Clinic — un producto de la marca GoRam</span>
+          <span>© {new Date().getFullYear()} GoRam. Todos los derechos reservados.</span>
         </div>
       </footer>
     </div>

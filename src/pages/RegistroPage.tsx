@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { apiFetch, ApiRequestError } from '@/lib/api'
 import { useAuth } from '@/lib/auth-context'
 import type { PlanResponse } from '@/types'
@@ -23,6 +23,8 @@ interface RegistroClinicaResponse {
 export function RegistroPage() {
   const { sesion, login } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const planPreseleccionado = searchParams.get('plan')
 
   const [planes, setPlanes] = useState<PlanResponse[]>([])
   const [cargandoPlanes, setCargandoPlanes] = useState(true)
@@ -42,7 +44,12 @@ export function RegistroPage() {
     apiFetch<PlanResponse[]>('/api/v1/planes', { auth: false })
       .then((data) => {
         setPlanes(data)
-        if (data.length > 0) setPlanCodigo(data[0].codigo)
+        const preseleccionValido = data.some((p) => p.codigo === planPreseleccionado)
+        if (preseleccionValido) {
+          setPlanCodigo(planPreseleccionado)
+        } else if (data.length > 0) {
+          setPlanCodigo(data[0].codigo)
+        }
       })
       .catch(() => setError('No se pudieron cargar los planes. Intenta de nuevo mas tarde.'))
       .finally(() => setCargandoPlanes(false))
