@@ -26,7 +26,7 @@ interface CitaFormDialogProps {
   onOpenChange: (open: boolean) => void
   onGuardado: () => void
   /** Pre-llena doctor y horario cuando se abre desde un clic en el calendario. */
-  prefill?: { doctorId: string; fechaHora: Date } | null
+  prefill?: { doctorId?: string; fechaHora?: Date; pacienteId?: string } | null
 }
 
 export function CitaFormDialog({ open, onOpenChange, onGuardado, prefill }: CitaFormDialogProps) {
@@ -41,9 +41,9 @@ export function CitaFormDialog({ open, onOpenChange, onGuardado, prefill }: Cita
 
   useEffect(() => {
     if (open) {
-      setPacienteId('')
+      setPacienteId(prefill?.pacienteId ?? '')
       setDoctorId(prefill?.doctorId ?? '')
-      setFechaHora(prefill ? aDatetimeLocal(prefill.fechaHora) : '')
+      setFechaHora(prefill?.fechaHora ? aDatetimeLocal(prefill.fechaHora) : '')
       setDuracionMinutos('30')
       setMotivo('')
 

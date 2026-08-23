@@ -28,9 +28,16 @@ interface FacturaFormDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onGuardado: () => void
+  /** Pre-selecciona el paciente cuando se abre desde su ficha. */
+  pacientePreseleccionado?: string | null
 }
 
-export function FacturaFormDialog({ open, onOpenChange, onGuardado }: FacturaFormDialogProps) {
+export function FacturaFormDialog({
+  open,
+  onOpenChange,
+  onGuardado,
+  pacientePreseleccionado,
+}: FacturaFormDialogProps) {
   const [pacientes, setPacientes] = useState<PacienteResponse[]>([])
   const [pacienteId, setPacienteId] = useState('')
   const [tipoDte, setTipoDte] = useState<'SIMPLE' | 'FE'>('SIMPLE')
@@ -40,7 +47,7 @@ export function FacturaFormDialog({ open, onOpenChange, onGuardado }: FacturaFor
 
   useEffect(() => {
     if (!open) return
-    setPacienteId('')
+    setPacienteId(pacientePreseleccionado ?? '')
     setTipoDte('SIMPLE')
     setItems([{ ...ITEM_VACIO }])
 

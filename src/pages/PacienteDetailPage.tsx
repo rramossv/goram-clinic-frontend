@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { apiFetch, ApiRequestError } from '@/lib/api'
-import type { CitaResponse, FacturaResponse, PacienteResponse } from '@/types'
+import type { CitaResponse, ConsultaResponse, FacturaResponse, PacienteResponse } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { PacienteFormDialog } from '@/components/pacientes/paciente-form-dialog'
+import { CitaFormDialog } from '@/components/agenda/cita-form-dialog'
+import { FacturaFormDialog } from '@/components/facturas/factura-form-dialog'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,7 +20,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { toast } from 'sonner'
-import { ArrowLeft, Pencil } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, CalendarPlus, FileText, Pencil, Receipt } from 'lucide-react'
 
 const VARIANTE_ESTADO_CITA: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
   PROGRAMADA: 'outline',
@@ -49,9 +51,12 @@ export function PacienteDetailPage() {
   const navigate = useNavigate()
   const [paciente, setPaciente] = useState<PacienteResponse | null>(null)
   const [citas, setCitas] = useState<CitaResponse[]>([])
+  const [consultasPorCita, setConsultasPorCita] = useState<Record<string, ConsultaResponse>>({})
   const [facturas, setFacturas] = useState<FacturaResponse[]>([])
   const [cargando, setCargando] = useState(true)
   const [dialogEditarAbierto, setDialogEditarAbierto] = useState(false)
+  const [dialogCitaAbierto, setDialogCitaAbierto] = useState(false)
+  const [dialogFacturaAbierto, setDialogFacturaAbierto] = useState(false)
   const [confirmarDesactivar, setConfirmarDesactivar] = useState(false)
   const [actualizandoActivo, setActualizandoActivo] = useState(false)
 
@@ -65,12 +70,24 @@ export function PacienteDetailPage() {
         apiFetch<FacturaResponse[]>('/api/v1/facturas'),
       ])
       setPaciente(pacienteData)
-      setCitas(
-        citasData
-          .filter((c) => c.pacienteId === id)
-          .sort((a, b) => b.fechaHora.localeCompare(a.fechaHora)),
-      )
+      const citasPaciente = citasData
+        .filter((c) => c.pacienteId === id)
+        .sort((a, b) => b.fechaHora.localeCompare(a.fechaHora))
+      setCitas(citasPaciente)
       setFacturas(facturasData.filter((f) => f.pacienteId === id))
+
+      const completadas = citasPaciente.filter((c) => c.estado === 'COMPLETADA')
+      const consultas = await Promise.all(
+        completadas.map((c) =>
+          apiFetch<ConsultaResponse>(`/api/v1/consultas/por-cita/${c.id}`).catch(() => null),
+        ),
+      )
+      const mapa: Record<string, ConsultaResponse> = {}
+      completadas.forEach((c, i) => {
+        const consulta = consultas[i]
+        if (consulta) mapa[c.id] = consulta
+      })
+      setConsultasPorCita(mapa)
     } catch {
       toast.error('No se pudo cargar el paciente')
       navigate('/pacientes')
@@ -126,6 +143,18 @@ export function PacienteDetailPage() {
             {paciente.documentoIdentidad ?? 'Sin documento registrado'}
           </p>
         </div>
+        <Button variant="outline" onClick={() => setDialogFacturaAbierto(true)}>
+          <Receipt />
+          Nueva factura
+        </Button>
+        <Button variant="outline" onClick={() => setDialogCitaAbierto(true)}>
+          <CalendarPlus />
+          Nueva cita
+        </Button>
+        <Button variant="outline" onClick={() => setDialogEditarAbierto(true)}>
+          <Pencil />
+          Editar
+        </Button>
         <Button
           variant="outline"
           disabled={actualizandoActivo}
@@ -133,11 +162,17 @@ export function PacienteDetailPage() {
         >
           {paciente.activo ? 'Desactivar' : 'Activar'}
         </Button>
-        <Button variant="outline" onClick={() => setDialogEditarAbierto(true)}>
-          <Pencil />
-          Editar
-        </Button>
       </div>
+
+      {paciente.alergias && (
+        <div className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-destructive">
+          <AlertTriangle className="mt-0.5 size-5 shrink-0" />
+          <div>
+            <p className="text-sm font-semibold">Alergias</p>
+            <p className="text-sm">{paciente.alergias}</p>
+          </div>
+        </div>
+      )}
 
       <div className="grid gap-6 md:grid-cols-3">
         <Card className="md:col-span-1">
@@ -149,7 +184,6 @@ export function PacienteDetailPage() {
             <Dato etiqueta="Telefono" valor={paciente.telefono} />
             <Dato etiqueta="Email" valor={paciente.email} />
             <Dato etiqueta="Direccion" valor={paciente.direccion} />
-            <Dato etiqueta="Alergias" valor={paciente.alergias} />
             <Dato etiqueta="Antecedentes" valor={paciente.antecedentes} />
           </CardContent>
         </Card>
@@ -157,39 +191,65 @@ export function PacienteDetailPage() {
         <div className="flex flex-col gap-6 md:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Historial de citas</CardTitle>
+              <CardTitle className="text-base">Historial clinico</CardTitle>
             </CardHeader>
             <CardContent>
               {citas.length === 0 ? (
                 <p className="text-sm text-muted-foreground">Este paciente no tiene citas registradas.</p>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Fecha</TableHead>
-                      <TableHead>Doctor</TableHead>
-                      <TableHead>Motivo</TableHead>
-                      <TableHead>Estado</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {citas.map((cita) => (
-                      <TableRow key={cita.id}>
-                        <TableCell>
-                          {new Date(cita.fechaHora).toLocaleString('es-SV', {
-                            dateStyle: 'medium',
-                            timeStyle: 'short',
-                          })}
-                        </TableCell>
-                        <TableCell>{cita.doctorNombre}</TableCell>
-                        <TableCell className="max-w-40 truncate">{cita.motivo ?? '-'}</TableCell>
-                        <TableCell>
+                <div className="flex flex-col">
+                  {citas.map((cita, i) => {
+                    const consulta = consultasPorCita[cita.id]
+                    return (
+                      <div
+                        key={cita.id}
+                        className={i > 0 ? 'border-t pt-4 mt-4' : ''}
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div>
+                            <p className="text-sm font-medium">
+                              {new Date(cita.fechaHora).toLocaleString('es-SV', {
+                                dateStyle: 'medium',
+                                timeStyle: 'short',
+                              })}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {cita.doctorNombre}
+                              {cita.motivo ? ` · ${cita.motivo}` : ''}
+                            </p>
+                          </div>
                           <Badge variant={VARIANTE_ESTADO_CITA[cita.estado] ?? 'outline'}>{cita.estado}</Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                        </div>
+
+                        {consulta && (
+                          <div className="mt-3 flex flex-col gap-2 rounded-lg bg-muted/50 p-3 text-sm">
+                            {consulta.diagnostico && (
+                              <div className="flex items-start gap-2">
+                                <FileText className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                                <div>
+                                  <span className="font-medium">Diagnostico: </span>
+                                  <span className="whitespace-pre-wrap">{consulta.diagnostico}</span>
+                                </div>
+                              </div>
+                            )}
+                            {consulta.receta && (
+                              <div className="pl-6">
+                                <span className="font-medium">Receta: </span>
+                                <span className="whitespace-pre-wrap">{consulta.receta}</span>
+                              </div>
+                            )}
+                            {consulta.notas && (
+                              <div className="pl-6 text-muted-foreground">
+                                <span className="font-medium">Notas: </span>
+                                <span className="whitespace-pre-wrap">{consulta.notas}</span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
               )}
             </CardContent>
           </Card>
@@ -238,6 +298,26 @@ export function PacienteDetailPage() {
         paciente={paciente}
         onGuardado={() => {
           setDialogEditarAbierto(false)
+          cargar()
+        }}
+      />
+
+      <CitaFormDialog
+        open={dialogCitaAbierto}
+        onOpenChange={setDialogCitaAbierto}
+        prefill={{ pacienteId: paciente.id }}
+        onGuardado={() => {
+          setDialogCitaAbierto(false)
+          cargar()
+        }}
+      />
+
+      <FacturaFormDialog
+        open={dialogFacturaAbierto}
+        onOpenChange={setDialogFacturaAbierto}
+        pacientePreseleccionado={paciente.id}
+        onGuardado={() => {
+          setDialogFacturaAbierto(false)
           cargar()
         }}
       />
