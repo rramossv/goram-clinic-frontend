@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { apiFetch, ApiRequestError } from '@/lib/api'
 import type { CitaResponse } from '@/types'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import {
   Dialog,
   DialogContent,
@@ -13,6 +14,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ConsultaDialog } from '@/components/consultas/consulta-dialog'
 import { toast } from 'sonner'
+import { Mail, MailCheck } from 'lucide-react'
 
 const ESTADOS = ['PROGRAMADA', 'CONFIRMADA', 'COMPLETADA', 'CANCELADA', 'NO_ASISTIO']
 
@@ -26,6 +28,7 @@ export function CitaDetailDialog({ cita, onOpenChange, onActualizada }: CitaDeta
   const [consultaAbierta, setConsultaAbierta] = useState(false)
   const [citaParaConsulta, setCitaParaConsulta] = useState<CitaResponse | null>(null)
   const [actualizando, setActualizando] = useState(false)
+  const [enviandoRecordatorio, setEnviandoRecordatorio] = useState(false)
 
   async function cambiarEstado(estado: string) {
     if (!cita) return
@@ -50,6 +53,24 @@ export function CitaDetailDialog({ cita, onOpenChange, onActualizada }: CitaDeta
     setCitaParaConsulta(cita)
     onOpenChange(false)
     setConsultaAbierta(true)
+  }
+
+  async function enviarRecordatorio() {
+    if (!cita) return
+    setEnviandoRecordatorio(true)
+    try {
+      await apiFetch(`/api/v1/citas/${cita.id}/recordatorio`, { method: 'POST' })
+      toast.success('Recordatorio enviado')
+      onActualizada()
+    } catch (err) {
+      if (err instanceof ApiRequestError) {
+        toast.error(err.body?.message ?? 'No se pudo enviar el recordatorio')
+      } else {
+        toast.error('No se pudo conectar con el servidor')
+      }
+    } finally {
+      setEnviandoRecordatorio(false)
+    }
   }
 
   return (
@@ -94,9 +115,23 @@ export function CitaDetailDialog({ cita, onOpenChange, onActualizada }: CitaDeta
                 </SelectContent>
               </Select>
             </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Recordatorio</span>
+              <Badge variant={cita?.recordatorioEnviado ? 'default' : 'outline'} className="gap-1">
+                {cita?.recordatorioEnviado ? <MailCheck className="size-3" /> : <Mail className="size-3" />}
+                {cita?.recordatorioEnviado ? 'Enviado' : 'Pendiente'}
+              </Badge>
+            </div>
           </div>
 
           <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={enviarRecordatorio}
+              disabled={enviandoRecordatorio}
+            >
+              {cita?.recordatorioEnviado ? 'Reenviar recordatorio' : 'Enviar recordatorio'}
+            </Button>
             <Button variant="outline" onClick={abrirConsulta}>
               Ver / registrar consulta
             </Button>

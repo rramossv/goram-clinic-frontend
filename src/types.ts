@@ -30,6 +30,7 @@ export interface CitaResponse {
   duracionMinutos: number
   estado: string
   motivo: string | null
+  recordatorioEnviado: boolean
   creadoEn: string
 }
 
