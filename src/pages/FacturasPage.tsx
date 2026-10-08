@@ -7,7 +7,7 @@ import { CodigoPaciente } from '@/components/codigo-paciente'
 import { EstadoChip } from '@/components/estado-chip'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { FacturaFormDialog } from '@/components/facturas/factura-form-dialog'
+import { abrirImpresionFactura, FacturaFormDialog } from '@/components/facturas/factura-form-dialog'
 import { AnularFacturaDialog } from '@/components/facturas/anular-factura-dialog'
 import { PaginationControls } from '@/components/pagination-controls'
 import { toast } from 'sonner'
@@ -129,7 +129,10 @@ export function FacturasPage() {
                 <TableCell>
                   <EstadoChip estado={factura.estado} />
                 </TableCell>
-                <TableCell className="space-x-2 text-right">
+                <TableCell className="space-x-1 text-right">
+                  <Button size="sm" variant="ghost" onClick={() => abrirImpresionFactura(factura.id)}>
+                    Imprimir
+                  </Button>
                   {factura.tipoDte === 'FE' && factura.estado === 'PENDIENTE' && (
                     <Button
                       size="sm"

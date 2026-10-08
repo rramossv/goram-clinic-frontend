@@ -15,7 +15,9 @@ import { ReportesPage } from '@/pages/ReportesPage'
 import { PersonalPage } from '@/pages/PersonalPage'
 import { SuscripcionPage } from '@/pages/SuscripcionPage'
 import { PerfilPage } from '@/pages/PerfilPage'
-import { ProtectedRoute } from '@/lib/protected-route'
+import { ConfiguracionPage } from '@/pages/ConfiguracionPage'
+import { ImprimirFacturaPage, ImprimirRecetaPage } from '@/pages/ImpresionPages'
+import { ProtectedRoute, RequierePermiso } from '@/lib/protected-route'
 import { AppLayout } from '@/components/app-layout'
 
 function App() {
@@ -27,16 +29,23 @@ function App() {
       <Route path="/olvide-password" element={<OlvidePasswordPage />} />
       <Route path="/restablecer-password" element={<RestablecerPasswordPage />} />
       <Route element={<ProtectedRoute />}>
+        <Route path="/imprimir/receta/:citaId" element={<ImprimirRecetaPage />} />
+        <Route path="/imprimir/factura/:facturaId" element={<ImprimirFacturaPage />} />
         <Route element={<AppLayout />}>
           <Route path="/panel" element={<DashboardPage />} />
           <Route path="/pacientes" element={<PacientesPage />} />
           <Route path="/pacientes/:id" element={<PacienteDetailPage />} />
           <Route path="/agenda" element={<AgendaPage />} />
-          <Route path="/consultas" element={<ConsultasPage />} />
+          <Route element={<RequierePermiso permiso="clinico" />}>
+            <Route path="/consultas" element={<ConsultasPage />} />
+          </Route>
           <Route path="/facturas" element={<FacturasPage />} />
-          <Route path="/reportes" element={<ReportesPage />} />
-          <Route path="/personal" element={<PersonalPage />} />
-          <Route path="/suscripcion" element={<SuscripcionPage />} />
+          <Route element={<RequierePermiso permiso="administrar" />}>
+            <Route path="/reportes" element={<ReportesPage />} />
+            <Route path="/personal" element={<PersonalPage />} />
+            <Route path="/suscripcion" element={<SuscripcionPage />} />
+            <Route path="/configuracion" element={<ConfiguracionPage />} />
+          </Route>
           <Route path="/perfil" element={<PerfilPage />} />
         </Route>
       </Route>

@@ -1,8 +1,9 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { apiFetch, ApiRequestError } from '@/lib/api'
+import { puede, useAuth } from '@/lib/auth-context'
 import type { CitaResponse } from '@/types'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import {
   Dialog,
   DialogContent,
@@ -12,10 +13,13 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { CodigoPaciente } from '@/components/codigo-paciente'
 import { etiquetaEstado } from '@/components/estado-chip'
 import { ConsultaDialog } from '@/components/consultas/consulta-dialog'
+import { CitaFormDialog } from '@/components/agenda/cita-form-dialog'
+import { FacturaFormDialog } from '@/components/facturas/factura-form-dialog'
 import { toast } from 'sonner'
-import { Mail, MailCheck } from 'lucide-react'
+import { CalendarClock, FileText, Mail, MailCheck, Receipt, UserRound } from 'lucide-react'
 
 const ESTADOS = ['PROGRAMADA', 'CONFIRMADA', 'COMPLETADA', 'CANCELADA', 'NO_ASISTIO']
 
@@ -25,35 +29,49 @@ interface CitaDetailDialogProps {
   onActualizada: () => void
 }
 
+function Fila({ etiqueta, children }: { etiqueta: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between gap-4 border-b py-2.5 last:border-b-0">
+      <span className="text-muted-foreground">{etiqueta}</span>
+      <span className="text-right text-foreground">{children}</span>
+    </div>
+  )
+}
+
 export function CitaDetailDialog({ cita, onOpenChange, onActualizada }: CitaDetailDialogProps) {
+  const { sesion } = useAuth()
+  const accesoClinico = puede(sesion, 'clinico')
+  const [citaActiva, setCitaActiva] = useState<CitaResponse | null>(null)
   const [consultaAbierta, setConsultaAbierta] = useState(false)
-  const [citaParaConsulta, setCitaParaConsulta] = useState<CitaResponse | null>(null)
+  const [reprogramarAbierto, setReprogramarAbierto] = useState(false)
+  const [facturarAbierto, setFacturarAbierto] = useState(false)
   const [actualizando, setActualizando] = useState(false)
   const [enviandoRecordatorio, setEnviandoRecordatorio] = useState(false)
 
+  const porAtender = cita && ['PROGRAMADA', 'CONFIRMADA'].includes(cita.estado)
+
   async function cambiarEstado(estado: string) {
-    if (!cita) return
+    if (!cita || estado === cita.estado) return
     setActualizando(true)
     try {
       await apiFetch(`/api/v1/citas/${cita.id}/estado`, { method: 'PATCH', body: { estado } })
-      toast.success('Estado actualizado')
+      toast.success(`Cita marcada como ${etiquetaEstado(estado).toLowerCase()}`)
       onActualizada()
     } catch (err) {
-      if (err instanceof ApiRequestError) {
-        toast.error(err.body?.message ?? 'No se pudo cambiar el estado')
-      } else {
-        toast.error('No se pudo conectar con el servidor')
-      }
+      toast.error(err instanceof ApiRequestError ? (err.body?.message ?? 'No se pudo cambiar el estado') : 'No se pudo conectar con el servidor')
     } finally {
       setActualizando(false)
     }
   }
 
-  function abrirConsulta() {
+  // Cierra el detalle y abre la siguiente accion con la misma cita.
+  function abrir(accion: 'consulta' | 'reprogramar' | 'facturar') {
     if (!cita) return
-    setCitaParaConsulta(cita)
+    setCitaActiva(cita)
     onOpenChange(false)
-    setConsultaAbierta(true)
+    if (accion === 'consulta') setConsultaAbierta(true)
+    if (accion === 'reprogramar') setReprogramarAbierto(true)
+    if (accion === 'facturar') setFacturarAbierto(true)
   }
 
   async function enviarRecordatorio() {
@@ -64,11 +82,7 @@ export function CitaDetailDialog({ cita, onOpenChange, onActualizada }: CitaDeta
       toast.success('Recordatorio enviado')
       onActualizada()
     } catch (err) {
-      if (err instanceof ApiRequestError) {
-        toast.error(err.body?.message ?? 'No se pudo enviar el recordatorio')
-      } else {
-        toast.error('No se pudo conectar con el servidor')
-      }
+      toast.error(err instanceof ApiRequestError ? (err.body?.message ?? 'No se pudo enviar el recordatorio') : 'No se pudo conectar con el servidor')
     } finally {
       setEnviandoRecordatorio(false)
     }
@@ -79,30 +93,20 @@ export function CitaDetailDialog({ cita, onOpenChange, onActualizada }: CitaDeta
       <Dialog open={cita !== null} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{cita?.pacienteNombre}</DialogTitle>
-            <DialogDescription>
-              {cita &&
-                new Date(cita.fechaHora).toLocaleString('es-SV', { dateStyle: 'full', timeStyle: 'short' })}
+            <DialogTitle className="flex items-center gap-2.5">
+              {cita && <CodigoPaciente id={cita.pacienteId} />}
+              {cita?.pacienteNombre}
+            </DialogTitle>
+            <DialogDescription className="first-letter:uppercase">
+              {cita && new Date(cita.fechaHora).toLocaleString('es-SV', { dateStyle: 'full', timeStyle: 'short' })}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex flex-col gap-4 py-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Doctor</span>
-              <span>{cita?.doctorNombre}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Duración</span>
-              <span>{cita?.duracionMinutos} min</span>
-            </div>
-            {cita?.motivo && (
-              <div>
-                <p className="text-muted-foreground">Motivo</p>
-                <p>{cita.motivo}</p>
-              </div>
-            )}
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Estado</span>
+          <div className="py-1 text-sm">
+            <Fila etiqueta="Doctor">{cita?.doctorNombre}</Fila>
+            <Fila etiqueta="Duración">{cita?.duracionMinutos} min</Fila>
+            {cita?.motivo && <Fila etiqueta="Motivo">{cita.motivo}</Fila>}
+            <Fila etiqueta="Estado">
               <Select value={cita?.estado} onValueChange={cambiarEstado} disabled={actualizando}>
                 <SelectTrigger className="w-44">
                   <SelectValue />
@@ -115,32 +119,69 @@ export function CitaDetailDialog({ cita, onOpenChange, onActualizada }: CitaDeta
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Recordatorio</span>
-              <Badge variant={cita?.recordatorioEnviado ? 'default' : 'outline'} className="gap-1">
-                {cita?.recordatorioEnviado ? <MailCheck className="size-3" /> : <Mail className="size-3" />}
+            </Fila>
+            <Fila etiqueta="Recordatorio">
+              <span className="inline-flex items-center gap-1.5">
+                {cita?.recordatorioEnviado ? <MailCheck className="size-4 text-exito" /> : <Mail className="size-4 text-muted-foreground" />}
                 {cita?.recordatorioEnviado ? 'Enviado' : 'Pendiente'}
-              </Badge>
-            </div>
+                <Button variant="link" size="sm" className="h-auto px-1" onClick={enviarRecordatorio} disabled={enviandoRecordatorio}>
+                  {cita?.recordatorioEnviado ? 'Reenviar' : 'Enviar'}
+                </Button>
+              </span>
+            </Fila>
           </div>
 
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={enviarRecordatorio}
-              disabled={enviandoRecordatorio}
-            >
-              {cita?.recordatorioEnviado ? 'Reenviar recordatorio' : 'Enviar recordatorio'}
+          <DialogFooter className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-end">
+            <Button variant="outline" asChild>
+              <Link to={`/pacientes/${cita?.pacienteId}`} onClick={() => onOpenChange(false)}>
+                <UserRound />
+                Ver ficha
+              </Link>
             </Button>
-            <Button variant="outline" onClick={abrirConsulta}>
-              Ver / registrar consulta
+            {porAtender && (
+              <Button variant="outline" onClick={() => abrir('reprogramar')}>
+                <CalendarClock />
+                Reprogramar
+              </Button>
+            )}
+            <Button variant="outline" onClick={() => abrir('facturar')}>
+              <Receipt />
+              Facturar
             </Button>
+            {accesoClinico && (
+              <Button onClick={() => abrir('consulta')}>
+                <FileText />
+                {cita?.estado === 'COMPLETADA' ? 'Ver consulta' : 'Atender'}
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      <ConsultaDialog open={consultaAbierta} onOpenChange={setConsultaAbierta} cita={citaParaConsulta} />
+      <ConsultaDialog
+        open={consultaAbierta}
+        onOpenChange={setConsultaAbierta}
+        cita={citaActiva}
+        onGuardada={onActualizada}
+      />
+      <CitaFormDialog
+        open={reprogramarAbierto}
+        onOpenChange={setReprogramarAbierto}
+        cita={citaActiva}
+        onGuardado={() => {
+          setReprogramarAbierto(false)
+          onActualizada()
+        }}
+      />
+      <FacturaFormDialog
+        open={facturarAbierto}
+        onOpenChange={setFacturarAbierto}
+        pacientePreseleccionado={citaActiva?.pacienteId}
+        onGuardado={() => {
+          setFacturarAbierto(false)
+          onActualizada()
+        }}
+      />
     </>
   )
 }

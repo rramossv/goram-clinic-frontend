@@ -8,6 +8,7 @@ import { PageHeader } from '@/components/page-header'
 import { EstadoChip } from '@/components/estado-chip'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { PersonalFormDialog } from '@/components/personal/personal-form-dialog'
+import { PersonalEditDialog } from '@/components/personal/personal-edit-dialog'
 import { RestablecerPasswordDialog } from '@/components/personal/restablecer-password-dialog'
 import {
   AlertDialog,
@@ -37,6 +38,7 @@ export function PersonalPage() {
   const [usuarioADesactivar, setUsuarioADesactivar] = useState<UsuarioResumen | null>(null)
   const [usuarioARestablecer, setUsuarioARestablecer] = useState<UsuarioResumen | null>(null)
   const [actualizando, setActualizando] = useState<string | null>(null)
+  const [usuarioAEditar, setUsuarioAEditar] = useState<UsuarioResumen | null>(null)
 
   async function cargar() {
     setCargando(true)
@@ -121,8 +123,12 @@ export function PersonalPage() {
                     <EstadoChip estado={usuario.activo ? 'ACTIVO' : 'INACTIVO'} />
                   </TableCell>
                   <TableCell className="text-right">
+                    <div className="flex justify-end gap-1">
+                      <Button variant="ghost" size="sm" onClick={() => setUsuarioAEditar(usuario)}>
+                        Editar
+                      </Button>
                     {!esUnoMismo && (
-                      <div className="flex justify-end gap-2">
+                      <div className="flex justify-end gap-1">
                         <Button variant="ghost" size="sm" onClick={() => setUsuarioARestablecer(usuario)}>
                           Restablecer contraseña
                         </Button>
@@ -138,6 +144,7 @@ export function PersonalPage() {
                         </Button>
                       </div>
                     )}
+                    </div>
                   </TableCell>
                 </TableRow>
               )
@@ -173,6 +180,16 @@ export function PersonalPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <PersonalEditDialog
+        usuario={usuarioAEditar}
+        esUnoMismo={usuarioAEditar?.id === sesion?.usuarioId}
+        onOpenChange={(open) => !open && setUsuarioAEditar(null)}
+        onGuardado={() => {
+          setUsuarioAEditar(null)
+          cargar()
+        }}
+      />
 
       <RestablecerPasswordDialog
         usuario={usuarioARestablecer}

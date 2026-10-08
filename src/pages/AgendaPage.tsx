@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { apiFetch } from '@/lib/api'
 import { atiendePacientes, type CitaResponse, type UsuarioResumen } from '@/types'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { PageHeader } from '@/components/page-header'
 import { DayCalendar } from '@/components/agenda/day-calendar'
 import { CitaFormDialog } from '@/components/agenda/cita-form-dialog'
@@ -93,6 +94,17 @@ export function AgendaPage() {
           <Button variant="outline" size="icon" aria-label="Día anterior" onClick={irDiaAnterior}>
             <ChevronLeft />
           </Button>
+          <Input
+            type="date"
+            aria-label="Ir a una fecha"
+            className="w-[9.5rem]"
+            value={`${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}-${String(fecha.getDate()).padStart(2, '0')}`}
+            onChange={(e) => {
+              if (!e.target.value) return
+              const [a, m, d] = e.target.value.split('-').map(Number)
+              setFecha(new Date(a, m - 1, d))
+            }}
+          />
           <Button variant="outline" onClick={irHoy}>
             Hoy
           </Button>

@@ -3,6 +3,7 @@ export interface PacienteResponse {
   nombre: string
   documentoIdentidad: string | null
   fechaNacimiento: string | null
+  sexo: 'F' | 'M' | null
   telefono: string | null
   email: string | null
   direccion: string | null
@@ -119,4 +120,22 @@ export interface PlanResponse {
   limiteUsuarios: number | null
   limitePacientes: number | null
   limiteDoctores: number | null
+}
+
+export interface ServicioResponse {
+  id: string
+  nombre: string
+  precio: number
+  activo: boolean
+}
+
+export interface ClinicaResponse {
+  id: string
+  nombre: string
+  nit: string
+  nrc: string | null
+  giro: string | null
+  telefono: string | null
+  direccion: string | null
+  tipoPractica: string
 }

@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { esConsultorio, etiquetaRol, useAuth } from '@/lib/auth-context'
+import { esConsultorio, etiquetaRol, puede, useAuth } from '@/lib/auth-context'
+import { CitaFormDialog } from '@/components/agenda/cita-form-dialog'
+import { CitaDetailDialog } from '@/components/agenda/cita-detail-dialog'
 import { apiFetch } from '@/lib/api'
 import type { CitaResponse, FacturaResponse, PacienteResponse, SuscripcionResponse } from '@/types'
 import { PageHeader, Seccion } from '@/components/page-header'
@@ -61,6 +63,9 @@ export function DashboardPage() {
   const [totalPacientes, setTotalPacientes] = useState(0)
   const [suscripcion, setSuscripcion] = useState<SuscripcionResponse | null>(null)
   const [cargando, setCargando] = useState(true)
+  const [recarga, setRecarga] = useState(0)
+  const [nuevaCitaAbierta, setNuevaCitaAbierta] = useState(false)
+  const [citaDetalle, setCitaDetalle] = useState<CitaResponse | null>(null)
 
   useEffect(() => {
     if (sesion?.rol === 'SUPER_ADMIN') {
@@ -88,7 +93,7 @@ export function DashboardPage() {
       })
       .catch(() => {})
       .finally(() => setCargando(false))
-  }, [sesion])
+  }, [sesion, recarga])
 
   const ahora = Date.now()
   // la siguiente cita aun por atender: se resalta como el folder que sigue
@@ -110,11 +115,9 @@ export function DashboardPage() {
               : `${citasHoy.length} ${citasHoy.length === 1 ? 'cita' : 'citas'} hoy, ${pendientesHoy} por atender.`
         }
         acciones={
-          <Button asChild>
-            <Link to="/agenda">
-              <CalendarPlus />
-              Agendar cita
-            </Link>
+          <Button onClick={() => setNuevaCitaAbierta(true)}>
+            <CalendarPlus />
+            Agendar cita
           </Button>
         }
       />
@@ -159,8 +162,12 @@ export function DashboardPage() {
                     return (
                       <li
                         key={cita.id}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => setCitaDetalle(cita)}
+                        onKeyDown={(e) => e.key === 'Enter' && setCitaDetalle(cita)}
                         className={cn(
-                          'grid grid-cols-[5.25rem_minmax(0,1fr)] items-center gap-x-4 gap-y-2 px-4 py-3 sm:grid-cols-[5.5rem_auto_minmax(0,1fr)_auto]',
+                          'grid cursor-pointer transition-colors hover:bg-accent/45 grid-cols-[5.25rem_minmax(0,1fr)] items-center gap-x-4 gap-y-2 px-4 py-3 sm:grid-cols-[5.5rem_auto_minmax(0,1fr)_auto]',
                           esSiguiente && 'bg-info-suave/60',
                         )}
                       >
@@ -172,6 +179,7 @@ export function DashboardPage() {
                         <div className="min-w-0">
                           <Link
                             to={`/pacientes/${cita.pacienteId}`}
+                            onClick={(e) => e.stopPropagation()}
                             className="block truncate font-medium text-tinta hover:underline"
                           >
                             {cita.pacienteNombre}
@@ -218,7 +226,7 @@ export function DashboardPage() {
               </div>
             </Seccion>
 
-            {suscripcion && (
+            {suscripcion && puede(sesion, 'administrar') && (
               <Seccion
                 titulo="Suscripción"
                 accion={
@@ -248,6 +256,22 @@ export function DashboardPage() {
           </div>
         </div>
       )}
+      <CitaFormDialog
+        open={nuevaCitaAbierta}
+        onOpenChange={setNuevaCitaAbierta}
+        onGuardado={() => {
+          setNuevaCitaAbierta(false)
+          setRecarga((n) => n + 1)
+        }}
+      />
+      <CitaDetailDialog
+        cita={citaDetalle}
+        onOpenChange={(open) => !open && setCitaDetalle(null)}
+        onActualizada={() => {
+          setCitaDetalle(null)
+          setRecarga((n) => n + 1)
+        }}
+      />
     </div>
   )
 }

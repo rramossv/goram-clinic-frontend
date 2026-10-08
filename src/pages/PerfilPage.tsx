@@ -19,7 +19,23 @@ function iniciales(nombre: string) {
 }
 
 export function PerfilPage() {
-  const { sesion } = useAuth()
+  const { sesion, actualizarNombre } = useAuth()
+  const [nombre, setNombre] = useState(sesion?.nombre ?? '')
+  const [guardandoNombre, setGuardandoNombre] = useState(false)
+
+  async function guardarNombre(event: FormEvent) {
+    event.preventDefault()
+    setGuardandoNombre(true)
+    try {
+      await apiFetch('/api/v1/usuarios/me', { method: 'PATCH', body: { nombre } })
+      actualizarNombre(nombre.trim())
+      toast.success('Nombre actualizado')
+    } catch (err) {
+      toast.error(err instanceof ApiRequestError ? (err.body?.message ?? 'No se pudo actualizar el nombre') : 'No se pudo conectar con el servidor')
+    } finally {
+      setGuardandoNombre(false)
+    }
+  }
   const [passwordActual, setPasswordActual] = useState('')
   const [passwordNueva, setPasswordNueva] = useState('')
   const [passwordConfirmar, setPasswordConfirmar] = useState('')
@@ -83,6 +99,15 @@ export function PerfilPage() {
                 {etiquetaRol(sesion)}
               </Badge>
             </div>
+            <form onSubmit={guardarNombre} className="flex flex-col gap-2 border-t pt-4">
+              <Label htmlFor="mi-nombre">Nombre como aparece en citas, recetas y facturas</Label>
+              <div className="flex gap-2">
+                <Input id="mi-nombre" required value={nombre} onChange={(e) => setNombre(e.target.value)} />
+                <Button type="submit" variant="outline" disabled={guardandoNombre || nombre.trim() === sesion.nombre}>
+                  Guardar
+                </Button>
+              </div>
+            </form>
           </CardContent>
         </Card>
 

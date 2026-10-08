@@ -13,12 +13,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
 
 interface PacienteFormValues {
   nombre: string
   documentoIdentidad: string
   fechaNacimiento: string
+  sexo: string
   telefono: string
   email: string
   direccion: string
@@ -30,6 +32,7 @@ const VALORES_VACIOS: PacienteFormValues = {
   nombre: '',
   documentoIdentidad: '',
   fechaNacimiento: '',
+  sexo: '',
   telefono: '',
   email: '',
   direccion: '',
@@ -42,6 +45,7 @@ function pacienteAFormulario(paciente: PacienteResponse): PacienteFormValues {
     nombre: paciente.nombre,
     documentoIdentidad: paciente.documentoIdentidad ?? '',
     fechaNacimiento: paciente.fechaNacimiento ?? '',
+    sexo: paciente.sexo ?? '',
     telefono: paciente.telefono ?? '',
     email: paciente.email ?? '',
     direccion: paciente.direccion ?? '',
@@ -79,6 +83,7 @@ export function PacienteFormDialog({ open, onOpenChange, paciente, onGuardado }:
       nombre: valores.nombre,
       documentoIdentidad: valores.documentoIdentidad || null,
       fechaNacimiento: valores.fechaNacimiento || null,
+      sexo: valores.sexo || null,
       telefono: valores.telefono || null,
       email: valores.email || null,
       direccion: valores.direccion || null,
@@ -143,6 +148,18 @@ export function PacienteFormDialog({ open, onOpenChange, paciente, onGuardado }:
                 value={valores.fechaNacimiento}
                 onChange={(e) => actualizar('fechaNacimiento', e.target.value)}
               />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="sexo">Sexo</Label>
+              <Select value={valores.sexo} onValueChange={(v) => actualizar('sexo', v)}>
+                <SelectTrigger id="sexo" className="w-full">
+                  <SelectValue placeholder="Sin especificar" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="F">Femenino</SelectItem>
+                  <SelectItem value="M">Masculino</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="flex flex-col gap-2">
               <Label htmlFor="telefono">Teléfono</Label>

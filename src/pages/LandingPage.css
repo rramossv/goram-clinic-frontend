@@ -1,7 +1,7 @@
 /* Estilos de la landing, aislados del resto de la app (que usa Tailwind)
    con @scope -- asi el CSS pegado tal cual no choca con ninguna otra
    pagina, sin tener que reescribir cada selector a mano. */
-:root {
+.gr-landing {
   --ink: #102a28;
   --muted: #6c7c79;
   --teal: #08756e;

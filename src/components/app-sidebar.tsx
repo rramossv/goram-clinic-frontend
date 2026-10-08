@@ -20,7 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { esConsultorio, etiquetaRol, useAuth } from '@/lib/auth-context'
+import { esConsultorio, etiquetaRol, puede, useAuth, type Permiso } from '@/lib/auth-context'
 import {
   LayoutDashboard,
   Users,
@@ -35,20 +35,22 @@ import {
   Sun,
   Moon,
   ChevronsUpDown,
+  Settings,
 } from 'lucide-react'
 
 export const NAV_ATENCION = [
   { to: '/panel', label: 'Hoja del día', icon: LayoutDashboard, end: true },
   { to: '/agenda', label: 'Agenda', icon: CalendarDays, end: false },
   { to: '/pacientes', label: 'Pacientes', icon: Users, end: false },
-  { to: '/consultas', label: 'Consultas', icon: Stethoscope, end: false },
+  { to: '/consultas', label: 'Consultas', icon: Stethoscope, end: false, permiso: 'clinico' as Permiso },
 ]
 
 export const NAV_ADMINISTRACION = [
   { to: '/facturas', label: 'Facturación', icon: Receipt, end: false },
-  { to: '/reportes', label: 'Reportes', icon: BarChart3, end: false },
-  { to: '/personal', label: 'Personal', icon: UserCog, end: false },
-  { to: '/suscripcion', label: 'Suscripción', icon: CreditCard, end: false },
+  { to: '/reportes', label: 'Reportes', icon: BarChart3, end: false, permiso: 'administrar' as Permiso },
+  { to: '/personal', label: 'Personal', icon: UserCog, end: false, permiso: 'administrar' as Permiso },
+  { to: '/suscripcion', label: 'Suscripción', icon: CreditCard, end: false, permiso: 'administrar' as Permiso },
+  { to: '/configuracion', label: 'Configuración', icon: Settings, end: false, permiso: 'administrar' as Permiso },
 ]
 
 function iniciales(nombre: string) {
@@ -79,6 +81,7 @@ interface ItemNav {
   label: string
   icon: typeof LayoutDashboard
   end: boolean
+  permiso?: Permiso
 }
 
 function GrupoNav({ titulo, items }: { titulo: string; items: ItemNav[] }) {
@@ -131,9 +134,13 @@ export function AppSidebar() {
   const { resolvedTheme, setTheme } = useTheme()
   const esOscuro = resolvedTheme === 'dark'
   const consultorio = esConsultorio(sesion)
-  const administracion = consultorio
-    ? NAV_ADMINISTRACION.map((item) => (item.to === '/personal' ? { ...item, label: 'Mi asistente' } : item))
-    : NAV_ADMINISTRACION
+  const permitido = (item: ItemNav) => !item.permiso || puede(sesion, item.permiso)
+  const atencion = NAV_ATENCION.filter(permitido)
+  const administracion = (
+    consultorio
+      ? NAV_ADMINISTRACION.map((item) => (item.to === '/personal' ? { ...item, label: 'Mi asistente' } : item))
+      : NAV_ADMINISTRACION
+  ).filter(permitido)
 
   return (
     <Sidebar collapsible="icon" className="border-r-0">
@@ -142,13 +149,13 @@ export function AppSidebar() {
           <MarcaArchivo />
           <div className="min-w-0 leading-tight group-data-[collapsible=icon]:hidden">
             <p className="text-[15px] font-semibold tracking-[-0.01em] text-sidebar-accent-foreground">GoRam Clinic</p>
-            <p className="text-xs text-sidebar-foreground/65">{consultorio ? 'Consultorio individual' : 'Clínica'}</p>
+            <p className="truncate text-xs text-sidebar-foreground/65">{sesion?.clinicaNombre ?? (consultorio ? 'Consultorio individual' : 'Clínica')}</p>
           </div>
         </div>
       </SidebarHeader>
       <SidebarContent className="gap-3">
-        <GrupoNav titulo="Atención" items={NAV_ATENCION} />
-        <GrupoNav titulo="Administración" items={administracion} />
+        <GrupoNav titulo="Atención" items={atencion} />
+        {administracion.length > 0 && <GrupoNav titulo="Administración" items={administracion} />}
       </SidebarContent>
       <SidebarFooter className="border-t border-sidebar-border p-3 group-data-[collapsible=icon]:p-2">
         <DropdownMenu>

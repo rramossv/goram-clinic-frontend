@@ -21,6 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { abrirImpresionFactura } from '@/components/facturas/factura-form-dialog'
 import { toast } from 'sonner'
 import { AlertTriangle, ArrowLeft, CalendarPlus, FileText, Pencil, Receipt } from 'lucide-react'
 
@@ -190,6 +191,7 @@ export function PacienteDetailPage() {
           </CardHeader>
           <CardContent className="flex flex-col gap-3 text-sm">
             <Dato etiqueta="Fecha de nacimiento" valor={fechaNacimientoLegible(paciente.fechaNacimiento)} />
+            <Dato etiqueta="Sexo" valor={paciente.sexo === 'F' ? 'Femenino' : paciente.sexo === 'M' ? 'Masculino' : null} />
             {!tieneAlergias(paciente.alergias) && <Dato etiqueta="Alergias" valor={paciente.alergias || 'Sin alergias registradas'} />}
             <Dato etiqueta="Teléfono" valor={paciente.telefono} />
             <Dato etiqueta="Email" valor={paciente.email} />
@@ -279,6 +281,7 @@ export function PacienteDetailPage() {
                       <TableHead>Tipo</TableHead>
                       <TableHead>Total</TableHead>
                       <TableHead>Estado</TableHead>
+                      <TableHead />
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -289,6 +292,11 @@ export function PacienteDetailPage() {
                         <TableCell>${factura.total.toFixed(2)}</TableCell>
                         <TableCell>
                           <EstadoChip estado={factura.estado} />
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button variant="ghost" size="sm" onClick={() => abrirImpresionFactura(factura.id)}>
+                            Imprimir
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}

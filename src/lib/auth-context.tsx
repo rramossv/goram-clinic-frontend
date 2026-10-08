@@ -14,6 +14,7 @@ export interface SesionUsuario {
   // tratan como CLINICA (la interfaz de siempre)
   atiendePacientes?: boolean
   tipoPractica?: TipoPractica | null
+  clinicaNombre?: string | null
 }
 
 const ETIQUETA_ROL: Record<string, string> = {
@@ -26,6 +27,20 @@ const ETIQUETA_ROL: Record<string, string> = {
 /** Consultorio de un solo medico: interfaz simplificada, sin selector de doctor. */
 export function esConsultorio(sesion: SesionUsuario | null) {
   return sesion?.tipoPractica === 'INDIVIDUAL'
+}
+
+export type Permiso = 'clinico' | 'administrar'
+
+/**
+ * Que puede ver y hacer cada rol. clinico = notas, diagnosticos y recetas
+ * (datos de salud: medicos y administracion, nunca recepcion). administrar =
+ * personal, plan, configuracion y reportes financieros.
+ */
+export function puede(sesion: SesionUsuario | null, permiso: Permiso) {
+  const rol = sesion?.rol
+  if (rol === 'ADMIN_CLINICA') return true
+  if (permiso === 'clinico') return rol === 'DOCTOR'
+  return false
 }
 
 export function etiquetaRol(sesion: SesionUsuario | null) {
@@ -44,6 +59,7 @@ interface AuthContextValue {
   cargando: boolean
   login: (email: string, password: string) => Promise<void>
   logout: () => void
+  actualizarNombre: (nombre: string) => void
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
@@ -91,10 +107,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       nombre: response.nombre,
       atiendePacientes: response.atiendePacientes,
       tipoPractica: response.tipoPractica,
+      clinicaNombre: response.clinicaNombre,
     }
 
     localStorage.setItem(SESION_STORAGE_KEY, JSON.stringify(nuevaSesion))
     setSesion(nuevaSesion)
+  }
+
+  function actualizarNombre(nombre: string) {
+    setSesion((actual) => {
+      if (!actual) return actual
+      const nueva = { ...actual, nombre }
+      localStorage.setItem(SESION_STORAGE_KEY, JSON.stringify(nueva))
+      return nueva
+    })
   }
 
   function logout() {
@@ -103,7 +129,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ sesion, cargando, login, logout }}>
+    <AuthContext.Provider value={{ sesion, cargando, login, logout, actualizarNombre }}>
       {children}
     </AuthContext.Provider>
   )

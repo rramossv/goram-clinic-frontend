@@ -5,6 +5,7 @@ import { esConsultorio, useAuth } from '@/lib/auth-context'
 
 function tituloDe(pathname: string, consultorio: boolean) {
   if (pathname === '/perfil') return 'Mi perfil'
+  if (pathname === '/configuracion') return 'Configuración'
   const item = [...NAV_ATENCION, ...NAV_ADMINISTRACION].find((i) =>
     i.end ? pathname === i.to : pathname.startsWith(i.to),
   )

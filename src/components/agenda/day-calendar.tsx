@@ -42,17 +42,30 @@ export function DayCalendar({ fecha, doctores, citas, onCeldaVacia, onCita }: Da
   const gridRef = useRef<HTMLDivElement>(null)
   const { puedeScrollIzq, puedeScrollDer, alHacerScroll } = useScrollShadows(containerRef, gridRef)
 
-  // Al abrir el dia de hoy, la grilla arranca una hora antes de la actual en
-  // vez de mostrar la manana ya transcurrida.
-  const esHoyFecha = esMismoDia(fecha, new Date())
+  // Cada dia abre donde importa: hoy, una hora antes de la actual; otro dia,
+  // media hora antes de su primera cita (o a las 8:00 si esta libre).
+  const claveDia = fecha.toDateString()
+  const primeraCita = citas
+    .filter((c) => esMismoDia(new Date(c.fechaHora), fecha))
+    .reduce<number | null>((min, c) => {
+      const d = new Date(c.fechaHora)
+      const m = d.getHours() * 60 + d.getMinutes()
+      return min === null || m < min ? m : min
+    }, null)
   useEffect(() => {
     const contenedor = containerRef.current
-    if (!contenedor || !esHoyFecha) return
-    const minutos = new Date().getHours() * 60 - 60 - HORA_INICIO * 60
-    const filas = Math.max(0, minutos / SLOT_MINUTOS)
+    if (!contenedor) return
+    const ahora = new Date()
+    const objetivo = esMismoDia(fecha, ahora)
+      ? ahora.getHours() * 60 - 60
+      : primeraCita !== null
+        ? primeraCita - 30
+        : 8 * 60
+    const filas = Math.max(0, (objetivo - HORA_INICIO * 60) / SLOT_MINUTOS)
     const remPx = parseFloat(getComputedStyle(document.documentElement).fontSize)
     contenedor.scrollTop = filas * 3 * remPx
-  }, [esHoyFecha, doctores.length])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [claveDia, primeraCita, doctores.length])
 
   if (doctores.length === 0) {
     return (

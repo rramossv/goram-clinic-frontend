@@ -82,7 +82,12 @@ export function ConsultasPage() {
         </Table>
       </div>
 
-      <ConsultaDialog open={dialogAbierto} onOpenChange={setDialogAbierto} cita={citaSeleccionada} />
+      <ConsultaDialog
+        open={dialogAbierto}
+        onOpenChange={setDialogAbierto}
+        cita={citaSeleccionada}
+        onGuardada={() => apiFetch<CitaResponse[]>('/api/v1/citas').then(setCitas).catch(() => {})}
+      />
     </div>
   )
 }
