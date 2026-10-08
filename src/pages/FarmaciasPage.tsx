@@ -20,7 +20,8 @@ export function FarmaciasPage() {
   async function agregarSugeridas() {
     setAgregando(true)
     try {
-      for (const sugerida of FARMACIAS_SUGERIDAS) {
+      const existentes = new Set((farmacias ?? []).map((f) => dominioDe(f.url)))
+      for (const sugerida of FARMACIAS_SUGERIDAS.filter((s) => !existentes.has(dominioDe(s.url)))) {
         await apiFetch('/api/v1/farmacias', { method: 'POST', body: sugerida })
       }
       toast.success('Farmacias agregadas')

@@ -14,6 +14,23 @@ export const FARMACIAS_SUGERIDAS = [
   { nombre: 'Farmacias Value', url: 'https://www.farmavalue.com/', urlBusqueda: '' },
 ]
 
+/**
+ * Acepta "farmavalue.com", "www.x.com" o "http://x.com" y devuelve https://...
+ * Devuelve null si no parece una direccion web.
+ */
+export function normalizarUrl(texto: string): string | null {
+  let url = texto.trim()
+  if (!url) return null
+  url = url.replace(/^http:\/\//i, 'https://')
+  if (!/^https:\/\//i.test(url)) url = `https://${url.replace(/^\/+/, '')}`
+  try {
+    const u = new URL(url)
+    return u.hostname.includes('.') && !/\s/.test(url) ? url : null
+  } catch {
+    return null
+  }
+}
+
 export function dominioDe(url: string) {
   try {
     return new URL(url).hostname.replace(/^www\./, '')

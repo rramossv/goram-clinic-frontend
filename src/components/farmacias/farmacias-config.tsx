@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { apiFetch, ApiRequestError } from '@/lib/api'
 import type { FarmaciaResponse } from '@/types'
-import { dominioDe, FARMACIAS_SUGERIDAS, useFarmacias } from '@/components/farmacias/farmacias'
+import { dominioDe, FARMACIAS_SUGERIDAS, normalizarUrl, useFarmacias } from '@/components/farmacias/farmacias'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -33,9 +33,24 @@ export function FarmaciasConfig() {
 
   async function guardar(event: FormEvent) {
     event.preventDefault()
+    const url = normalizarUrl(valores.url)
+    if (!url) {
+      toast.error('Escribí la dirección del sitio, por ejemplo farmavalue.com')
+      return
+    }
+    const busqueda = valores.urlBusqueda.trim() ? normalizarUrl(valores.urlBusqueda) : ''
+    if (busqueda === null || (busqueda && !busqueda.includes('{medicamento}'))) {
+      toast.error('El enlace de búsqueda debe incluir {medicamento} donde va el producto')
+      return
+    }
+    const repetida = farmacias?.find((f) => f.id !== editando?.id && dominioDe(f.url) === dominioDe(url))
+    if (repetida) {
+      toast.error(`${repetida.nombre} ya está en la lista`)
+      return
+    }
     setOcupado(true)
     try {
-      const body = { ...valores, url: valores.url.trim(), urlBusqueda: valores.urlBusqueda.trim() }
+      const body = { nombre: valores.nombre.trim(), url, urlBusqueda: busqueda }
       if (editando) {
         await apiFetch(`/api/v1/farmacias/${editando.id}`, { method: 'PUT', body })
         toast.success('Farmacia actualizada')
@@ -75,7 +90,7 @@ export function FarmaciasConfig() {
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="farmacia-url" className="text-xs">Sitio web</Label>
-          <Input id="farmacia-url" required type="url" placeholder="https://..." value={valores.url} onChange={(e) => setValores((v) => ({ ...v, url: e.target.value }))} />
+          <Input id="farmacia-url" required inputMode="url" autoCapitalize="none" placeholder="Ej. farmavalue.com" value={valores.url} onChange={(e) => setValores((v) => ({ ...v, url: e.target.value }))} />
         </div>
         <div className="flex flex-col gap-1.5 sm:col-span-2">
           <Label htmlFor="farmacia-busqueda" className="text-xs">Enlace de búsqueda (opcional)</Label>

@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { apiFetch, SESION_STORAGE_KEY } from '@/lib/api'
+import { toast } from 'sonner'
 
 export type TipoPractica = 'INDIVIDUAL' | 'CLINICA'
 
@@ -85,6 +86,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     function alRecibirNoAutorizado() {
+      // solo si habia sesion: un 401 al iniciar sesion es contrasena incorrecta
+      if (localStorage.getItem(SESION_STORAGE_KEY)) {
+        toast.warning('Tu sesión expiró. Ingresá de nuevo para continuar.', { id: 'sesion-expirada' })
+      }
       logout()
     }
     window.addEventListener('goram:unauthorized', alRecibirNoAutorizado)
