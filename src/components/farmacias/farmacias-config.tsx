@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { apiFetch, ApiRequestError } from '@/lib/api'
 import type { FarmaciaResponse } from '@/types'
-import { dominioDe, FARMACIA_SUGERIDA, useFarmacias } from '@/components/farmacias/farmacias'
+import { dominioDe, FARMACIAS_SUGERIDAS, useFarmacias } from '@/components/farmacias/farmacias'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -62,7 +62,9 @@ export function FarmaciasConfig() {
     }
   }
 
-  const tieneSugerida = farmacias?.some((f) => dominioDe(f.url) === dominioDe(FARMACIA_SUGERIDA.url))
+  const faltantes = FARMACIAS_SUGERIDAS.filter(
+    (sugerida) => !farmacias?.some((f) => dominioDe(f.url) === dominioDe(sugerida.url)),
+  )
 
   return (
     <div className="flex flex-col gap-3">
@@ -126,23 +128,26 @@ export function FarmaciasConfig() {
               </li>
             ))}
           </ul>
-          {!tieneSugerida && (
-            <div className="border-t bg-carton/40 px-4 py-3 text-sm">
-              Sugerida:{' '}
-              <button
-                type="button"
-                className="font-medium text-primary hover:underline"
-                onClick={async () => {
-                  try {
-                    await apiFetch('/api/v1/farmacias', { method: 'POST', body: FARMACIA_SUGERIDA })
-                    recargar()
-                  } catch (err) {
-                    toast.error(mensaje(err, 'No se pudo agregar'))
-                  }
-                }}
-              >
-                agregar {FARMACIA_SUGERIDA.nombre}
-              </button>
+          {farmacias.length > 0 && faltantes.length > 0 && (
+            <div className="flex flex-wrap gap-x-3 gap-y-1 border-t bg-carton/40 px-4 py-3 text-sm">
+              <span className="text-muted-foreground">Sugeridas:</span>
+              {faltantes.map((sugerida) => (
+                <button
+                  key={sugerida.url}
+                  type="button"
+                  className="font-medium text-primary hover:underline"
+                  onClick={async () => {
+                    try {
+                      await apiFetch('/api/v1/farmacias', { method: 'POST', body: sugerida })
+                      recargar()
+                    } catch (err) {
+                      toast.error(mensaje(err, 'No se pudo agregar'))
+                    }
+                  }}
+                >
+                  agregar {sugerida.nombre}
+                </button>
+              ))}
             </div>
           )}
         </div>

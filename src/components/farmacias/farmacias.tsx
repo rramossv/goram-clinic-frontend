@@ -5,8 +5,14 @@ import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { ExternalLink, Pill, Search } from 'lucide-react'
 
-/** Farmacia sugerida: sitio verificado (tienda en linea de San Nicolas, El Salvador). */
-export const FARMACIA_SUGERIDA = { nombre: 'Farmacias San Nicolás', url: 'https://www.farmaciasannicolas.com/', urlBusqueda: '' }
+/**
+ * Farmacias sugeridas: solo sitios oficiales verificados. Ninguno expone un
+ * enlace de busqueda directa comprobable, asi que abren su tienda.
+ */
+export const FARMACIAS_SUGERIDAS = [
+  { nombre: 'Farmacias San Nicolás', url: 'https://www.farmaciasannicolas.com/', urlBusqueda: '' },
+  { nombre: 'Farmacias Value', url: 'https://www.farmavalue.com/', urlBusqueda: '' },
+]
 
 export function dominioDe(url: string) {
   try {

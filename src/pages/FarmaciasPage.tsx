@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { apiFetch, ApiRequestError } from '@/lib/api'
 import { puede, useAuth } from '@/lib/auth-context'
 import { PageHeader } from '@/components/page-header'
-import { abrirFarmacia, dominioDe, FARMACIA_SUGERIDA, useFarmacias } from '@/components/farmacias/farmacias'
+import { abrirFarmacia, dominioDe, FARMACIAS_SUGERIDAS, useFarmacias } from '@/components/farmacias/farmacias'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -17,11 +17,13 @@ export function FarmaciasPage() {
   const [medicamento, setMedicamento] = useState('')
   const [agregando, setAgregando] = useState(false)
 
-  async function agregarSugerida() {
+  async function agregarSugeridas() {
     setAgregando(true)
     try {
-      await apiFetch('/api/v1/farmacias', { method: 'POST', body: FARMACIA_SUGERIDA })
-      toast.success(`${FARMACIA_SUGERIDA.nombre} agregada`)
+      for (const sugerida of FARMACIAS_SUGERIDAS) {
+        await apiFetch('/api/v1/farmacias', { method: 'POST', body: sugerida })
+      }
+      toast.success('Farmacias agregadas')
       recargar()
     } catch (err) {
       toast.error(err instanceof ApiRequestError ? (err.body?.message ?? 'No se pudo agregar') : 'No se pudo conectar con el servidor')
@@ -66,12 +68,13 @@ export function FarmaciasPage() {
           {esAdmin ? (
             <>
               <p className="max-w-lg text-sm text-muted-foreground">
-                Agregá las farmacias donde tus pacientes compran. Podés empezar con {FARMACIA_SUGERIDA.nombre}, que tiene
-                tienda en línea, y sumar otras desde Configuración.
+                Agregá las farmacias donde tus pacientes compran. Podés empezar con{' '}
+                {FARMACIAS_SUGERIDAS.map((f) => f.nombre).join(' y ')}, que tienen tienda en línea, y sumar otras desde
+                Configuración.
               </p>
               <div className="flex flex-wrap gap-2">
-                <Button onClick={agregarSugerida} disabled={agregando}>
-                  Agregar {FARMACIA_SUGERIDA.nombre}
+                <Button onClick={agregarSugeridas} disabled={agregando}>
+                  Agregar las sugeridas
                 </Button>
                 <Button variant="outline" asChild>
                   <Link to="/configuracion#farmacias">Agregar otra farmacia</Link>
