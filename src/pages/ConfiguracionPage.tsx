@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { FarmaciasConfig } from '@/components/farmacias/farmacias-config'
 import { toast } from 'sonner'
 import { Check, Pencil, Plus, X } from 'lucide-react'
 
@@ -228,15 +229,25 @@ function ServiciosTarifas() {
 }
 
 export function ConfiguracionPage() {
+  useEffect(() => {
+    if (window.location.hash === '#farmacias') {
+      setTimeout(() => document.getElementById('farmacias')?.scrollIntoView({ behavior: 'smooth' }), 300)
+    }
+  }, [])
   return (
     <div className="flex flex-col gap-8">
-      <PageHeader titulo="Configuración" descripcion="Datos de tu clínica y la lista de servicios que cobrás." />
+      <PageHeader titulo="Configuración" descripcion="Datos de tu clínica, servicios que cobrás y farmacias de referencia." />
       <Seccion titulo="Datos de la clínica">
         <DatosClinica />
       </Seccion>
       <Seccion titulo="Servicios y tarifas">
         <ServiciosTarifas />
       </Seccion>
+      <div id="farmacias" className="scroll-mt-20">
+        <Seccion titulo="Farmacias de referencia">
+          <FarmaciasConfig />
+        </Seccion>
+      </div>
     </div>
   )
 }

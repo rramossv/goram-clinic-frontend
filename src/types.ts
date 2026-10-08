@@ -139,3 +139,10 @@ export interface ClinicaResponse {
   direccion: string | null
   tipoPractica: string
 }
+
+export interface FarmaciaResponse {
+  id: string
+  nombre: string
+  url: string
+  urlBusqueda: string | null
+}

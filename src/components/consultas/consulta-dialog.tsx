@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { apiFetch, ApiRequestError } from '@/lib/api'
 import type { CitaResponse, ConsultaResponse } from '@/types'
 import { Button } from '@/components/ui/button'
@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { ConsultarFarmaciasBoton } from '@/components/farmacias/farmacias'
 import { toast } from 'sonner'
 import { Pencil, Printer } from 'lucide-react'
 
@@ -45,6 +46,19 @@ export function ConsultaDialog({ open, onOpenChange, cita, onGuardada }: Consult
   const [diagnostico, setDiagnostico] = useState('')
   const [receta, setReceta] = useState('')
   const [enviando, setEnviando] = useState(false)
+  const recetaRef = useRef<HTMLTextAreaElement>(null)
+
+  // Lo seleccionado en la receta, o el nombre del medicamento de la linea
+  // donde esta el cursor (hasta el primer numero: "Amoxicilina 500 mg" -> "Amoxicilina").
+  function terminoDeReceta() {
+    const area = recetaRef.current
+    if (!area) return ''
+    const seleccion = area.value.slice(area.selectionStart, area.selectionEnd).trim()
+    if (seleccion) return seleccion
+    const antes = area.value.slice(0, area.selectionStart)
+    const linea = area.value.split('\n')[antes.split('\n').length - 1] ?? ''
+    return linea.split(/\d/)[0].replace(/[,;:-]+$/, '').trim()
+  }
 
   useEffect(() => {
     if (!open || !cita) return
@@ -152,8 +166,12 @@ export function ConsultaDialog({ open, onOpenChange, cita, onGuardada }: Consult
                 <Textarea id="diagnostico" rows={2} value={diagnostico} onChange={(e) => setDiagnostico(e.target.value)} />
               </div>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="receta">Receta</Label>
+                <div className="flex items-center justify-between gap-2">
+                  <Label htmlFor="receta">Receta</Label>
+                  <ConsultarFarmaciasBoton terminoInicial={terminoDeReceta} />
+                </div>
                 <Textarea
+                  ref={recetaRef}
                   id="receta"
                   rows={4}
                   placeholder={'Un medicamento por línea, con dosis y frecuencia.\nEj. Amoxicilina 500 mg, 1 cápsula cada 8 horas por 7 días'}

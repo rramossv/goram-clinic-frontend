@@ -16,6 +16,7 @@ import { PersonalPage } from '@/pages/PersonalPage'
 import { SuscripcionPage } from '@/pages/SuscripcionPage'
 import { PerfilPage } from '@/pages/PerfilPage'
 import { ConfiguracionPage } from '@/pages/ConfiguracionPage'
+import { FarmaciasPage } from '@/pages/FarmaciasPage'
 import { ImprimirFacturaPage, ImprimirRecetaPage } from '@/pages/ImpresionPages'
 import { ProtectedRoute, RequierePermiso } from '@/lib/protected-route'
 import { AppLayout } from '@/components/app-layout'
@@ -36,6 +37,7 @@ function App() {
           <Route path="/pacientes" element={<PacientesPage />} />
           <Route path="/pacientes/:id" element={<PacienteDetailPage />} />
           <Route path="/agenda" element={<AgendaPage />} />
+          <Route path="/farmacias" element={<FarmaciasPage />} />
           <Route element={<RequierePermiso permiso="clinico" />}>
             <Route path="/consultas" element={<ConsultasPage />} />
           </Route>

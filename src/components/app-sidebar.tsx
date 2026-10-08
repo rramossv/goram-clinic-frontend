@@ -36,6 +36,7 @@ import {
   Moon,
   ChevronsUpDown,
   Settings,
+  Pill,
 } from 'lucide-react'
 
 export const NAV_ATENCION = [
@@ -43,6 +44,7 @@ export const NAV_ATENCION = [
   { to: '/agenda', label: 'Agenda', icon: CalendarDays, end: false },
   { to: '/pacientes', label: 'Pacientes', icon: Users, end: false },
   { to: '/consultas', label: 'Consultas', icon: Stethoscope, end: false, permiso: 'clinico' as Permiso },
+  { to: '/farmacias', label: 'Farmacias', icon: Pill, end: false },
 ]
 
 export const NAV_ADMINISTRACION = [
