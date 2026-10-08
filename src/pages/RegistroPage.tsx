@@ -20,11 +20,10 @@ interface RegistroClinicaResponse {
   estadoSuscripcion: string
 }
 
-// Un doctor solo elige entre Basico (sin DTE) y Consultorio (con DTE); los
-// planes multi-usuario no tienen sentido para el. Y Consultorio no se ofrece a
-// clinicas porque su limite de 2 usuarios no les alcanza.
-const PLANES_INDIVIDUAL = ['BASICO', 'CONSULTORIO']
-const PLAN_DEFECTO: Record<TipoPractica, string> = { INDIVIDUAL: 'CONSULTORIO', CLINICA: 'PROFESIONAL' }
+// Los planes se dividen por tipo de practica: un doctor solo ve Consultorio y
+// Consultorio Pro (1 medico); una clinica ve Clinica y Clinica Plus.
+const PREFIJO_PLANES: Record<TipoPractica, string> = { INDIVIDUAL: 'CONSULTORIO', CLINICA: 'CLINICA' }
+const PLAN_DEFECTO: Record<TipoPractica, string> = { INDIVIDUAL: 'CONSULTORIO', CLINICA: 'CLINICA' }
 
 const OPCIONES_TIPO = [
   {
@@ -42,8 +41,8 @@ const OPCIONES_TIPO = [
 ]
 
 function tipoInicial(tipo: string | null, plan: string | null): TipoPractica | null {
-  if (tipo === 'individual' || plan === 'CONSULTORIO') return 'INDIVIDUAL'
-  if (tipo === 'clinica' || plan === 'PROFESIONAL' || plan === 'CLINICA') return 'CLINICA'
+  if (tipo === 'individual' || plan?.startsWith('CONSULTORIO')) return 'INDIVIDUAL'
+  if (tipo === 'clinica' || plan?.startsWith('CLINICA')) return 'CLINICA'
   return null
 }
 
@@ -80,9 +79,7 @@ export function RegistroPage() {
 
   const planesVisibles = useMemo(() => {
     if (!tipoPractica) return []
-    return planes.filter((p) =>
-      tipoPractica === 'INDIVIDUAL' ? PLANES_INDIVIDUAL.includes(p.codigo) : p.codigo !== 'CONSULTORIO',
-    )
+    return planes.filter((p) => p.codigo.startsWith(PREFIJO_PLANES[tipoPractica]))
   }, [planes, tipoPractica])
 
   // Al cambiar de tipo, respeta el plan que venia en la URL si aplica a ese

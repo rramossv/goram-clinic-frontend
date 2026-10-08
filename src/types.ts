@@ -118,4 +118,5 @@ export interface PlanResponse {
   incluyeFacturacionElectronica: boolean
   limiteUsuarios: number | null
   limitePacientes: number | null
+  limiteDoctores: number | null
 }

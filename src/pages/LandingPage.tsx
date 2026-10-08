@@ -6,18 +6,22 @@ import type { PlanResponse } from '@/types'
 import './LandingPage.css'
 
 const DESCRIPCIONES_PLAN: Record<string, string> = {
-  BASICO: 'Para consultorios que arrancan: pacientes, agenda y consultas en un solo lugar.',
-  CONSULTORIO: 'Para el medico con consultorio propio: vos y tu asistente, con facturacion electronica.',
-  PROFESIONAL: 'Todo lo del plan Basico, mas facturacion electronica DTE y reportes financieros.',
-  CLINICA: 'Para clinicas con varios doctores: usuarios ilimitados y soporte prioritario.',
+  CONSULTORIO: 'Para el medico con consultorio propio: pacientes, agenda, consultas y factura interna.',
+  CONSULTORIO_PRO: 'Todo lo de Consultorio, mas facturacion electronica a tu nombre ante Hacienda.',
+  CLINICA: 'Para clinicas con varios doctores, recepcion y facturacion electronica de la clinica.',
+  CLINICA_PLUS: 'Para clinicas grandes: doctores y personal sin limite.',
 }
 
 const CARACTERISTICAS_PLAN: Record<string, string[]> = {
-  BASICO: ['Hasta 3 usuarios', 'Hasta 500 pacientes', 'Agenda y consultas', 'Factura interna'],
-  CONSULTORIO: ['1 medico + 1 asistente', 'Hasta 1,000 pacientes', 'Facturacion electronica DTE', 'Interfaz simple, sin configurar personal'],
-  PROFESIONAL: ['Hasta 8 usuarios', 'Hasta 2,000 pacientes', 'Facturacion electronica DTE', 'Reportes financieros'],
-  CLINICA: ['Usuarios ilimitados', 'Pacientes ilimitados', 'Facturacion electronica DTE', 'Soporte prioritario'],
+  CONSULTORIO: ['1 medico + 1 asistente', 'Pacientes ilimitados', 'Agenda y expediente', 'Factura interna'],
+  CONSULTORIO_PRO: ['1 medico + 1 asistente', 'Pacientes ilimitados', 'Facturacion electronica DTE', 'Todo lo del plan Consultorio'],
+  CLINICA: ['Hasta 5 medicos', 'Hasta 10 usuarios', 'Facturacion electronica DTE', 'Agenda por doctor'],
+  CLINICA_PLUS: ['Medicos ilimitados', 'Usuarios ilimitados', 'Facturacion electronica DTE', 'Soporte prioritario'],
 }
+
+// Plan resaltado en la landing. "Recomendado" y no "Mas popular": todavia no
+// hay datos de uso que respalden lo segundo.
+const PLAN_DESTACADO = 'CONSULTORIO_PRO'
 
 export function LandingPage() {
   const { sesion } = useAuth()
@@ -331,8 +335,8 @@ export function LandingPage() {
         </div>
         <div className="wrap plans">
           {planes.map((plan) => (
-            <div key={plan.id} className={plan.codigo === 'PROFESIONAL' ? 'plan featured' : 'plan'}>
-              {plan.codigo === 'PROFESIONAL' && <span className="tag">Mas popular</span>}
+            <div key={plan.id} className={plan.codigo === PLAN_DESTACADO ? 'plan featured' : 'plan'}>
+              {plan.codigo === PLAN_DESTACADO && <span className="tag">Recomendado</span>}
               <p className="planName">{plan.nombre}</p>
               <p className="price">
                 ${plan.precioMensual.toFixed(0)}
@@ -347,7 +351,7 @@ export function LandingPage() {
                 ))}
               </div>
               <Link
-                to={plan.codigo === 'CONSULTORIO' ? '/registro?plan=CONSULTORIO&tipo=individual' : `/registro?plan=${plan.codigo}`}
+                to={`/registro?plan=${plan.codigo}`}
                 className="btn primary"
                 style={{ marginTop: 24 }}
               >
