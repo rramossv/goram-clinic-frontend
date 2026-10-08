@@ -1,19 +1,12 @@
 import { useState, type FormEvent } from 'react'
 import { apiFetch, ApiRequestError } from '@/lib/api'
-import { useAuth } from '@/lib/auth-context'
+import { etiquetaRol, useAuth } from '@/lib/auth-context'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
-
-const ETIQUETA_ROL: Record<string, string> = {
-  ADMIN_CLINICA: 'Administrador',
-  DOCTOR: 'Doctor',
-  RECEPCIONISTA: 'Recepcionista',
-  SUPER_ADMIN: 'Super admin',
-}
 
 function iniciales(nombre: string) {
   return nombre
@@ -86,7 +79,7 @@ export function PerfilPage() {
             <div>
               <p className="text-xs text-muted-foreground">Rol</p>
               <Badge variant="outline" className="mt-1">
-                {ETIQUETA_ROL[sesion.rol] ?? sesion.rol}
+                {etiquetaRol(sesion)}
               </Badge>
             </div>
           </CardContent>

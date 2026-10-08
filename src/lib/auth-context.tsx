@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { apiFetch, SESION_STORAGE_KEY } from '@/lib/api'
 
+export type TipoPractica = 'INDIVIDUAL' | 'CLINICA'
+
 export interface SesionUsuario {
   token: string
   usuarioId: string
@@ -8,6 +10,28 @@ export interface SesionUsuario {
   rol: string
   email: string
   nombre: string
+  // opcionales: sesiones guardadas antes de este cambio no los traen y se
+  // tratan como CLINICA (la interfaz de siempre)
+  atiendePacientes?: boolean
+  tipoPractica?: TipoPractica | null
+}
+
+const ETIQUETA_ROL: Record<string, string> = {
+  ADMIN_CLINICA: 'Administrador',
+  DOCTOR: 'Doctor',
+  RECEPCIONISTA: 'Recepcionista',
+  SUPER_ADMIN: 'Super admin',
+}
+
+/** Consultorio de un solo medico: interfaz simplificada, sin selector de doctor. */
+export function esConsultorio(sesion: SesionUsuario | null) {
+  return sesion?.tipoPractica === 'INDIVIDUAL'
+}
+
+export function etiquetaRol(sesion: SesionUsuario | null) {
+  if (!sesion) return ''
+  if (esConsultorio(sesion) && sesion.rol === 'ADMIN_CLINICA') return 'Medico titular'
+  return ETIQUETA_ROL[sesion.rol] ?? sesion.rol
 }
 
 interface LoginResponse extends SesionUsuario {
@@ -65,6 +89,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       rol: response.rol,
       email: response.email,
       nombre: response.nombre,
+      atiendePacientes: response.atiendePacientes,
+      tipoPractica: response.tipoPractica,
     }
 
     localStorage.setItem(SESION_STORAGE_KEY, JSON.stringify(nuevaSesion))

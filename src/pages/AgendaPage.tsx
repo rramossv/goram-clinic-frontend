@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { apiFetch } from '@/lib/api'
-import type { CitaResponse, UsuarioResumen } from '@/types'
+import { atiendePacientes, type CitaResponse, type UsuarioResumen } from '@/types'
 import { Button } from '@/components/ui/button'
 import { DayCalendar } from '@/components/agenda/day-calendar'
 import { CitaFormDialog } from '@/components/agenda/cita-form-dialog'
@@ -40,7 +40,7 @@ export function AgendaPage() {
         apiFetch<UsuarioResumen[]>('/api/v1/usuarios'),
       ])
       setCitas(citasData)
-      setDoctores(usuariosData.filter((u) => u.rol === 'DOCTOR'))
+      setDoctores(usuariosData.filter((u) => u.activo && atiendePacientes(u)))
     } catch {
       toast.error('No se pudo cargar la agenda')
     } finally {

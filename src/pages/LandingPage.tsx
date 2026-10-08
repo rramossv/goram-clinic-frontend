@@ -7,12 +7,14 @@ import './LandingPage.css'
 
 const DESCRIPCIONES_PLAN: Record<string, string> = {
   BASICO: 'Para consultorios que arrancan: pacientes, agenda y consultas en un solo lugar.',
+  CONSULTORIO: 'Para el medico con consultorio propio: vos y tu asistente, con facturacion electronica.',
   PROFESIONAL: 'Todo lo del plan Basico, mas facturacion electronica DTE y reportes financieros.',
   CLINICA: 'Para clinicas con varios doctores: usuarios ilimitados y soporte prioritario.',
 }
 
 const CARACTERISTICAS_PLAN: Record<string, string[]> = {
   BASICO: ['Hasta 3 usuarios', 'Hasta 500 pacientes', 'Agenda y consultas', 'Factura interna'],
+  CONSULTORIO: ['1 medico + 1 asistente', 'Hasta 1,000 pacientes', 'Facturacion electronica DTE', 'Interfaz simple, sin configurar personal'],
   PROFESIONAL: ['Hasta 8 usuarios', 'Hasta 2,000 pacientes', 'Facturacion electronica DTE', 'Reportes financieros'],
   CLINICA: ['Usuarios ilimitados', 'Pacientes ilimitados', 'Facturacion electronica DTE', 'Soporte prioritario'],
 }
@@ -323,7 +325,7 @@ export function LandingPage() {
         <div className="wrap intro">
           <div>
             <p className="kicker">Planes</p>
-            <h2>Un plan para cada tamano de clinica.</h2>
+            <h2>Del consultorio individual a la clinica completa.</h2>
           </div>
           <p className="desc">Cambia de plan cuando quieras. Sin permanencia forzada.</p>
         </div>
@@ -345,7 +347,7 @@ export function LandingPage() {
                 ))}
               </div>
               <Link
-                to={`/registro?plan=${plan.codigo}`}
+                to={plan.codigo === 'CONSULTORIO' ? '/registro?plan=CONSULTORIO&tipo=individual' : `/registro?plan=${plan.codigo}`}
                 className="btn primary"
                 style={{ marginTop: 24 }}
               >

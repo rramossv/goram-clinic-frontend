@@ -18,6 +18,12 @@ export interface UsuarioResumen {
   email: string
   rol: string
   activo: boolean
+  atiendePacientes: boolean
+}
+
+/** Quien puede tener citas a su nombre: todo DOCTOR y el admin que tambien es medico. */
+export function atiendePacientes(usuario: UsuarioResumen) {
+  return usuario.rol === 'DOCTOR' || usuario.atiendePacientes
 }
 
 export interface CitaResponse {

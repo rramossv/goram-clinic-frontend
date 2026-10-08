@@ -19,7 +19,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { useAuth } from '@/lib/auth-context'
+import { esConsultorio, etiquetaRol, useAuth } from '@/lib/auth-context'
 import {
   LayoutDashboard,
   Users,
@@ -60,6 +60,10 @@ export function AppSidebar() {
   const navigate = useNavigate()
   const { resolvedTheme, setTheme } = useTheme()
   const esOscuro = resolvedTheme === 'dark'
+  const consultorio = esConsultorio(sesion)
+  const navItems = consultorio
+    ? NAV_ITEMS.map((item) => (item.to === '/personal' ? { ...item, label: 'Mi asistente' } : item))
+    : NAV_ITEMS
 
   return (
     <Sidebar collapsible="icon">
@@ -73,10 +77,10 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Clinica</SidebarGroupLabel>
+          <SidebarGroupLabel>{consultorio ? 'Consultorio' : 'Clinica'}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {NAV_ITEMS.map((item) => (
+              {navItems.map((item) => (
                 <SidebarMenuItem key={item.to}>
                   <SidebarMenuButton asChild tooltip={item.label}>
                     <NavLink
@@ -105,7 +109,7 @@ export function AppSidebar() {
               </Avatar>
               <div className="flex flex-col text-left leading-tight group-data-[collapsible=icon]:hidden">
                 <span className="truncate text-sm font-medium">{sesion?.nombre}</span>
-                <span className="truncate text-xs text-muted-foreground">{sesion?.rol}</span>
+                <span className="truncate text-xs text-muted-foreground">{etiquetaRol(sesion)}</span>
               </div>
             </SidebarMenuButton>
           </DropdownMenuTrigger>

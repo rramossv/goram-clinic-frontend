@@ -1,6 +1,6 @@
 import { useEffect, useState, type ComponentType } from 'react'
 import { Link } from 'react-router-dom'
-import { useAuth } from '@/lib/auth-context'
+import { esConsultorio, etiquetaRol, useAuth } from '@/lib/auth-context'
 import { apiFetch } from '@/lib/api'
 import type { CitaResponse, FacturaResponse, PacienteResponse, SuscripcionResponse } from '@/types'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -62,6 +62,7 @@ export function DashboardPage() {
   const [pacientesNuevos, setPacientesNuevos] = useState(0)
   const [suscripcion, setSuscripcion] = useState<SuscripcionResponse | null>(null)
   const [cargando, setCargando] = useState(true)
+  const consultorio = esConsultorio(sesion)
 
   useEffect(() => {
     if (sesion?.rol === 'SUPER_ADMIN') {
@@ -93,13 +94,13 @@ export function DashboardPage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-semibold">Hola, {sesion?.nombre}</h1>
-        <p className="text-muted-foreground">{sesion?.rol}</p>
+        <p className="text-muted-foreground">{etiquetaRol(sesion)}</p>
       </div>
 
       {!cargando && sesion?.rol !== 'SUPER_ADMIN' && (
         <>
           <div className="grid gap-4 sm:grid-cols-3">
-            <StatTile icono={CalendarDays} etiqueta="Citas de hoy" valor={String(citasHoy.length)} />
+            <StatTile icono={CalendarDays} etiqueta={consultorio ? 'Mis citas de hoy' : 'Citas de hoy'} valor={String(citasHoy.length)} />
             <StatTile
               icono={DollarSign}
               etiqueta="Ingresos este mes"
@@ -111,7 +112,7 @@ export function DashboardPage() {
           <div className="grid gap-6 lg:grid-cols-3">
             <Card className="lg:col-span-2">
               <CardHeader>
-                <CardTitle className="text-base">Agenda de hoy</CardTitle>
+                <CardTitle className="text-base">{consultorio ? 'Mis pacientes de hoy' : 'Agenda de hoy'}</CardTitle>
                 <CardDescription>
                   <Link to="/agenda" className="underline-offset-2 hover:underline">
                     Ver calendario completo
@@ -131,8 +132,8 @@ export function DashboardPage() {
                         <div>
                           <p className="font-medium">{cita.pacienteNombre}</p>
                           <p className="text-muted-foreground">
-                            {new Date(cita.fechaHora).toLocaleTimeString('es-SV', { timeStyle: 'short' })} con{' '}
-                            {cita.doctorNombre}
+                            {new Date(cita.fechaHora).toLocaleTimeString('es-SV', { timeStyle: 'short' })}
+                            {!consultorio && ` con ${cita.doctorNombre}`}
                           </p>
                         </div>
                         <Badge variant={VARIANTE_ESTADO[cita.estado] ?? 'outline'}>{cita.estado}</Badge>

@@ -133,7 +133,8 @@
   .state { font-size: 7px; color: var(--teal); background: #e2f0ed; border-radius: 99px; padding: 5px; text-align: center; }
 
   .pricing { background: #fff; }
-  .plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+  .plans { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+  @media (max-width: 1180px) { .plans { grid-template-columns: repeat(2, 1fr); } }
   .plan { border: 1px solid var(--line); border-radius: 23px; padding: 30px; background: #fff; position: relative; }
   .plan.featured { background: var(--teal); color: #fff; border-color: var(--teal); transform: translateY(-9px); box-shadow: 0 30px 70px #08756e2e; }
   .tag { position: absolute; right: 16px; top: 16px; background: var(--gold); color: #1b2c2a; font-size: 8px; font-weight: 800; padding: 6px 9px; border-radius: 99px; text-transform: uppercase; }
@@ -141,6 +142,7 @@
   .price { font-size: 53px; font-weight: 700; letter-spacing: -.07em; margin: 18px 0 25px; }
   .price small { font-size: 12px; font-weight: 500; color: #7d8b88; letter-spacing: 0; }
   .featured .price small { color: #b9d2ce; }
+  .featured .desc { color: #c8ddda; }
   .features { display: grid; gap: 11px; min-height: 148px; }
   .features div { font-size: 12px; color: #63726f; }
   .featured .features div { color: #c8ddda; }

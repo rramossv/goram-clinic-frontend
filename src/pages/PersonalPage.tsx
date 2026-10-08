@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { apiFetch, ApiRequestError } from '@/lib/api'
-import { useAuth } from '@/lib/auth-context'
+import { esConsultorio, useAuth } from '@/lib/auth-context'
 import type { UsuarioResumen } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -73,10 +73,10 @@ export function PersonalPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Personal</h1>
+        <h1 className="text-2xl font-semibold">{esConsultorio(sesion) ? 'Mi asistente' : 'Personal'}</h1>
         <Button onClick={() => setDialogAbierto(true)}>
           <Plus />
-          Agregar personal
+          {esConsultorio(sesion) ? 'Agregar asistente' : 'Agregar personal'}
         </Button>
       </div>
 

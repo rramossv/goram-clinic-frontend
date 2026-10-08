@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { apiFetch, ApiRequestError } from '@/lib/api'
-import type { PacienteResponse, UsuarioResumen } from '@/types'
+import { atiendePacientes, type PacienteResponse, type UsuarioResumen } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -51,7 +51,12 @@ export function CitaFormDialog({ open, onOpenChange, onGuardado, prefill }: Cita
         .then(setPacientes)
         .catch(() => {})
       apiFetch<UsuarioResumen[]>('/api/v1/usuarios')
-        .then((usuarios) => setDoctores(usuarios.filter((u) => u.rol === 'DOCTOR')))
+        .then((usuarios) => {
+          const lista = usuarios.filter((u) => u.activo && atiendePacientes(u))
+          setDoctores(lista)
+          // Con un solo medico (consultorio individual) no hay nada que elegir.
+          if (lista.length === 1 && !prefill?.doctorId) setDoctorId(lista[0].id)
+        })
         .catch(() => {})
     }
   }, [open, prefill])
@@ -108,26 +113,29 @@ export function CitaFormDialog({ open, onOpenChange, onGuardado, prefill }: Cita
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="doctor">Doctor</Label>
-              <Select value={doctorId} onValueChange={setDoctorId}>
-                <SelectTrigger id="doctor" className="w-full">
-                  <SelectValue placeholder="Selecciona un doctor" />
-                </SelectTrigger>
-                <SelectContent>
-                  {doctores.map((d) => (
-                    <SelectItem key={d.id} value={d.id}>
-                      {d.nombre}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {doctores.length === 0 && (
-                <p className="text-xs text-muted-foreground">
-                  No hay doctores registrados. Agrega uno en la seccion Personal.
-                </p>
-              )}
-            </div>
+            {/* Con un solo medico (consultorio individual) no se muestra: la cita es suya. */}
+            {doctores.length !== 1 && (
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="doctor">Doctor</Label>
+                <Select value={doctorId} onValueChange={setDoctorId}>
+                  <SelectTrigger id="doctor" className="w-full">
+                    <SelectValue placeholder="Selecciona un doctor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {doctores.map((d) => (
+                      <SelectItem key={d.id} value={d.id}>
+                        {d.nombre}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {doctores.length === 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    No hay doctores registrados. Agrega uno en la seccion Personal.
+                  </p>
+                )}
+              </div>
+            )}
             <div className="flex flex-col gap-2">
               <Label htmlFor="fechaHora">Fecha y hora</Label>
               <Input
