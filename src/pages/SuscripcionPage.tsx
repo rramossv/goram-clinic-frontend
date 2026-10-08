@@ -2,16 +2,10 @@ import { useEffect, useState } from 'react'
 import { apiFetch, ApiRequestError } from '@/lib/api'
 import type { SuscripcionResponse } from '@/types'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { PageHeader } from '@/components/page-header'
+import { EstadoChip } from '@/components/estado-chip'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
-
-const VARIANTE_ESTADO: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-  ACTIVA: 'default',
-  PENDIENTE_PAGO: 'outline',
-  SUSPENDIDA: 'destructive',
-  CANCELADA: 'secondary',
-}
 
 export function SuscripcionPage() {
   const [suscripcion, setSuscripcion] = useState<SuscripcionResponse | null>(null)
@@ -24,7 +18,7 @@ export function SuscripcionPage() {
       const data = await apiFetch<SuscripcionResponse>('/api/v1/suscripciones/actual')
       setSuscripcion(data)
     } catch {
-      toast.error('No se pudo cargar la suscripcion')
+      toast.error('No se pudo cargar la suscripción')
     } finally {
       setCargando(false)
     }
@@ -38,7 +32,7 @@ export function SuscripcionPage() {
     setPagando(true)
     try {
       await apiFetch('/api/v1/suscripciones/pagar', { method: 'POST' })
-      toast.success('Pago procesado, suscripcion activa')
+      toast.success('Pago procesado, suscripción activa')
       cargar()
     } catch (err) {
       if (err instanceof ApiRequestError) {
@@ -56,18 +50,18 @@ export function SuscripcionPage() {
   }
 
   if (!suscripcion) {
-    return <p className="text-sm text-muted-foreground">No se encontro informacion de suscripcion.</p>
+    return <p className="text-sm text-muted-foreground">No se encontro información de suscripción.</p>
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-semibold">Suscripcion</h1>
+    <div className="flex flex-col gap-6">
+      <PageHeader titulo="Suscripción" descripcion="Tu plan de GoRam Clinic y su próximo cobro." />
 
       <Card className="max-w-md">
         <CardHeader>
           <CardTitle>Plan {suscripcion.planNombre}</CardTitle>
           <CardDescription>
-            <Badge variant={VARIANTE_ESTADO[suscripcion.estado] ?? 'outline'}>{suscripcion.estado}</Badge>
+            <EstadoChip estado={suscripcion.estado} className="mt-1" />
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-3 text-sm">
@@ -76,7 +70,7 @@ export function SuscripcionPage() {
             <span>{new Date(suscripcion.fechaInicio).toLocaleDateString('es-SV')}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Proximo cobro</span>
+            <span className="text-muted-foreground">Próximo cobro</span>
             <span>{new Date(suscripcion.proximaFechaCobro).toLocaleDateString('es-SV')}</span>
           </div>
 
@@ -88,7 +82,7 @@ export function SuscripcionPage() {
 
           {suscripcion.estado === 'SUSPENDIDA' && (
             <p className="text-sm text-destructive">
-              Tu clinica esta suspendida por falta de pago. Realiza el pago para reactivarla.
+              Tu clínica está suspendida por falta de pago. Realiza el pago para reactivarla.
             </p>
           )}
         </CardContent>

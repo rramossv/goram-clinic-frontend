@@ -145,7 +145,7 @@ export function PacienteFormDialog({ open, onOpenChange, paciente, onGuardado }:
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="telefono">Telefono</Label>
+              <Label htmlFor="telefono">Teléfono</Label>
               <Input
                 id="telefono"
                 value={valores.telefono}
@@ -162,7 +162,7 @@ export function PacienteFormDialog({ open, onOpenChange, paciente, onGuardado }:
               />
             </div>
             <div className="col-span-2 flex flex-col gap-2">
-              <Label htmlFor="direccion">Direccion</Label>
+              <Label htmlFor="direccion">Dirección</Label>
               <Input
                 id="direccion"
                 value={valores.direccion}

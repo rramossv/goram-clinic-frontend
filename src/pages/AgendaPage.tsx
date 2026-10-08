@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { apiFetch } from '@/lib/api'
 import { atiendePacientes, type CitaResponse, type UsuarioResumen } from '@/types'
 import { Button } from '@/components/ui/button'
+import { PageHeader } from '@/components/page-header'
 import { DayCalendar } from '@/components/agenda/day-calendar'
 import { CitaFormDialog } from '@/components/agenda/cita-form-dialog'
 import { CitaDetailDialog } from '@/components/agenda/cita-detail-dialog'
@@ -83,28 +84,28 @@ export function AgendaPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold">Agenda</h1>
-          <p className="text-sm text-muted-foreground capitalize">{formatoFechaLarga(fecha)}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" onClick={irDiaAnterior}>
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        titulo="Agenda"
+        descripcion={<span className="first-letter:uppercase">{formatoFechaLarga(fecha)}</span>}
+        acciones={
+        <>
+          <Button variant="outline" size="icon" aria-label="Día anterior" onClick={irDiaAnterior}>
             <ChevronLeft />
           </Button>
           <Button variant="outline" onClick={irHoy}>
             Hoy
           </Button>
-          <Button variant="outline" size="icon" onClick={irDiaSiguiente}>
+          <Button variant="outline" size="icon" aria-label="Día siguiente" onClick={irDiaSiguiente}>
             <ChevronRight />
           </Button>
           <Button onClick={abrirNuevaCitaGeneral}>
             <Plus />
             Nueva cita
           </Button>
-        </div>
-      </div>
+        </>
+        }
+      />
 
       {!cargando && (
         <DayCalendar

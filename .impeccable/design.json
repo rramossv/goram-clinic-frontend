@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-08T22:10:00Z",
+  "title": "Design System: GoRam Clinic",
+  "extensions": {
+    "colorMeta": {
+      "azul-carton": { "role": "primary", "displayName": "Azul Carton Prensado", "canonical": "oklch(0.355 0.075 255)", "tonalRamp": ["oklch(0.15 0.05 255)", "oklch(0.25 0.065 255)", "oklch(0.355 0.075 255)", "oklch(0.45 0.08 255)", "oklch(0.56 0.08 255)", "oklch(0.68 0.07 255)", "oklch(0.8 0.05 255)", "oklch(0.93 0.025 255)"] },
+      "gaveta": { "role": "neutral", "displayName": "Gaveta Marina", "canonical": "oklch(0.285 0.058 257)", "tonalRamp": ["oklch(0.15 0.04 257)", "oklch(0.2 0.05 257)", "oklch(0.285 0.058 257)", "oklch(0.34 0.062 257)", "oklch(0.45 0.05 257)", "oklch(0.6 0.04 257)", "oklch(0.78 0.025 257)", "oklch(0.93 0.01 257)"] },
+      "hoja": { "role": "neutral", "displayName": "Hoja Fria", "canonical": "oklch(0.991 0.003 240)" },
+      "carton": { "role": "neutral", "displayName": "Carton Prensado", "canonical": "oklch(0.948 0.012 245)" },
+      "tinta": { "role": "neutral", "displayName": "Tinta Marina", "canonical": "oklch(0.255 0.038 256)" }
+    },
+    "typographyMeta": {
+      "headline": { "displayName": "Titulo de modulo", "purpose": "Encabezado de cada pagina del panel." },
+      "label": { "displayName": "Etiqueta", "purpose": "Encabezados de tabla y grupos del menu; nunca antetitulos." }
+    },
+    "shadows": [
+      { "name": "boton-principal", "value": "0 1px 2px rgb(16 38 59 / 0.14)", "purpose": "Bajo acciones primarias." },
+      { "name": "pestana-activa", "value": "-2px 1px 3px -1px rgb(0 0 0 / 0.25)", "purpose": "Separa la pestana activa de la gaveta." },
+      { "name": "cita-hover", "value": "0 4px 12px -4px rgb(16 38 59 / 0.3)", "purpose": "Bloque de cita al pasar el cursor." }
+    ],
+    "motion": [
+      { "name": "hoja-entra", "value": "220ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Unico movimiento de autor: la hoja entra 6px al cambiar de modulo; se desactiva con movimiento reducido." },
+      { "name": "estado", "value": "150ms", "purpose": "Cambios de color de hover y pestanas." }
+    ],
+    "breakpoints": [
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Boton principal",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Accion principal de cada modulo.",
+      "html": "<button class=\"ds-btn-primary\">Agendar cita</button>",
+      "css": ".ds-btn-primary { background: var(--primary, oklch(0.355 0.075 255)); color: oklch(0.985 0.004 240); height: 36px; padding: 0 14px; border: 0; border-radius: 6px; font: 500 14px 'Public Sans Variable', system-ui, sans-serif; box-shadow: 0 1px 2px rgb(16 38 59 / 0.14); cursor: pointer; transition: background 150ms; } .ds-btn-primary:hover { background: oklch(0.4 0.075 255); } .ds-btn-primary:focus-visible { outline: 3px solid oklch(0.56 0.11 252 / 0.5); outline-offset: 1px; }"
+    },
+    {
+      "name": "Campo de texto",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Campos de formularios y busqueda.",
+      "html": "<input class=\"ds-input\" placeholder=\"Buscar por nombre...\" />",
+      "css": ".ds-input { height: 36px; padding: 0 12px; background: oklch(0.996 0.002 240); color: oklch(0.255 0.038 256); border: 1px solid oklch(0.865 0.015 245); border-radius: 6px; font: 400 14px 'Public Sans Variable', system-ui, sans-serif; } .ds-input:focus-visible { outline: none; border-color: oklch(0.56 0.11 252); box-shadow: 0 0 0 3px oklch(0.56 0.11 252 / 0.3); }"
+    },
+    {
+      "name": "Menu con pestana activa",
+      "kind": "nav",
+      "refersTo": "nav-item-active",
+      "description": "Gaveta azul marino; el modulo activo es una pestana color hoja.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-item\">Agenda</a><a class=\"ds-nav-item ds-activo\">Pacientes</a><a class=\"ds-nav-item\">Consultas</a></nav>",
+      "css": ".ds-nav { background: oklch(0.285 0.058 257); padding: 8px 0 8px 12px; display: flex; flex-direction: column; gap: 1px; width: 220px; font: 400 13.5px 'Public Sans Variable', system-ui, sans-serif; } .ds-nav-item { height: 36px; display: flex; align-items: center; padding-left: 12px; border-radius: 6px 0 0 6px; color: oklch(0.9 0.018 245 / 0.8); cursor: pointer; transition: background 150ms; } .ds-nav-item:hover { background: oklch(0.34 0.062 257); color: #fff; } .ds-activo, .ds-activo:hover { background: oklch(0.991 0.003 240); color: oklch(0.285 0.058 257); font-weight: 600; box-shadow: -2px 1px 3px -1px rgb(0 0 0 / 0.25); }"
+    },
+    {
+      "name": "Chip de estado",
+      "kind": "chip",
+      "refersTo": "EstadoChip",
+      "description": "Estado con icono y texto; el tono solo refuerza.",
+      "html": "<span class=\"ds-chip\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m9 12 2 2 4-4\"/></svg>Confirmada</span>",
+      "css": ".ds-chip { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 8px; border-radius: 4px; background: oklch(0.95 0.03 168); color: oklch(0.47 0.095 168); box-shadow: inset 0 0 0 1px oklch(0.47 0.095 168 / 0.2); font: 500 12px 'Public Sans Variable', system-ui, sans-serif; }"
+    },
+    {
+      "name": "Codigo de paciente",
+      "kind": "custom",
+      "refersTo": "CodigoPaciente",
+      "description": "Dos bandas de archivo por digito con sus numeros.",
+      "html": "<span class=\"ds-codigo\"><span style=\"background:#5B3FA0\">6</span><span style=\"background:#D9661F\">1</span></span>",
+      "css": ".ds-codigo { display: inline-flex; height: 18px; border-radius: 3px; overflow: hidden; box-shadow: 0 0 0 1px rgb(0 0 0 / 0.1); } .ds-codigo span { width: 14px; display: flex; align-items: center; justify-content: center; color: #fff; font: 600 10px 'Public Sans Variable', system-ui, sans-serif; font-variant-numeric: tabular-nums; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "El Archivo de Expedientes",
+    "overview": "El panel se comporta como el archivo de una clinica seria: una gaveta azul marino guarda los modulos, cada modulo se saca como un folder cuya pestana se une con la hoja de trabajo, y cada paciente lleva su codigo de color como en los archivos fisicos por digito terminal. La interfaz es formal, ordenada y tranquila; el color existe para identificar, no para decorar.",
+    "keyCharacteristics": ["Gaveta azul marino con pestana activa del color de la hoja.", "Hojas blancas frias, nunca blanco puro ni crema.", "Codigo de color de dos bandas por paciente, siempre con sus digitos.", "Estados con icono + texto en espanol, tono solo como refuerzo.", "Una sola familia tipografica (Public Sans) con escala corta."],
+    "rules": [
+      { "name": "The Identification Rule", "body": "Las etiquetas de archivo solo identifican pacientes; nunca se usan como decoracion, fondo de seccion ni color de estado.", "section": "colors" },
+      { "name": "The No Pure Black-and-White Rule", "body": "Ningun fondo es #FFFFFF ni #000000: la hoja es blanco frio y el texto es tinta marina.", "section": "colors" },
+      { "name": "The Tabular Rule", "body": "Horas, montos y fechas usan cifras tabulares; los montos se alinean a la derecha como en un libro contable.", "section": "typography" },
+      { "name": "The Flat Sheet Rule", "body": "Las hojas no flotan: contenedores con filete de 1px y sin sombra; la sombra solo responde a estado o separa la pestana activa.", "section": "elevation" }
+    ],
+    "dos": ["Do mostrar el codigo de paciente junto a cada nombre de paciente en listas y agenda.", "Do usar EstadoChip para todo estado; nunca el valor crudo en mayusculas.", "Do abrir cada modulo con el encabezado de pagina (titulo, descripcion, acciones) y su filete.", "Do escribir con tildes, ene y signos de apertura en todo texto visible.", "Do alinear montos a la derecha con cifras tabulares."],
+    "donts": ["Don't usar negro puro, blanco puro ni grises neutros sin tinte azul.", "Don't usar las etiquetas de archivo como color decorativo o de estado.", "Don't construir paneles con tarjetas de metricas gigantes (numero enorme + icono + etiqueta); los resumenes van como filas de libro contable.", "Don't poner antetitulos encima de los titulos.", "Don't agregar franjas laterales de color a tarjetas o alertas."]
+  }
+}

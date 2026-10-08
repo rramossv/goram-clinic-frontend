@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { apiFetch } from '@/lib/api'
 import type { PacienteResponse } from '@/types'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { PageHeader } from '@/components/page-header'
+import { CodigoPaciente } from '@/components/codigo-paciente'
+import { EstadoChip } from '@/components/estado-chip'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { PacienteFormDialog } from '@/components/pacientes/paciente-form-dialog'
@@ -60,31 +62,34 @@ export function PacientesPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Pacientes</h1>
-        <Button onClick={() => setDialogAbierto(true)}>
-          <Plus />
-          Nuevo paciente
-        </Button>
-      </div>
+      <PageHeader
+        titulo="Pacientes"
+        descripcion={cargando ? 'Cargando expedientes...' : `${pacientes.filter((p) => p.activo).length} expedientes activos`}
+        acciones={
+          <Button onClick={() => setDialogAbierto(true)}>
+            <Plus />
+            Nuevo paciente
+          </Button>
+        }
+      />
 
-      <div className="relative max-w-sm">
+      <div className="relative w-full max-w-sm">
         <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          placeholder="Buscar por nombre, documento, telefono o email..."
+          placeholder="Buscar por nombre, documento, teléfono o email..."
           className="pl-9"
           value={busqueda}
           onChange={(e) => alBuscar(e.target.value)}
         />
       </div>
 
-      <div className="rounded-md border">
+      <div className="overflow-hidden rounded-lg border bg-card">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Nombre</TableHead>
               <TableHead>Documento</TableHead>
-              <TableHead>Telefono</TableHead>
+              <TableHead>Teléfono</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Estado</TableHead>
               <TableHead />
@@ -94,7 +99,7 @@ export function PacientesPage() {
             {!cargando && visibles.length === 0 && (
               <TableRow>
                 <TableCell colSpan={6} className="text-center text-muted-foreground">
-                  {busqueda ? 'Ningun paciente coincide con la busqueda.' : 'Todavia no hay pacientes registrados.'}
+                  {busqueda ? 'Ningún paciente coincide con la búsqueda.' : 'Todavía no hay pacientes registrados.'}
                 </TableCell>
               </TableRow>
             )}
@@ -104,14 +109,17 @@ export function PacientesPage() {
                 className="cursor-pointer"
                 onClick={() => navigate(`/pacientes/${paciente.id}`)}
               >
-                <TableCell className="font-medium">{paciente.nombre}</TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-3">
+                    <CodigoPaciente id={paciente.id} />
+                    <span className="font-medium text-tinta">{paciente.nombre}</span>
+                  </div>
+                </TableCell>
                 <TableCell>{paciente.documentoIdentidad ?? '-'}</TableCell>
                 <TableCell>{paciente.telefono ?? '-'}</TableCell>
                 <TableCell>{paciente.email ?? '-'}</TableCell>
                 <TableCell>
-                  <Badge variant={paciente.activo ? 'default' : 'secondary'}>
-                    {paciente.activo ? 'Activo' : 'Inactivo'}
-                  </Badge>
+                  <EstadoChip estado={paciente.activo ? 'ACTIVO' : 'INACTIVO'} />
                 </TableCell>
                 <TableCell className="w-8 text-muted-foreground">
                   <ChevronRight className="size-4" />

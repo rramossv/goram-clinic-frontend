@@ -36,11 +36,11 @@ export function RestablecerPasswordDialog({ usuario, onOpenChange }: Restablecer
         method: 'PATCH',
         body: { passwordNueva },
       })
-      toast.success(`Contrasena restablecida. Comunicasela a ${usuario.nombre} de forma segura.`)
+      toast.success(`Contraseña restablecida. Comunicasela a ${usuario.nombre} de forma segura.`)
       onOpenChange(false)
     } catch (err) {
       if (err instanceof ApiRequestError) {
-        toast.error(err.body?.message ?? 'No se pudo restablecer la contrasena')
+        toast.error(err.body?.message ?? 'No se pudo restablecer la contraseña')
       } else {
         toast.error('No se pudo conectar con el servidor')
       }
@@ -54,15 +54,15 @@ export function RestablecerPasswordDialog({ usuario, onOpenChange }: Restablecer
       <DialogContent className="sm:max-w-md">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Restablecer contrasena de {usuario?.nombre}</DialogTitle>
+            <DialogTitle>Restablecer contraseña de {usuario?.nombre}</DialogTitle>
             <DialogDescription>
-              Se le va a asignar esta contrasena directamente. Comunicasela por un medio seguro para que
+              Se le va a asignar esta contraseña directamente. Comunicasela por un medio seguro para que
               pueda ingresar.
             </DialogDescription>
           </DialogHeader>
 
           <div className="flex flex-col gap-2 py-4">
-            <Label htmlFor="passwordNueva">Contrasena nueva</Label>
+            <Label htmlFor="passwordNueva">Contraseña nueva</Label>
             <Input
               id="passwordNueva"
               type="text"

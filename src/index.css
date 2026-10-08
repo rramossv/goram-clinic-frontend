@@ -1,13 +1,29 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
+@import "@fontsource-variable/public-sans";
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Mundo visual "Archivo de expedientes": el panel es un archivo clinico en
+ * orden. Gaveta azul marino (menu), hojas blancas frias (contenido), carton
+ * prensado gris azulado (segunda capa neutra) y la paleta de etiquetas de
+ * archivo por digito, reservada para identificar pacientes y estados.
+ */
 @theme inline {
     --font-heading: var(--font-sans);
-    --font-sans: 'Geist Variable', sans-serif;
+    --font-sans: 'Public Sans Variable', ui-sans-serif, system-ui, sans-serif;
+    --color-carton: var(--carton);
+    --color-carton-foreground: var(--carton-foreground);
+    --color-tinta: var(--tinta);
+    --color-exito: var(--exito);
+    --color-exito-suave: var(--exito-suave);
+    --color-aviso: var(--aviso);
+    --color-aviso-suave: var(--aviso-suave);
+    --color-info: var(--info);
+    --color-info-suave: var(--info-suave);
+    --color-peligro-suave: var(--peligro-suave);
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -49,82 +65,137 @@
 }
 
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+    /* hoja: blanco frio, nunca blanco puro */
+    --background: oklch(0.991 0.003 240);
+    --foreground: oklch(0.255 0.038 256);
+    --card: oklch(0.996 0.002 240);
+    --card-foreground: oklch(0.255 0.038 256);
+    --popover: oklch(0.996 0.002 240);
+    --popover-foreground: oklch(0.255 0.038 256);
+    /* azul de carton prensado: acciones principales y seleccion */
+    --primary: oklch(0.355 0.075 255);
+    --primary-foreground: oklch(0.985 0.004 240);
+    --secondary: oklch(0.946 0.012 245);
+    --secondary-foreground: oklch(0.3 0.05 256);
+    --muted: oklch(0.955 0.009 245);
+    --muted-foreground: oklch(0.49 0.032 255);
+    --accent: oklch(0.938 0.018 245);
+    --accent-foreground: oklch(0.3 0.06 256);
+    --destructive: oklch(0.53 0.185 27);
+    --border: oklch(0.895 0.012 245);
+    --input: oklch(0.865 0.015 245);
+    --ring: oklch(0.56 0.11 252);
+    /* segunda capa neutra: encabezados de tabla, barras, columna de horas */
+    --carton: oklch(0.948 0.012 245);
+    --carton-foreground: oklch(0.42 0.04 255);
+    --tinta: oklch(0.255 0.038 256);
+    --exito: oklch(0.47 0.095 168);
+    --exito-suave: oklch(0.95 0.03 168);
+    --aviso: oklch(0.53 0.14 52);
+    --aviso-suave: oklch(0.955 0.035 70);
+    --info: oklch(0.45 0.11 255);
+    --info-suave: oklch(0.945 0.025 250);
+    --peligro-suave: oklch(0.955 0.03 25);
+    --chart-1: oklch(0.355 0.075 255);
+    --chart-2: oklch(0.47 0.095 168);
+    --chart-3: oklch(0.6 0.13 75);
+    --chart-4: oklch(0.53 0.14 52);
+    --chart-5: oklch(0.53 0.185 27);
+    --radius: 0.5rem;
+    /* gaveta del archivo */
+    --sidebar: oklch(0.285 0.058 257);
+    --sidebar-foreground: oklch(0.9 0.018 245);
+    --sidebar-primary: oklch(0.991 0.003 240);
+    --sidebar-primary-foreground: oklch(0.285 0.058 257);
+    --sidebar-accent: oklch(0.34 0.062 257);
+    --sidebar-accent-foreground: oklch(0.985 0.004 240);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.72 0.09 245);
 }
 
 .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+    --background: oklch(0.225 0.03 257);
+    --foreground: oklch(0.93 0.012 245);
+    --card: oklch(0.245 0.032 257);
+    --card-foreground: oklch(0.93 0.012 245);
+    --popover: oklch(0.255 0.033 257);
+    --popover-foreground: oklch(0.93 0.012 245);
+    --primary: oklch(0.78 0.085 245);
+    --primary-foreground: oklch(0.22 0.04 257);
+    --secondary: oklch(0.29 0.035 257);
+    --secondary-foreground: oklch(0.92 0.012 245);
+    --muted: oklch(0.27 0.032 257);
+    --muted-foreground: oklch(0.74 0.025 250);
+    --accent: oklch(0.3 0.04 257);
+    --accent-foreground: oklch(0.95 0.01 245);
+    --destructive: oklch(0.7 0.16 25);
+    --border: oklch(1 0 0 / 9%);
+    --input: oklch(1 0 0 / 14%);
+    --ring: oklch(0.72 0.09 245);
+    --carton: oklch(0.262 0.033 257);
+    --carton-foreground: oklch(0.8 0.022 248);
+    --tinta: oklch(0.93 0.012 245);
+    --exito: oklch(0.78 0.1 168);
+    --exito-suave: oklch(0.3 0.045 175);
+    --aviso: oklch(0.8 0.12 65);
+    --aviso-suave: oklch(0.32 0.05 60);
+    --info: oklch(0.8 0.08 245);
+    --info-suave: oklch(0.31 0.05 255);
+    --peligro-suave: oklch(0.31 0.06 25);
+    --chart-1: oklch(0.78 0.085 245);
+    --chart-2: oklch(0.78 0.1 168);
+    --chart-3: oklch(0.82 0.12 85);
+    --chart-4: oklch(0.8 0.12 65);
+    --chart-5: oklch(0.7 0.16 25);
+    --sidebar: oklch(0.185 0.03 258);
+    --sidebar-foreground: oklch(0.86 0.018 245);
+    --sidebar-primary: oklch(0.225 0.03 257);
+    --sidebar-primary-foreground: oklch(0.95 0.01 245);
+    --sidebar-accent: oklch(0.24 0.035 258);
+    --sidebar-accent-foreground: oklch(0.97 0.008 245);
+    --sidebar-border: oklch(1 0 0 / 8%);
+    --sidebar-ring: oklch(0.72 0.09 245);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    }
-  body {
-    @apply bg-background text-foreground;
-    }
+  }
   html {
     @apply font-sans;
-    }
+    -webkit-font-smoothing: antialiased;
+    scrollbar-color: color-mix(in oklch, var(--muted-foreground) 45%, transparent) transparent;
+  }
+  body {
+    @apply bg-background text-foreground;
+    caret-color: var(--primary);
+    accent-color: var(--primary);
+    font-feature-settings: "cv11", "ss01";
+  }
+  ::selection {
+    background: color-mix(in oklch, var(--primary) 22%, transparent);
+    color: var(--foreground);
+  }
+  /* cifras alineadas en todo dato tabular: horas, montos, fechas */
+  table, time, [data-tabular] {
+    font-variant-numeric: tabular-nums;
+  }
+  a {
+    text-underline-offset: 3px;
+  }
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+}
+
+/* el unico movimiento de autor: la hoja entra al cambiar de modulo */
+@keyframes hoja-entra {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+.hoja-entra {
+  animation: hoja-entra 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hoja-entra { animation: none; }
 }

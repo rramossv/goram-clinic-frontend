@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { etiquetaEstado } from '@/components/estado-chip'
 import { ConsultaDialog } from '@/components/consultas/consulta-dialog'
 import { toast } from 'sonner'
 import { Mail, MailCheck } from 'lucide-react'
@@ -91,7 +92,7 @@ export function CitaDetailDialog({ cita, onOpenChange, onActualizada }: CitaDeta
               <span>{cita?.doctorNombre}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Duracion</span>
+              <span className="text-muted-foreground">Duración</span>
               <span>{cita?.duracionMinutos} min</span>
             </div>
             {cita?.motivo && (
@@ -109,7 +110,7 @@ export function CitaDetailDialog({ cita, onOpenChange, onActualizada }: CitaDeta
                 <SelectContent>
                   {ESTADOS.map((estado) => (
                     <SelectItem key={estado} value={estado}>
-                      {estado}
+                      {etiquetaEstado(estado)}
                     </SelectItem>
                   ))}
                 </SelectContent>

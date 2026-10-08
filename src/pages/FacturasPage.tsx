@@ -2,7 +2,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { apiFetch, ApiRequestError } from '@/lib/api'
 import type { FacturaResponse } from '@/types'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { PageHeader } from '@/components/page-header'
+import { CodigoPaciente } from '@/components/codigo-paciente'
+import { EstadoChip } from '@/components/estado-chip'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { FacturaFormDialog } from '@/components/facturas/factura-form-dialog'
@@ -10,13 +12,6 @@ import { AnularFacturaDialog } from '@/components/facturas/anular-factura-dialog
 import { PaginationControls } from '@/components/pagination-controls'
 import { toast } from 'sonner'
 import { Plus, Search } from 'lucide-react'
-
-const VARIANTE_ESTADO: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-  PENDIENTE: 'outline',
-  EMITIDA: 'default',
-  RECHAZADA: 'destructive',
-  ANULADA: 'secondary',
-}
 
 const TAMANO_PAGINA = 10
 
@@ -79,15 +74,18 @@ export function FacturasPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Facturacion</h1>
-        <Button onClick={() => setDialogAbierto(true)}>
-          <Plus />
-          Nueva factura
-        </Button>
-      </div>
+      <PageHeader
+        titulo="Facturación"
+        descripcion="Facturas internas y documentos tributarios electrónicos (DTE)."
+        acciones={
+          <Button onClick={() => setDialogAbierto(true)}>
+            <Plus />
+            Nueva factura
+          </Button>
+        }
+      />
 
-      <div className="relative max-w-sm">
+      <div className="relative w-full max-w-sm">
         <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           placeholder="Buscar por paciente..."
@@ -97,14 +95,14 @@ export function FacturasPage() {
         />
       </div>
 
-      <div className="rounded-md border">
+      <div className="overflow-hidden rounded-lg border bg-card">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Fecha</TableHead>
               <TableHead>Paciente</TableHead>
               <TableHead>Tipo</TableHead>
-              <TableHead>Total</TableHead>
+              <TableHead className="text-right">Total</TableHead>
               <TableHead>Estado</TableHead>
               <TableHead className="text-right">Acciones</TableHead>
             </TableRow>
@@ -113,18 +111,23 @@ export function FacturasPage() {
             {!cargando && visibles.length === 0 && (
               <TableRow>
                 <TableCell colSpan={6} className="text-center text-muted-foreground">
-                  {busqueda ? 'Ninguna factura coincide con la busqueda.' : 'Todavia no hay facturas.'}
+                  {busqueda ? 'Ninguna factura coincide con la búsqueda.' : 'Todavía no hay facturas.'}
                 </TableCell>
               </TableRow>
             )}
             {visibles.map((factura) => (
               <TableRow key={factura.id}>
                 <TableCell>{new Date(factura.creadoEn).toLocaleDateString('es-SV')}</TableCell>
-                <TableCell className="font-medium">{factura.pacienteNombre}</TableCell>
-                <TableCell>{factura.tipoDte === 'FE' ? 'Electronica' : 'Simple'}</TableCell>
-                <TableCell>${factura.total.toFixed(2)}</TableCell>
                 <TableCell>
-                  <Badge variant={VARIANTE_ESTADO[factura.estado] ?? 'outline'}>{factura.estado}</Badge>
+                  <div className="flex items-center gap-3">
+                    <CodigoPaciente id={factura.pacienteId} />
+                    <span className="font-medium text-tinta">{factura.pacienteNombre}</span>
+                  </div>
+                </TableCell>
+                <TableCell>{factura.tipoDte === 'FE' ? 'Electrónica' : 'Simple'}</TableCell>
+                <TableCell className="text-right font-semibold text-tinta">${factura.total.toFixed(2)}</TableCell>
+                <TableCell>
+                  <EstadoChip estado={factura.estado} />
                 </TableCell>
                 <TableCell className="space-x-2 text-right">
                   {factura.tipoDte === 'FE' && factura.estado === 'PENDIENTE' && (

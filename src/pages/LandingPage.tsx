@@ -6,17 +6,17 @@ import type { PlanResponse } from '@/types'
 import './LandingPage.css'
 
 const DESCRIPCIONES_PLAN: Record<string, string> = {
-  CONSULTORIO: 'Para el medico con consultorio propio: pacientes, agenda, consultas y factura interna.',
-  CONSULTORIO_PRO: 'Todo lo de Consultorio, mas facturacion electronica a tu nombre ante Hacienda.',
-  CLINICA: 'Para clinicas con varios doctores, recepcion y facturacion electronica de la clinica.',
-  CLINICA_PLUS: 'Para clinicas grandes: doctores y personal sin limite.',
+  CONSULTORIO: 'Para el médico con consultorio propio: pacientes, agenda, consultas y factura interna.',
+  CONSULTORIO_PRO: 'Todo lo de Consultorio, más facturación electrónica a tu nombre ante Hacienda.',
+  CLINICA: 'Para clínicas con varios doctores, recepción y facturación electrónica de la clínica.',
+  CLINICA_PLUS: 'Para clínicas grandes: doctores y personal sin limite.',
 }
 
 const CARACTERISTICAS_PLAN: Record<string, string[]> = {
-  CONSULTORIO: ['1 medico + 1 asistente', 'Pacientes ilimitados', 'Agenda y expediente', 'Factura interna'],
-  CONSULTORIO_PRO: ['1 medico + 1 asistente', 'Pacientes ilimitados', 'Facturacion electronica DTE', 'Todo lo del plan Consultorio'],
-  CLINICA: ['Hasta 5 medicos', 'Hasta 10 usuarios', 'Facturacion electronica DTE', 'Agenda por doctor'],
-  CLINICA_PLUS: ['Medicos ilimitados', 'Usuarios ilimitados', 'Facturacion electronica DTE', 'Soporte prioritario'],
+  CONSULTORIO: ['1 médico + 1 asistente', 'Pacientes ilimitados', 'Agenda y expediente', 'Factura interna'],
+  CONSULTORIO_PRO: ['1 médico + 1 asistente', 'Pacientes ilimitados', 'Facturación electrónica DTE', 'Todo lo del plan Consultorio'],
+  CLINICA: ['Hasta 5 médicos', 'Hasta 10 usuarios', 'Facturación electrónica DTE', 'Agenda por doctor'],
+  CLINICA_PLUS: ['Medicos ilimitados', 'Usuarios ilimitados', 'Facturación electrónica DTE', 'Soporte prioritario'],
 }
 
 // Plan resaltado en la landing. "Recomendado" y no "Mas popular": todavia no
@@ -57,7 +57,7 @@ export function LandingPage() {
           <a href="#sistema">Sistema</a>
           <a href="#experiencia">Experiencia</a>
           <a href="#planes">Planes</a>
-          <Link to="/login">Iniciar sesion</Link>
+          <Link to="/login">Iniciar sesión</Link>
         </nav>
         <Link to="/registro" className="navCta">
           Comenzar
@@ -66,12 +66,12 @@ export function LandingPage() {
 
       <section className="hero wrap heroGrid">
         <div>
-          <p className="eyebrow">Plataforma para clinicas en El Salvador</p>
+          <p className="eyebrow">Plataforma para clínicas en El Salvador</p>
           <h1>
             La clinica <em>organizada</em> que tus pacientes notan.
           </h1>
           <p className="lead">
-            Pacientes, agenda, consultas y facturacion electronica en un solo sistema.
+            Pacientes, agenda, consultas y facturación electrónica en un solo sistema.
             Reemplaza el cuaderno y las hojas de Excel por un panel que tu equipo
             realmente disfruta usar.
           </p>
@@ -83,7 +83,7 @@ export function LandingPage() {
               Ver planes
             </a>
           </div>
-          <p className="note">7 dias gratis · sin tarjeta requerida</p>
+          <p className="note">7 días gratis · sin tarjeta requerida</p>
         </div>
 
         <div className="heroVisual">
@@ -142,10 +142,10 @@ export function LandingPage() {
       </section>
 
       <div className="trust wrap trustIn">
-        <p>Hecho para clinicas y consultorios en El Salvador</p>
+        <p>Hecho para clínicas y consultorios en El Salvador</p>
         <div className="trustLogos">
           <span>IVA calculado automaticamente</span>
-          <span>Datos aislados por clinica</span>
+          <span>Datos aislados por clínica</span>
           <span>Recordatorios de citas por correo</span>
           <span>Sin instalar nada</span>
         </div>
@@ -155,7 +155,7 @@ export function LandingPage() {
         <div className="intro">
           <div>
             <p className="kicker">El sistema</p>
-            <h2>Todo lo que tu clinica necesita para operar, sin hojas sueltas.</h2>
+            <h2>Todo lo que tu clínica necesita para operar, sin hojas sueltas.</h2>
           </div>
           <p className="desc">
             Seis modulos conectados entre si — lo que registra tu recepcionista
@@ -179,19 +179,19 @@ export function LandingPage() {
             <span className="num">03</span>
             <div className="icon">Co</div>
             <h3>Consultas</h3>
-            <p>Notas clinicas, diagnostico y receta, ligados a la cita correspondiente.</p>
+            <p>Notas clínicas, diagnóstico y receta, ligados a la cita correspondiente.</p>
           </div>
           <div className="module">
             <span className="num">04</span>
             <div className="icon">Fa</div>
-            <h3>Facturacion electronica</h3>
+            <h3>Facturación electrónica</h3>
             <p>Documentos tributarios (DTE) transmitidos al Ministerio de Hacienda.</p>
           </div>
           <div className="module">
             <span className="num">05</span>
             <div className="icon">Re</div>
             <h3>Reportes</h3>
-            <p>Ingresos, citas atendidas y pacientes nuevos, siempre al dia.</p>
+            <p>Ingresos, citas atendidas y pacientes nuevos, siempre al día.</p>
           </div>
           <div className="module">
             <span className="num">06</span>
@@ -208,7 +208,7 @@ export function LandingPage() {
             <img src="/images/landing/doctora-parque.jpg" alt="Doctora sonriendo" />
             <div className="caption">
               <small>Hecho para tu equipo</small>
-              <b>Menos administracion, mas pacientes.</b>
+              <b>Menos administración, mas pacientes.</b>
             </div>
           </div>
           <div className="sidePhotos">
@@ -216,7 +216,7 @@ export function LandingPage() {
               <img src="/images/landing/estetoscopio.jpg" alt="Estetoscopio" />
             </div>
             <div className="photoTile small">
-              <img src="/images/landing/pasillo-equipo.jpg" alt="Equipo medico caminando" />
+              <img src="/images/landing/pasillo-equipo.jpg" alt="Equipo médico caminando" />
             </div>
           </div>
         </div>
@@ -228,7 +228,7 @@ export function LandingPage() {
             <p className="kicker">Sin letra pequena</p>
             <h2>Deja el cuaderno atras sin complicarte.</h2>
           </div>
-          <p className="desc">Lo que obtenes desde el primer dia, en cualquier plan.</p>
+          <p className="desc">Lo que obtenés desde el primer día, en cualquier plan.</p>
         </div>
         <div className="wrap stats">
           <div className="stat">
@@ -270,14 +270,14 @@ export function LandingPage() {
               <span className="stepN">2</span>
               <div>
                 <b>El doctor atiende</b>
-                <p>Registra diagnostico, receta y notas directo desde la cita del calendario.</p>
+                <p>Registra diagnóstico, receta y notas directo desde la cita del calendario.</p>
               </div>
             </div>
             <div className="step">
               <span className="stepN">3</span>
               <div>
                 <b>Se factura al instante</b>
-                <p>El documento tributario electronico se genera y transmite a Hacienda.</p>
+                <p>El documento tributario electrónico se genera y transmite a Hacienda.</p>
               </div>
             </div>
             <div className="step">
@@ -329,7 +329,7 @@ export function LandingPage() {
         <div className="wrap intro">
           <div>
             <p className="kicker">Planes</p>
-            <h2>Del consultorio individual a la clinica completa.</h2>
+            <h2>Del consultorio individual a la clínica completa.</h2>
           </div>
           <p className="desc">Cambia de plan cuando quieras. Sin permanencia forzada.</p>
         </div>
@@ -366,7 +366,7 @@ export function LandingPage() {
         <div className="finalBox">
           <div>
             <p className="kicker">Empieza hoy</p>
-            <h2>Tu clinica, organizada desde la primera semana.</h2>
+            <h2>Tu clínica, organizada desde la primera semana.</h2>
             <p>
               Crea tu cuenta y empieza a usar GoRam Clinic hoy mismo. 7 dias gratis,
               sin tarjeta requerida.

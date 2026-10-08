@@ -4,6 +4,8 @@ import { esConsultorio, useAuth } from '@/lib/auth-context'
 import type { UsuarioResumen } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { PageHeader } from '@/components/page-header'
+import { EstadoChip } from '@/components/estado-chip'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { PersonalFormDialog } from '@/components/personal/personal-form-dialog'
 import { RestablecerPasswordDialog } from '@/components/personal/restablecer-password-dialog'
@@ -72,15 +74,22 @@ export function PersonalPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">{esConsultorio(sesion) ? 'Mi asistente' : 'Personal'}</h1>
-        <Button onClick={() => setDialogAbierto(true)}>
-          <Plus />
-          {esConsultorio(sesion) ? 'Agregar asistente' : 'Agregar personal'}
-        </Button>
-      </div>
+      <PageHeader
+        titulo={esConsultorio(sesion) ? 'Mi asistente' : 'Personal'}
+        descripcion={
+          esConsultorio(sesion)
+            ? 'La persona que te ayuda en recepción, con su propio acceso.'
+            : 'Doctores, recepción y administradores con acceso a la clínica.'
+        }
+        acciones={
+          <Button onClick={() => setDialogAbierto(true)}>
+            <Plus />
+            {esConsultorio(sesion) ? 'Agregar asistente' : 'Agregar personal'}
+          </Button>
+        }
+      />
 
-      <div className="rounded-md border">
+      <div className="overflow-hidden rounded-lg border bg-card">
         <Table>
           <TableHeader>
             <TableRow>
@@ -95,7 +104,7 @@ export function PersonalPage() {
             {!cargando && usuarios.length === 0 && (
               <TableRow>
                 <TableCell colSpan={5} className="text-center text-muted-foreground">
-                  Todavia no hay personal registrado.
+                  Todavía no hay personal registrado.
                 </TableCell>
               </TableRow>
             )}
@@ -103,21 +112,19 @@ export function PersonalPage() {
               const esUnoMismo = usuario.id === sesion?.usuarioId
               return (
                 <TableRow key={usuario.id}>
-                  <TableCell className="font-medium">{usuario.nombre}</TableCell>
+                  <TableCell className="font-medium text-tinta">{usuario.nombre}</TableCell>
                   <TableCell>{usuario.email}</TableCell>
                   <TableCell>
                     <Badge variant="outline">{ETIQUETA_ROL[usuario.rol] ?? usuario.rol}</Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={usuario.activo ? 'default' : 'secondary'}>
-                      {usuario.activo ? 'Activo' : 'Inactivo'}
-                    </Badge>
+                    <EstadoChip estado={usuario.activo ? 'ACTIVO' : 'INACTIVO'} />
                   </TableCell>
                   <TableCell className="text-right">
                     {!esUnoMismo && (
                       <div className="flex justify-end gap-2">
                         <Button variant="ghost" size="sm" onClick={() => setUsuarioARestablecer(usuario)}>
-                          Restablecer contrasena
+                          Restablecer contraseña
                         </Button>
                         <Button
                           variant="ghost"
@@ -153,7 +160,7 @@ export function PersonalPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Desactivar a {usuarioADesactivar?.nombre}</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta persona ya no podra iniciar sesion. Podes reactivarla en cualquier momento.
+              Esta persona ya no podrá iniciar sesión. Podés reactivarla en cualquier momento.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

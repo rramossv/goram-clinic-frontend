@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { apiFetch } from '@/lib/api'
 import type { CitaResponse, FacturaResponse, PacienteResponse } from '@/types'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { PageHeader } from '@/components/page-header'
 import { GraficaBarras, GraficaEstados } from '@/components/reportes/graficas'
 import { toast } from 'sonner'
 
@@ -78,11 +79,8 @@ export function ReportesPage() {
   const totalIngresos6Meses = ingresosPorMes.reduce((suma, dato) => suma + dato.valor, 0)
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Reportes</h1>
-        <p className="text-sm text-muted-foreground">Ultimos 6 meses</p>
-      </div>
+    <div className="flex flex-col gap-8">
+      <PageHeader titulo="Reportes" descripcion="Últimos 6 meses. El mes en curso se resalta en cada gráfica." />
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>

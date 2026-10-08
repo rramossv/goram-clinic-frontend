@@ -1,6 +1,8 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import type { CitaResponse, UsuarioResumen } from '@/types'
 import { useScrollShadows } from '@/hooks/use-scroll-shadows'
+import { CodigoPaciente } from '@/components/codigo-paciente'
+import { etiquetaEstado } from '@/components/estado-chip'
 
 const HORA_INICIO = 7
 const HORA_FIN = 19
@@ -8,14 +10,11 @@ const SLOT_MINUTOS = 30
 const TOTAL_SLOTS = ((HORA_FIN - HORA_INICIO) * 60) / SLOT_MINUTOS
 
 const COLOR_ESTADO: Record<string, string> = {
-  PROGRAMADA: 'bg-blue-100 border-blue-300 text-blue-900 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-100',
-  CONFIRMADA:
-    'bg-emerald-100 border-emerald-300 text-emerald-900 dark:bg-emerald-950 dark:border-emerald-800 dark:text-emerald-100',
-  COMPLETADA: 'bg-muted border-border text-muted-foreground',
-  CANCELADA:
-    'bg-red-50 border-red-200 text-red-800 line-through dark:bg-red-950 dark:border-red-900 dark:text-red-200',
-  NO_ASISTIO:
-    'bg-orange-50 border-orange-200 text-orange-800 dark:bg-orange-950 dark:border-orange-900 dark:text-orange-200',
+  PROGRAMADA: 'bg-info-suave text-info ring-info/25',
+  CONFIRMADA: 'bg-exito-suave text-exito ring-exito/30',
+  COMPLETADA: 'bg-muted text-muted-foreground ring-border',
+  CANCELADA: 'bg-peligro-suave text-destructive ring-destructive/20 line-through',
+  NO_ASISTIO: 'bg-aviso-suave text-aviso ring-aviso/25',
 }
 
 function etiquetaHora(minutosDesdeMedianoche: number) {
@@ -43,9 +42,21 @@ export function DayCalendar({ fecha, doctores, citas, onCeldaVacia, onCita }: Da
   const gridRef = useRef<HTMLDivElement>(null)
   const { puedeScrollIzq, puedeScrollDer, alHacerScroll } = useScrollShadows(containerRef, gridRef)
 
+  // Al abrir el dia de hoy, la grilla arranca una hora antes de la actual en
+  // vez de mostrar la manana ya transcurrida.
+  const esHoyFecha = esMismoDia(fecha, new Date())
+  useEffect(() => {
+    const contenedor = containerRef.current
+    if (!contenedor || !esHoyFecha) return
+    const minutos = new Date().getHours() * 60 - 60 - HORA_INICIO * 60
+    const filas = Math.max(0, minutos / SLOT_MINUTOS)
+    const remPx = parseFloat(getComputedStyle(document.documentElement).fontSize)
+    contenedor.scrollTop = filas * 3 * remPx
+  }, [esHoyFecha, doctores.length])
+
   if (doctores.length === 0) {
     return (
-      <div className="rounded-md border p-8 text-center text-muted-foreground">
+      <div className="rounded-lg border bg-card p-8 text-center text-muted-foreground">
         No hay doctores registrados. Agrega uno en la seccion Personal para poder agendar citas.
       </div>
     )
@@ -64,7 +75,7 @@ export function DayCalendar({ fecha, doctores, citas, onCeldaVacia, onCita }: Da
     return { filaInicio, filaSpan }
   }
 
-  const columnasTemplate = `4rem repeat(${doctores.length}, minmax(10rem, 1fr))`
+  const columnasTemplate = `5.25rem repeat(${doctores.length}, minmax(10rem, 1fr))`
   const filasTemplate = `2.5rem repeat(${TOTAL_SLOTS}, 3rem)`
 
   // fila (fraccional) donde cae la hora actual, para la linea indicadora
@@ -75,18 +86,18 @@ export function DayCalendar({ fecha, doctores, citas, onCeldaVacia, onCita }: Da
       <div
         ref={containerRef}
         onScroll={alHacerScroll}
-        className="max-h-[calc(100vh-14rem)] overflow-auto rounded-md border"
+        className="max-h-[calc(100vh-15rem)] overflow-auto rounded-lg border bg-card"
       >
       <div
         ref={gridRef}
         className="grid"
         style={{ gridTemplateColumns: columnasTemplate, gridTemplateRows: filasTemplate }}
       >
-        <div className="sticky top-0 left-0 z-30 border-b bg-background" style={{ gridColumn: 1, gridRow: 1 }} />
+        <div className="sticky top-0 left-0 z-30 border-b bg-carton" style={{ gridColumn: 1, gridRow: 1 }} />
         {doctores.map((doctor, indice) => (
           <div
             key={doctor.id}
-            className="sticky top-0 z-20 flex items-center justify-center border-b border-l bg-background px-2 text-sm font-medium"
+            className="sticky top-0 z-20 flex items-center justify-center border-b border-l bg-carton px-2 text-sm font-semibold text-tinta"
             style={{ gridColumn: indice + 2, gridRow: 1 }}
           >
             {doctor.nombre}
@@ -98,7 +109,7 @@ export function DayCalendar({ fecha, doctores, citas, onCeldaVacia, onCita }: Da
           return (
             <div
               key={`hora-${indiceSlot}`}
-              className="sticky left-0 z-10 flex items-start justify-end border-b bg-background pr-2 pt-1 text-xs text-muted-foreground"
+              className="sticky left-0 z-10 flex items-start justify-end border-b bg-carton pr-2.5 pt-1 text-[11px] font-medium whitespace-nowrap text-carton-foreground [font-variant-numeric:tabular-nums]"
               style={{ gridColumn: 1, gridRow: indiceSlot + 2 }}
             >
               {indiceSlot % 2 === 0 ? etiquetaHora(minutos) : null}
@@ -121,8 +132,8 @@ export function DayCalendar({ fecha, doctores, citas, onCeldaVacia, onCita }: Da
                 title={yaPaso ? 'Este horario ya paso' : undefined}
                 className={
                   yaPaso
-                    ? 'border-b border-l bg-[repeating-linear-gradient(135deg,transparent,transparent_6px,var(--muted)_6px,var(--muted)_7px)] cursor-not-allowed'
-                    : 'border-b border-l hover:bg-accent/50'
+                    ? 'border-b border-l bg-[repeating-linear-gradient(135deg,transparent,transparent_6px,var(--border)_6px,var(--border)_7px)] cursor-not-allowed'
+                    : 'border-b border-l transition-colors hover:bg-accent/70'
                 }
                 style={{ gridColumn: indiceDoctor + 2, gridRow: indiceSlot + 2 }}
                 onClick={() => onCeldaVacia(doctor.id, celda)}
@@ -141,11 +152,18 @@ export function DayCalendar({ fecha, doctores, citas, onCeldaVacia, onCita }: Da
                   key={cita.id}
                   type="button"
                   onClick={() => onCita(cita)}
-                  className={`z-10 m-0.5 overflow-hidden rounded-md border px-2 py-1 text-left text-xs shadow-sm transition-shadow hover:shadow-md ${COLOR_ESTADO[cita.estado] ?? ''}`}
+                  className={`z-10 m-0.5 overflow-hidden rounded-[5px] px-2 py-1 text-left text-xs ring-1 ring-inset shadow-[0_1px_2px_rgb(16_38_59/0.08)] transition-shadow hover:shadow-[0_4px_12px_-4px_rgb(16_38_59/0.3)] ${COLOR_ESTADO[cita.estado] ?? ''}`}
                   style={{ gridColumn: indiceDoctor + 2, gridRow: `${filaInicio} / span ${filaSpan}` }}
                 >
-                  <p className="truncate font-medium">{cita.pacienteNombre}</p>
-                  <p className="truncate opacity-80">{cita.motivo || cita.estado}</p>
+                  <span className="flex items-center gap-1.5">
+                    <CodigoPaciente id={cita.pacienteId} />
+                    <span className="truncate font-semibold text-tinta">{cita.pacienteNombre}</span>
+                  </span>
+                  <span className="mt-0.5 block truncate">
+                    {new Date(cita.fechaHora).toLocaleTimeString('es-SV', { hour: 'numeric', minute: '2-digit' })}
+                    {' · '}
+                    {cita.motivo || etiquetaEstado(cita.estado)}
+                  </span>
                 </button>
               )
             }),
@@ -156,17 +174,17 @@ export function DayCalendar({ fecha, doctores, citas, onCeldaVacia, onCita }: Da
             className="pointer-events-none z-20 flex items-center"
             style={{ gridColumn: `1 / span ${doctores.length + 1}`, gridRow: 2, marginTop: `${(filaAhora - 2) * 3}rem` }}
           >
-            <div className="h-2 w-2 shrink-0 rounded-full bg-destructive" style={{ marginLeft: '3.75rem' }} />
-            <div className="h-px flex-1 bg-destructive" />
+            <div className="h-2 w-2 shrink-0 rounded-full bg-aviso" style={{ marginLeft: '5rem' }} />
+            <div className="h-0.5 flex-1 bg-aviso" />
           </div>
         )}
       </div>
       </div>
       {puedeScrollIzq && (
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-background to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-card to-transparent" />
       )}
       {puedeScrollDer && (
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-background to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-card to-transparent" />
       )}
     </div>
   )

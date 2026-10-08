@@ -31,7 +31,7 @@ export function PaginationControls({
           <ChevronLeft />
         </Button>
         <span>
-          Pagina {pagina} de {totalPaginas}
+          Página {pagina} de {totalPaginas}
         </span>
         <Button
           variant="outline"

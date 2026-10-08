@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# capturas de revision de diseno (locales)
+.impeccable/review/

@@ -35,21 +35,21 @@ export function OlvidePasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-carton p-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>Recuperar acceso</CardTitle>
-          <CardDescription>Te mandamos un enlace para elegir una contrasena nueva.</CardDescription>
+          <CardDescription>Te mandamos un enlace para elegir una contraseña nueva.</CardDescription>
         </CardHeader>
         <CardContent>
           {enviado ? (
             <div className="flex flex-col gap-4">
               <p className="text-sm text-muted-foreground">
                 Si <strong>{email}</strong> esta registrado en GoRam Clinic, te llegara un correo con un
-                enlace para restablecer tu contrasena. Revisa tambien la carpeta de spam.
+                enlace para restablecer tu contraseña. Revisa también la carpeta de spam.
               </p>
               <Link to="/login" className="text-sm font-medium underline underline-offset-4">
-                Volver a iniciar sesion
+                Volver a iniciar sesión
               </Link>
             </div>
           ) : (
@@ -69,7 +69,7 @@ export function OlvidePasswordPage() {
                 {enviando ? 'Enviando...' : 'Enviar enlace'}
               </Button>
               <Link to="/login" className="text-center text-sm text-muted-foreground underline underline-offset-4">
-                Volver a iniciar sesion
+                Volver a iniciar sesión
               </Link>
             </form>
           )}

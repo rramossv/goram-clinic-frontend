@@ -30,13 +30,13 @@ const OPCIONES_TIPO = [
     tipo: 'INDIVIDUAL' as const,
     icono: Stethoscope,
     titulo: 'Consultorio individual',
-    descripcion: 'Soy medico y atiendo a mis propios pacientes, solo o con una asistente.',
+    descripcion: 'Soy médico y atiendo a mis propios pacientes, solo o con una asistente.',
   },
   {
     tipo: 'CLINICA' as const,
     icono: Building2,
-    titulo: 'Clinica',
-    descripcion: 'Varios doctores, recepcion y personal administrativo.',
+    titulo: 'Clínica',
+    descripcion: 'Varios doctores, recepción y personal administrativo.',
   },
 ]
 
@@ -73,7 +73,7 @@ export function RegistroPage() {
   useEffect(() => {
     apiFetch<PlanResponse[]>('/api/v1/planes', { auth: false })
       .then(setPlanes)
-      .catch(() => setError('No se pudieron cargar los planes. Intenta de nuevo mas tarde.'))
+      .catch(() => setError('No se pudieron cargar los planes. Intenta de nuevo más tarde.'))
       .finally(() => setCargandoPlanes(false))
   }, [])
 
@@ -138,11 +138,11 @@ export function RegistroPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4 py-10">
+    <div className="flex min-h-screen items-center justify-center bg-carton p-4 py-10">
       <Card className="w-full max-w-2xl">
         <CardHeader>
           <CardTitle className="text-2xl">
-            {tipoPractica === null ? 'Crea tu cuenta' : esIndividual ? 'Registra tu consultorio' : 'Registra tu clinica'}
+            {tipoPractica === null ? 'Crea tu cuenta' : esIndividual ? 'Registra tu consultorio' : 'Registra tu clínica'}
           </CardTitle>
           <CardDescription>
             {tipoPractica === null
@@ -170,9 +170,9 @@ export function RegistroPage() {
                 ))}
               </div>
               <p className="text-center text-sm text-muted-foreground">
-                Ya tenes cuenta?{' '}
+                ¿Ya tenés cuenta?{' '}
                 <Link to="/login" className="font-medium text-foreground underline underline-offset-4">
-                  Inicia sesion
+                  Inicia sesión
                 </Link>
               </p>
             </div>
@@ -187,7 +187,7 @@ export function RegistroPage() {
                 className="-mt-2 flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
               >
                 <ChevronLeft className="size-4" />
-                {esIndividual ? 'Consultorio individual' : 'Clinica'} · cambiar
+                {esIndividual ? 'Consultorio individual' : 'Clínica'} · cambiar
               </button>
 
               <div className="flex flex-col gap-2">
@@ -216,8 +216,8 @@ export function RegistroPage() {
                           <span className="text-xs text-muted-foreground">al mes</span>
                           <span className="mt-1 text-xs text-muted-foreground">
                             {plan.incluyeFacturacionElectronica
-                              ? 'Incluye facturacion electronica'
-                              : 'Factura interna, sin facturacion electronica'}
+                              ? 'Incluye facturación electrónica'
+                              : 'Factura interna, sin facturación electrónica'}
                           </span>
                         </button>
                       )
@@ -228,11 +228,11 @@ export function RegistroPage() {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="flex flex-col gap-2 sm:col-span-2">
-                  <Label htmlFor="nombreClinica">{esIndividual ? 'Nombre del consultorio' : 'Nombre de la clinica'}</Label>
+                  <Label htmlFor="nombreClinica">{esIndividual ? 'Nombre del consultorio' : 'Nombre de la clínica'}</Label>
                   <Input
                     id="nombreClinica"
                     required
-                    placeholder={esIndividual ? 'Ej. Consultorio Dra. Martinez' : 'Ej. Clinica San Rafael'}
+                    placeholder={esIndividual ? 'Ej. Consultorio Dra. Martinez' : 'Ej. Clínica San Rafael'}
                     value={nombreClinica}
                     onChange={(e) => setNombreClinica(e.target.value)}
                   />
@@ -251,7 +251,7 @@ export function RegistroPage() {
                 </div>
                 <div className="flex flex-col gap-2 sm:col-span-2">
                   <Label htmlFor="nombreAdmin">
-                    {esIndividual ? 'Tu nombre, como aparecera en citas y recetas' : 'Tu nombre (administrador de la clinica)'}
+                    {esIndividual ? 'Tu nombre, como aparecera en citas y recetas' : 'Tu nombre (administrador de la clínica)'}
                   </Label>
                   <Input
                     id="nombreAdmin"
@@ -268,7 +268,7 @@ export function RegistroPage() {
                         checked={adminAtiendePacientes}
                         onChange={(e) => setAdminAtiendePacientes(e.target.checked)}
                       />
-                      Yo tambien atiendo pacientes
+                      Yo también atiendo pacientes
                     </label>
                   )}
                 </div>
@@ -283,7 +283,7 @@ export function RegistroPage() {
                   />
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="password">Contrasena</Label>
+                  <Label htmlFor="password">Contraseña</Label>
                   <Input
                     id="password"
                     type="password"
@@ -301,16 +301,16 @@ export function RegistroPage() {
                 {enviando
                   ? esIndividual
                     ? 'Creando tu consultorio...'
-                    : 'Creando tu clinica...'
+                    : 'Creando tu clínica...'
                   : esIndividual
                     ? 'Crear mi consultorio'
-                    : 'Crear mi clinica'}
+                    : 'Crear mi clínica'}
               </Button>
 
               <p className="text-center text-sm text-muted-foreground">
-                Ya tenes cuenta?{' '}
+                ¿Ya tenés cuenta?{' '}
                 <Link to="/login" className="font-medium text-foreground underline underline-offset-4">
-                  Inicia sesion
+                  Inicia sesión
                 </Link>
               </p>
             </form>

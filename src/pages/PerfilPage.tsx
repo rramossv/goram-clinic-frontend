@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { apiFetch, ApiRequestError } from '@/lib/api'
 import { etiquetaRol, useAuth } from '@/lib/auth-context'
+import { PageHeader } from '@/components/page-header'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -30,7 +31,7 @@ export function PerfilPage() {
     setError(null)
 
     if (passwordNueva !== passwordConfirmar) {
-      setError('La contrasena nueva y su confirmacion no coinciden')
+      setError('La contraseña nueva y su confirmacion no coinciden')
       return
     }
 
@@ -40,13 +41,13 @@ export function PerfilPage() {
         method: 'PATCH',
         body: { passwordActual, passwordNueva },
       })
-      toast.success('Contrasena actualizada')
+      toast.success('Contraseña actualizada')
       setPasswordActual('')
       setPasswordNueva('')
       setPasswordConfirmar('')
     } catch (err) {
       if (err instanceof ApiRequestError) {
-        setError(err.body?.message ?? 'No se pudo actualizar la contrasena')
+        setError(err.body?.message ?? 'No se pudo actualizar la contraseña')
       } else {
         setError('No se pudo conectar con el servidor')
       }
@@ -59,7 +60,7 @@ export function PerfilPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold">Mi perfil</h1>
+      <PageHeader titulo="Mi perfil" descripcion="Tus datos de acceso y tu contraseña." />
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
@@ -68,7 +69,7 @@ export function PerfilPage() {
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
-              <div className="flex size-12 items-center justify-center rounded-full bg-primary font-semibold text-primary-foreground">
+              <div className="flex size-12 items-center justify-center rounded-md bg-primary font-semibold text-primary-foreground">
                 {iniciales(sesion.nombre)}
               </div>
               <div>
@@ -87,13 +88,13 @@ export function PerfilPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Cambiar mi contrasena</CardTitle>
-            <CardDescription>Necesitas tu contrasena actual para establecer una nueva.</CardDescription>
+            <CardTitle className="text-base">Cambiar mi contraseña</CardTitle>
+            <CardDescription>Necesitás tu contraseña actual para establecer una nueva.</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
-                <Label htmlFor="passwordActual">Contrasena actual</Label>
+                <Label htmlFor="passwordActual">Contraseña actual</Label>
                 <Input
                   id="passwordActual"
                   type="password"
@@ -103,7 +104,7 @@ export function PerfilPage() {
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="passwordNueva">Contrasena nueva</Label>
+                <Label htmlFor="passwordNueva">Contraseña nueva</Label>
                 <Input
                   id="passwordNueva"
                   type="password"
@@ -114,7 +115,7 @@ export function PerfilPage() {
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="passwordConfirmar">Confirmar contrasena nueva</Label>
+                <Label htmlFor="passwordConfirmar">Confirmar contraseña nueva</Label>
                 <Input
                   id="passwordConfirmar"
                   type="password"
@@ -126,7 +127,7 @@ export function PerfilPage() {
               </div>
               {error && <p className="text-sm text-destructive">{error}</p>}
               <Button type="submit" disabled={enviando} className="self-start">
-                {enviando ? 'Guardando...' : 'Guardar contrasena'}
+                {enviando ? 'Guardando...' : 'Guardar contraseña'}
               </Button>
             </form>
           </CardContent>

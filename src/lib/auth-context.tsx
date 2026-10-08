@@ -30,7 +30,7 @@ export function esConsultorio(sesion: SesionUsuario | null) {
 
 export function etiquetaRol(sesion: SesionUsuario | null) {
   if (!sesion) return ''
-  if (esConsultorio(sesion) && sesion.rol === 'ADMIN_CLINICA') return 'Medico titular'
+  if (esConsultorio(sesion) && sesion.rol === 'ADMIN_CLINICA') return 'Médico titular'
   return ETIQUETA_ROL[sesion.rol] ?? sesion.rol
 }
 

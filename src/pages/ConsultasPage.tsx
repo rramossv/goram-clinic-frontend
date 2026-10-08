@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react'
 import { apiFetch } from '@/lib/api'
 import type { CitaResponse } from '@/types'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { PageHeader } from '@/components/page-header'
+import { CodigoPaciente } from '@/components/codigo-paciente'
+import { EstadoChip } from '@/components/estado-chip'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { ConsultaDialog } from '@/components/consultas/consulta-dialog'
 import { toast } from 'sonner'
@@ -27,14 +29,12 @@ export function ConsultasPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div>
-        <h1 className="text-2xl font-semibold">Consultas</h1>
-        <p className="text-sm text-muted-foreground">
-          Selecciona una cita para ver o registrar su consulta clinica.
-        </p>
-      </div>
+      <PageHeader
+        titulo="Consultas"
+        descripcion="Selecciona una cita para ver o registrar su consulta clínica."
+      />
 
-      <div className="rounded-md border">
+      <div className="overflow-hidden rounded-lg border bg-card">
         <Table>
           <TableHeader>
             <TableRow>
@@ -49,7 +49,7 @@ export function ConsultasPage() {
             {!cargando && citas.length === 0 && (
               <TableRow>
                 <TableCell colSpan={5} className="text-center text-muted-foreground">
-                  Todavia no hay citas para documentar.
+                  Todavía no hay citas para documentar.
                 </TableCell>
               </TableRow>
             )}
@@ -61,10 +61,15 @@ export function ConsultasPage() {
                     timeStyle: 'short',
                   })}
                 </TableCell>
-                <TableCell className="font-medium">{cita.pacienteNombre}</TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-3">
+                    <CodigoPaciente id={cita.pacienteId} />
+                    <span className="font-medium text-tinta">{cita.pacienteNombre}</span>
+                  </div>
+                </TableCell>
                 <TableCell>{cita.doctorNombre}</TableCell>
                 <TableCell>
-                  <Badge variant="outline">{cita.estado}</Badge>
+                  <EstadoChip estado={cita.estado} />
                 </TableCell>
                 <TableCell className="text-right">
                   <Button variant="ghost" size="sm" onClick={() => abrirConsulta(cita)}>

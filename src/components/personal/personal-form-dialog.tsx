@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner'
 
 const ROLES_STAFF = [
-  { value: 'ADMIN_CLINICA', label: 'Administrador de clinica' },
+  { value: 'ADMIN_CLINICA', label: 'Administrador de clínica' },
   { value: 'DOCTOR', label: 'Doctor' },
   { value: 'RECEPCIONISTA', label: 'Recepcionista' },
 ]
@@ -69,7 +69,7 @@ export function PersonalFormDialog({ open, onOpenChange, onGuardado }: PersonalF
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Agregar personal</DialogTitle>
-            <DialogDescription>Crea un nuevo usuario para tu clinica.</DialogDescription>
+            <DialogDescription>Crea un nuevo usuario para tu clínica.</DialogDescription>
           </DialogHeader>
 
           <div className="flex flex-col gap-4 py-4">
@@ -88,7 +88,7 @@ export function PersonalFormDialog({ open, onOpenChange, onGuardado }: PersonalF
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="password">Contrasena temporal</Label>
+              <Label htmlFor="password">Contraseña temporal</Label>
               <Input
                 id="password"
                 type="password"

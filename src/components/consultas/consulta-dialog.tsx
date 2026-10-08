@@ -95,9 +95,9 @@ export function ConsultaDialog({ open, onOpenChange, cita }: ConsultaDialogProps
               <p className="whitespace-pre-wrap text-muted-foreground">{consulta.notas || 'Sin notas'}</p>
             </div>
             <div>
-              <p className="font-medium">Diagnostico</p>
+              <p className="font-medium">Diagnóstico</p>
               <p className="whitespace-pre-wrap text-muted-foreground">
-                {consulta.diagnostico || 'Sin diagnostico'}
+                {consulta.diagnostico || 'Sin diagnóstico'}
               </p>
             </div>
             <div>
@@ -115,7 +115,7 @@ export function ConsultaDialog({ open, onOpenChange, cita }: ConsultaDialogProps
                 <Textarea id="notas" rows={3} value={notas} onChange={(e) => setNotas(e.target.value)} />
               </div>
               <div className="flex flex-col gap-2">
-                <Label htmlFor="diagnostico">Diagnostico</Label>
+                <Label htmlFor="diagnostico">Diagnóstico</Label>
                 <Textarea
                   id="diagnostico"
                   rows={2}

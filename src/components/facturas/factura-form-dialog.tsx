@@ -155,7 +155,7 @@ export function FacturaFormDialog({
                 </Select>
                 {!permiteFe && (
                   <p className="text-xs text-muted-foreground">
-                    Tu plan actual no incluye facturacion electronica.
+                    Tu plan actual no incluye facturación electrónica.
                   </p>
                 )}
               </div>

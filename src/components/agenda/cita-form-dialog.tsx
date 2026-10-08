@@ -147,7 +147,7 @@ export function CitaFormDialog({ open, onOpenChange, onGuardado, prefill }: Cita
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="duracion">Duracion (minutos)</Label>
+              <Label htmlFor="duracion">Duración (minutos)</Label>
               <Input
                 id="duracion"
                 type="number"
