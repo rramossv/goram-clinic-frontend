@@ -142,12 +142,12 @@ export function LandingPage() {
       </section>
 
       <div className="trust wrap trustIn">
-        <p>Confiado por clinicas y consultorios independientes</p>
+        <p>Hecho para clinicas y consultorios en El Salvador</p>
         <div className="trustLogos">
-          <span>+50 clinicas</span>
-          <span>+12,000 citas gestionadas</span>
           <span>IVA calculado automaticamente</span>
-          <span>99.9% disponibilidad</span>
+          <span>Datos aislados por clinica</span>
+          <span>Recordatorios de citas por correo</span>
+          <span>Sin instalar nada</span>
         </div>
       </div>
 
@@ -225,27 +225,27 @@ export function LandingPage() {
       <section className="section dark">
         <div className="wrap intro">
           <div>
-            <p className="kicker">Resultados</p>
-            <h2>Clinicas que dejaron el cuaderno atras.</h2>
+            <p className="kicker">Sin letra pequena</p>
+            <h2>Deja el cuaderno atras sin complicarte.</h2>
           </div>
-          <p className="desc">Numeros reales de clinicas que operan hoy con GoRam Clinic.</p>
+          <p className="desc">Lo que obtenes desde el primer dia, en cualquier plan.</p>
         </div>
         <div className="wrap stats">
           <div className="stat">
-            <strong>+50</strong>
-            <span>Clinicas activas</span>
+            <strong>13%</strong>
+            <span>IVA calculado sobre el subtotal, sin errores</span>
           </div>
           <div className="stat">
-            <strong>12k</strong>
-            <span>Citas gestionadas</span>
+            <strong>&infin;</strong>
+            <span>Pacientes en todos los planes</span>
           </div>
           <div className="stat">
-            <strong>6 hrs</strong>
-            <span>Ahorradas por semana</span>
+            <strong>0</strong>
+            <span>Instalaciones: entras desde el navegador</span>
           </div>
           <div className="stat">
-            <strong>99.9%</strong>
-            <span>Disponibilidad</span>
+            <strong>Mes a mes</strong>
+            <span>Sin permanencia forzada</span>
           </div>
         </div>
       </section>
