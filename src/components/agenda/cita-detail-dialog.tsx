@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { apiFetch, ApiRequestError } from '@/lib/api'
 import { puede, useAuth } from '@/lib/auth-context'
 import type { CitaResponse } from '@/types'
@@ -15,7 +15,6 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { CodigoPaciente } from '@/components/codigo-paciente'
 import { etiquetaEstado } from '@/components/estado-chip'
-import { ConsultaDialog } from '@/components/consultas/consulta-dialog'
 import { CitaFormDialog } from '@/components/agenda/cita-form-dialog'
 import { FacturaFormDialog } from '@/components/facturas/factura-form-dialog'
 import { toast } from 'sonner'
@@ -41,8 +40,8 @@ function Fila({ etiqueta, children }: { etiqueta: string; children: React.ReactN
 export function CitaDetailDialog({ cita, onOpenChange, onActualizada }: CitaDetailDialogProps) {
   const { sesion } = useAuth()
   const accesoClinico = puede(sesion, 'clinico')
+  const navigate = useNavigate()
   const [citaActiva, setCitaActiva] = useState<CitaResponse | null>(null)
-  const [consultaAbierta, setConsultaAbierta] = useState(false)
   const [reprogramarAbierto, setReprogramarAbierto] = useState(false)
   const [facturarAbierto, setFacturarAbierto] = useState(false)
   const [actualizando, setActualizando] = useState(false)
@@ -69,7 +68,7 @@ export function CitaDetailDialog({ cita, onOpenChange, onActualizada }: CitaDeta
     if (!cita) return
     setCitaActiva(cita)
     onOpenChange(false)
-    if (accion === 'consulta') setConsultaAbierta(true)
+    if (accion === 'consulta') navigate(`/atencion/${cita.id}`)
     if (accion === 'reprogramar') setReprogramarAbierto(true)
     if (accion === 'facturar') setFacturarAbierto(true)
   }
@@ -158,12 +157,6 @@ export function CitaDetailDialog({ cita, onOpenChange, onActualizada }: CitaDeta
         </DialogContent>
       </Dialog>
 
-      <ConsultaDialog
-        open={consultaAbierta}
-        onOpenChange={setConsultaAbierta}
-        cita={citaActiva}
-        onGuardada={onActualizada}
-      />
       <CitaFormDialog
         open={reprogramarAbierto}
         onOpenChange={setReprogramarAbierto}

@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from 'react'
 import { apiFetch, ApiRequestError } from '@/lib/api'
 import { etiquetaRol, useAuth } from '@/lib/auth-context'
-import { PageHeader } from '@/components/page-header'
+import { PageHeader, Seccion } from '@/components/page-header'
+import { MembreteProfesional } from '@/components/perfil/membrete-profesional'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -73,10 +74,17 @@ export function PerfilPage() {
   }
 
   if (!sesion) return null
+  const esMedico = sesion.rol === 'DOCTOR' || !!sesion.atiendePacientes
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader titulo="Mi perfil" descripcion="Tus datos de acceso y tu contraseña." />
+      <PageHeader titulo="Mi perfil" descripcion={esMedico ? 'Tu membrete profesional, tus datos de acceso y tu contraseña.' : 'Tus datos de acceso y tu contraseña.'} />
+
+      {esMedico && (
+        <Seccion titulo="Membrete profesional">
+          <MembreteProfesional />
+        </Seccion>
+      )}
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>

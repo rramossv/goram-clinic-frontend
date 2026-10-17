@@ -26,7 +26,11 @@ interface PacienteFormValues {
   direccion: string
   alergias: string
   antecedentes: string
+  tipoSangre: string
+  medicamentosActuales: string
 }
+
+const TIPOS_SANGRE = ['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-']
 
 const VALORES_VACIOS: PacienteFormValues = {
   nombre: '',
@@ -38,6 +42,8 @@ const VALORES_VACIOS: PacienteFormValues = {
   direccion: '',
   alergias: '',
   antecedentes: '',
+  tipoSangre: '',
+  medicamentosActuales: '',
 }
 
 function pacienteAFormulario(paciente: PacienteResponse): PacienteFormValues {
@@ -51,6 +57,8 @@ function pacienteAFormulario(paciente: PacienteResponse): PacienteFormValues {
     direccion: paciente.direccion ?? '',
     alergias: paciente.alergias ?? '',
     antecedentes: paciente.antecedentes ?? '',
+    tipoSangre: paciente.tipoSangre ?? '',
+    medicamentosActuales: paciente.medicamentosActuales ?? '',
   }
 }
 
@@ -89,6 +97,8 @@ export function PacienteFormDialog({ open, onOpenChange, paciente, onGuardado }:
       direccion: valores.direccion || null,
       alergias: valores.alergias || null,
       antecedentes: valores.antecedentes || null,
+      tipoSangre: valores.tipoSangre || null,
+      medicamentosActuales: valores.medicamentosActuales || null,
     }
 
     try {
@@ -113,7 +123,7 @@ export function PacienteFormDialog({ open, onOpenChange, paciente, onGuardado }:
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="max-h-[92svh] overflow-y-auto sm:max-w-lg">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>{paciente ? 'Editar paciente' : 'Nuevo paciente'}</DialogTitle>
@@ -186,11 +196,27 @@ export function PacienteFormDialog({ open, onOpenChange, paciente, onGuardado }:
                 onChange={(e) => actualizar('direccion', e.target.value)}
               />
             </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="tipoSangre">Tipo de sangre</Label>
+              <Select value={valores.tipoSangre} onValueChange={(v) => actualizar('tipoSangre', v)}>
+                <SelectTrigger id="tipoSangre" className="w-full">
+                  <SelectValue placeholder="Sin especificar" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TIPOS_SANGRE.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {t}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="col-span-2 flex flex-col gap-2">
               <Label htmlFor="alergias">Alergias</Label>
               <Textarea
                 id="alergias"
                 rows={2}
+                placeholder="Medicamentos, alimentos u otras. Escribí «Ninguna» si no tiene."
                 value={valores.alergias}
                 onChange={(e) => actualizar('alergias', e.target.value)}
               />
@@ -200,8 +226,18 @@ export function PacienteFormDialog({ open, onOpenChange, paciente, onGuardado }:
               <Textarea
                 id="antecedentes"
                 rows={2}
+                placeholder="Enfermedades crónicas, cirugías, antecedentes familiares…"
                 value={valores.antecedentes}
                 onChange={(e) => actualizar('antecedentes', e.target.value)}
+              />
+            </div>
+            <div className="col-span-2 flex flex-col gap-2">
+              <Label htmlFor="medicamentosActuales">Medicamentos que toma actualmente</Label>
+              <Textarea
+                id="medicamentosActuales"
+                rows={2}
+                value={valores.medicamentosActuales}
+                onChange={(e) => actualizar('medicamentosActuales', e.target.value)}
               />
             </div>
           </div>

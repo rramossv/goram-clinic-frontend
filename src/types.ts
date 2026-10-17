@@ -9,6 +9,8 @@ export interface PacienteResponse {
   direccion: string | null
   alergias: string | null
   antecedentes: string | null
+  tipoSangre: string | null
+  medicamentosActuales: string | null
   activo: boolean
   creadoEn: string
 }
@@ -41,17 +43,87 @@ export interface CitaResponse {
   creadoEn: string
 }
 
-export interface ConsultaResponse {
+export interface DiagnosticoItem {
+  codigo: string | null
+  descripcion: string
+}
+
+export interface RecetaItem {
+  medicamento: string
+  dosis: string | null
+  frecuencia: string | null
+  duracion: string | null
+  indicaciones: string | null
+}
+
+export interface SignosVitales {
+  presionSistolica: number | null
+  presionDiastolica: number | null
+  frecuenciaCardiaca: number | null
+  frecuenciaRespiratoria: number | null
+  temperatura: number | null
+  saturacionO2: number | null
+  pesoKg: number | null
+  tallaCm: number | null
+  glucosaMgDl: number | null
+}
+
+export interface ConsultaResponse extends SignosVitales {
   id: string
   citaId: string
+  citaFechaHora: string
   pacienteId: string
   pacienteNombre: string
   doctorId: string
   doctorNombre: string
+  motivoConsulta: string | null
   notas: string | null
+  examenFisico: string | null
+  diagnosticos: DiagnosticoItem[]
   diagnostico: string | null
+  recetaItems: RecetaItem[]
+  /** recetas anteriores a la receta por lineas, en texto libre */
   receta: string | null
+  indicaciones: string | null
+  proximoControl: string | null
+  codigoVerificacion: string
   creadoEn: string
+  actualizadoEn: string | null
+}
+
+export interface PlantillaConsultaDatos {
+  motivoConsulta: string | null
+  notas: string | null
+  examenFisico: string | null
+  diagnosticos: DiagnosticoItem[]
+  diagnostico: string | null
+  recetaItems: RecetaItem[]
+  indicaciones: string | null
+}
+
+export interface PlantillaConsulta {
+  id: string
+  nombre: string
+  datos: PlantillaConsultaDatos
+}
+
+export interface PerfilProfesional {
+  usuarioId: string
+  nombre: string
+  especialidad: string | null
+  jvpm: string | null
+  firmaImagen: string | null
+}
+
+export interface VerificacionReceta {
+  codigo: string
+  emitidaEn: string
+  clinicaNombre: string
+  doctorNombre: string
+  doctorEspecialidad: string | null
+  doctorJvpm: string | null
+  pacienteIniciales: string
+  medicamentos: RecetaItem[]
 }
 
 export interface FacturaItemResponse {
@@ -138,6 +210,7 @@ export interface ClinicaResponse {
   telefono: string | null
   direccion: string | null
   tipoPractica: string
+  logoImagen: string | null
 }
 
 export interface FarmaciaResponse {

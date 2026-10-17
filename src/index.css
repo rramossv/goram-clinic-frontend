@@ -102,6 +102,9 @@
     --chart-4: oklch(0.53 0.14 52);
     --chart-5: oklch(0.53 0.185 27);
     --radius: 0.5rem;
+    /* series de las graficas de evolucion clinica (validadas para daltonismo) */
+    --serie-1: #2457A6;
+    --serie-2: #009A80;
     /* gaveta del archivo */
     --sidebar: oklch(0.285 0.058 257);
     --sidebar-foreground: oklch(0.9 0.018 245);
@@ -147,6 +150,8 @@
     --chart-3: oklch(0.82 0.12 85);
     --chart-4: oklch(0.8 0.12 65);
     --chart-5: oklch(0.7 0.16 25);
+    --serie-1: #5B8DEB;
+    --serie-2: #14A985;
     --sidebar: oklch(0.185 0.03 258);
     --sidebar-foreground: oklch(0.86 0.018 245);
     --sidebar-primary: oklch(0.225 0.03 257);

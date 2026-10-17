@@ -17,7 +17,9 @@ import { SuscripcionPage } from '@/pages/SuscripcionPage'
 import { PerfilPage } from '@/pages/PerfilPage'
 import { ConfiguracionPage } from '@/pages/ConfiguracionPage'
 import { FarmaciasPage } from '@/pages/FarmaciasPage'
-import { ImprimirFacturaPage, ImprimirRecetaPage } from '@/pages/ImpresionPages'
+import { ImprimirConstanciaPage, ImprimirFacturaPage, ImprimirIncapacidadPage, ImprimirRecetaPage } from '@/pages/ImpresionPages'
+import { AtencionPage } from '@/pages/AtencionPage'
+import { VerificarRecetaPage } from '@/pages/VerificarRecetaPage'
 import { ProtectedRoute, RequierePermiso } from '@/lib/protected-route'
 import { AppLayout } from '@/components/app-layout'
 
@@ -29,8 +31,12 @@ function App() {
       <Route path="/registro" element={<RegistroPage />} />
       <Route path="/olvide-password" element={<OlvidePasswordPage />} />
       <Route path="/restablecer-password" element={<RestablecerPasswordPage />} />
+      <Route path="/verificar" element={<VerificarRecetaPage />} />
+      <Route path="/verificar/:codigo" element={<VerificarRecetaPage />} />
       <Route element={<ProtectedRoute />}>
         <Route path="/imprimir/receta/:citaId" element={<ImprimirRecetaPage />} />
+        <Route path="/imprimir/constancia/:citaId" element={<ImprimirConstanciaPage />} />
+        <Route path="/imprimir/incapacidad/:citaId" element={<ImprimirIncapacidadPage />} />
         <Route path="/imprimir/factura/:facturaId" element={<ImprimirFacturaPage />} />
         <Route element={<AppLayout />}>
           <Route path="/panel" element={<DashboardPage />} />
@@ -40,6 +46,7 @@ function App() {
           <Route path="/farmacias" element={<FarmaciasPage />} />
           <Route element={<RequierePermiso permiso="clinico" />}>
             <Route path="/consultas" element={<ConsultasPage />} />
+            <Route path="/atencion/:citaId" element={<AtencionPage />} />
           </Route>
           <Route path="/facturas" element={<FacturasPage />} />
           <Route element={<RequierePermiso permiso="administrar" />}>

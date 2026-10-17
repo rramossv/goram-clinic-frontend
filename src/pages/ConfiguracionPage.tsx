@@ -1,4 +1,5 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { prepararLogo } from '@/lib/imagen'
 import { apiFetch, ApiRequestError } from '@/lib/api'
 import type { ClinicaResponse, ServicioResponse } from '@/types'
 import { PageHeader, Seccion } from '@/components/page-header'
@@ -10,10 +11,63 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { FarmaciasConfig } from '@/components/farmacias/farmacias-config'
 import { toast } from 'sonner'
-import { Check, Pencil, Plus, X } from 'lucide-react'
+import { Check, ImageIcon, Pencil, Plus, Upload, X } from 'lucide-react'
 
 const mensajeError = (err: unknown, porDefecto: string) =>
   err instanceof ApiRequestError ? (err.body?.message ?? porDefecto) : 'No se pudo conectar con el servidor'
+
+function LogoClinica({ logo, onCambio }: { logo: string | null; onCambio: (c: ClinicaResponse) => void }) {
+  const archivoRef = useRef<HTMLInputElement>(null)
+  const [subiendo, setSubiendo] = useState(false)
+
+  async function enviar(valor: string | null) {
+    setSubiendo(true)
+    try {
+      onCambio(await apiFetch<ClinicaResponse>('/api/v1/clinica/logo', { method: 'PUT', body: { logoImagen: valor } }))
+      toast.success(valor ? 'Logo actualizado' : 'Logo quitado')
+    } catch (err) {
+      toast.error(mensajeError(err, 'No se pudo guardar el logo'))
+    } finally {
+      setSubiendo(false)
+      if (archivoRef.current) archivoRef.current.value = ''
+    }
+  }
+
+  async function elegir(archivo: File | undefined) {
+    if (!archivo) return
+    try {
+      await enviar(await prepararLogo(archivo))
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'No se pudo leer la imagen')
+    }
+  }
+
+  return (
+    <div className="mb-5 flex flex-col gap-4 border-b pb-5 sm:flex-row sm:items-center">
+      <div className="flex h-20 w-40 shrink-0 items-center justify-center rounded-lg border border-dashed bg-white p-2">
+        {logo ? <img src={logo} alt="Logo de la clínica" className="max-h-full max-w-full object-contain" /> : <ImageIcon className="size-7 text-slate-300" />}
+      </div>
+      <div className="flex flex-col gap-2">
+        <div>
+          <p className="text-sm font-medium text-tinta">Logo</p>
+          <p className="text-xs text-muted-foreground">Sale en el membrete de recetas, constancias, incapacidades y facturas. PNG o JPG; mejor con fondo transparente o blanco.</p>
+        </div>
+        <div className="flex gap-2">
+          <Button type="button" variant="outline" size="sm" disabled={subiendo} onClick={() => archivoRef.current?.click()}>
+            <Upload />
+            {logo ? 'Cambiar logo' : 'Subir logo'}
+          </Button>
+          {logo && (
+            <Button type="button" variant="ghost" size="sm" disabled={subiendo} onClick={() => enviar(null)}>
+              Quitar
+            </Button>
+          )}
+        </div>
+        <input ref={archivoRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(e) => elegir(e.target.files?.[0])} />
+      </div>
+    </div>
+  )
+}
 
 function DatosClinica() {
   const [clinica, setClinica] = useState<ClinicaResponse | null>(null)
@@ -60,6 +114,7 @@ function DatosClinica() {
 
   return (
     <form onSubmit={guardar} className="rounded-lg border bg-card p-5">
+      <LogoClinica logo={clinica.logoImagen} onCambio={(c) => setClinica(c)} />
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-2 sm:col-span-2">
           <Label htmlFor="nombre">{clinica.tipoPractica === 'INDIVIDUAL' ? 'Nombre del consultorio' : 'Nombre de la clínica'}</Label>
