@@ -15,6 +15,16 @@ import {
 } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { PacienteSelector } from '@/components/pacientes/paciente-selector'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { toast } from 'sonner'
 
 function aDatetimeLocal(fecha: Date) {
@@ -44,6 +54,7 @@ export function CitaFormDialog({ open, onOpenChange, onGuardado, prefill, cita }
   const [duracionMinutos, setDuracionMinutos] = useState('30')
   const [motivo, setMotivo] = useState('')
   const [enviando, setEnviando] = useState(false)
+  const [avisoHorario, setAvisoHorario] = useState<string | null>(null)
   const editando = Boolean(cita)
 
   useEffect(() => {
@@ -73,14 +84,19 @@ export function CitaFormDialog({ open, onOpenChange, onGuardado, prefill, cita }
       toast.error('Elegí una fecha y hora que todavía no haya pasado')
       return
     }
+    await guardar(false)
+  }
+
+  async function guardar(fueraDeHorario: boolean) {
     setEnviando(true)
     try {
       const body = {
         pacienteId,
         doctorId,
-        fechaHora: inicio.toISOString(),
+        fechaHora: new Date(fechaHora).toISOString(),
         duracionMinutos: Number(duracionMinutos),
         motivo: motivo.trim() || null,
+        fueraDeHorario,
       }
       if (cita) {
         await apiFetch(`/api/v1/citas/${cita.id}`, { method: 'PUT', body })
@@ -91,7 +107,9 @@ export function CitaFormDialog({ open, onOpenChange, onGuardado, prefill, cita }
       }
       onGuardado()
     } catch (err) {
-      if (err instanceof ApiRequestError) {
+      if (err instanceof ApiRequestError && err.body?.error === 'FUERA_DE_HORARIO') {
+        setAvisoHorario(err.body.message)
+      } else if (err instanceof ApiRequestError) {
         toast.error(err.body?.message ?? 'No se pudo guardar la cita')
       } else {
         toast.error('No se pudo conectar con el servidor')
@@ -102,6 +120,7 @@ export function CitaFormDialog({ open, onOpenChange, onGuardado, prefill, cita }
   }
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <form onSubmit={handleSubmit}>
@@ -189,5 +208,25 @@ export function CitaFormDialog({ open, onOpenChange, onGuardado, prefill, cita }
         </form>
       </DialogContent>
     </Dialog>
+    <AlertDialog open={avisoHorario !== null} onOpenChange={(abierto) => !abierto && setAvisoHorario(null)}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Fuera del horario de atención</AlertDialogTitle>
+          <AlertDialogDescription>{avisoHorario}. ¿Querés agendarla igual?</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Elegir otra hora</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => {
+              setAvisoHorario(null)
+              guardar(true)
+            }}
+          >
+            Agendar igual
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   )
 }

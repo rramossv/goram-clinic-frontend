@@ -18,9 +18,11 @@ import { etiquetaEstado } from '@/components/estado-chip'
 import { CitaFormDialog } from '@/components/agenda/cita-form-dialog'
 import { FacturaFormDialog } from '@/components/facturas/factura-form-dialog'
 import { toast } from 'sonner'
-import { CalendarClock, FileText, Mail, MailCheck, Receipt, UserRound } from 'lucide-react'
+import { Armchair, CalendarClock, FileText, Mail, MailCheck, Receipt, UserRound } from 'lucide-react'
+import { WhatsAppBoton } from '@/components/whatsapp-boton'
+import { mensajeRecordatorio } from '@/lib/whatsapp'
 
-const ESTADOS = ['PROGRAMADA', 'CONFIRMADA', 'COMPLETADA', 'CANCELADA', 'NO_ASISTIO']
+const ESTADOS = ['PROGRAMADA', 'CONFIRMADA', 'EN_ESPERA', 'EN_CONSULTA', 'COMPLETADA', 'CANCELADA', 'NO_ASISTIO']
 
 interface CitaDetailDialogProps {
   cita: CitaResponse | null
@@ -48,6 +50,7 @@ export function CitaDetailDialog({ cita, onOpenChange, onActualizada }: CitaDeta
   const [enviandoRecordatorio, setEnviandoRecordatorio] = useState(false)
 
   const porAtender = cita && ['PROGRAMADA', 'CONFIRMADA'].includes(cita.estado)
+  const esHoy = cita ? new Date(cita.fechaHora).toDateString() === new Date().toDateString() : false
 
   async function cambiarEstado(estado: string) {
     if (!cita || estado === cita.estado) return
@@ -119,6 +122,11 @@ export function CitaDetailDialog({ cita, onOpenChange, onActualizada }: CitaDeta
                 </SelectContent>
               </Select>
             </Fila>
+            {cita?.llegadaEn && (
+              <Fila etiqueta="Llegó">
+                {new Date(cita.llegadaEn).toLocaleTimeString('es-SV', { hour: 'numeric', minute: '2-digit' })}
+              </Fila>
+            )}
             <Fila etiqueta="Recordatorio">
               <span className="inline-flex items-center gap-1.5">
                 {cita?.recordatorioEnviado ? <MailCheck className="size-4 text-exito" /> : <Mail className="size-4 text-muted-foreground" />}
@@ -129,6 +137,18 @@ export function CitaDetailDialog({ cita, onOpenChange, onActualizada }: CitaDeta
               </span>
             </Fila>
           </div>
+
+          {cita && porAtender && (
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-carton/60 px-3 py-2">
+              <span className="text-xs text-muted-foreground">Recordale la cita por WhatsApp</span>
+              <WhatsAppBoton
+                size="sm"
+                pacienteId={cita.pacienteId}
+                etiqueta="Enviar recordatorio"
+                mensaje={(p) => mensajeRecordatorio({ paciente: p.nombre, doctor: cita.doctorNombre, fechaHora: cita.fechaHora, clinica: sesion?.clinicaNombre })}
+              />
+            </div>
+          )}
 
           <DialogFooter className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-end">
             <Button variant="outline" asChild>
@@ -147,6 +167,12 @@ export function CitaDetailDialog({ cita, onOpenChange, onActualizada }: CitaDeta
               <Receipt />
               Facturar
             </Button>
+            {porAtender && esHoy && (
+              <Button variant="outline" disabled={actualizando} onClick={() => cambiarEstado('EN_ESPERA')}>
+                <Armchair />
+                Marcar llegada
+              </Button>
+            )}
             {accesoClinico && (
               <Button onClick={() => abrir('consulta')}>
                 <FileText />

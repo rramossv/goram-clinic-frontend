@@ -23,7 +23,9 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { SIGNOS_VACIOS, SignosVitalesEditor, signosANumeros, signosATexto, type SignosTexto } from '@/components/consultas/signos-vitales-editor'
 import { DiagnosticoEditor } from '@/components/consultas/diagnostico-editor'
-import { RecetaEditor } from '@/components/consultas/receta-editor'
+import { RecetaEditor, detalleItem } from '@/components/consultas/receta-editor'
+import { WhatsAppBoton } from '@/components/whatsapp-boton'
+import { mensajeIndicaciones } from '@/lib/whatsapp'
 import { ExpedienteLateral } from '@/components/consultas/expediente-lateral'
 import { ResumenConsulta } from '@/components/consultas/resumen-consulta'
 import { ConsultarFarmaciasBoton } from '@/components/farmacias/farmacias'
@@ -152,6 +154,12 @@ export function AtencionPage() {
         ])
         if (cancelado) return
         const actual = h.find((x) => x.citaId === citaId) ?? null
+        // abrir la atencion de una cita de hoy la pasa a "En consulta"
+        if (!actual && ['PROGRAMADA', 'CONFIRMADA', 'EN_ESPERA'].includes(c.estado) && new Date(c.fechaHora).toDateString() === new Date().toDateString()) {
+          apiFetch<CitaResponse>(`/api/v1/citas/${c.id}/estado`, { method: 'PATCH', body: { estado: 'EN_CONSULTA' } })
+            .then((nueva) => !cancelado && setCita(nueva))
+            .catch(() => {})
+        }
         setCita(c)
         setPaciente(p)
         setConsulta(actual)
@@ -442,6 +450,21 @@ export function AtencionPage() {
           <>
             {editando && menuPlantillas}
             {menuDocumentos}
+            {!editando && consulta && !recienGuardada && (consulta.recetaItems.length > 0 || consulta.indicaciones) && (
+              <WhatsAppBoton
+                pacienteId={paciente.id}
+                etiqueta="Indicaciones"
+                mensaje={(p) =>
+                  mensajeIndicaciones({
+                    paciente: p.nombre,
+                    doctor: cita.doctorNombre,
+                    medicamentos: consulta.recetaItems.map((r) => ({ medicamento: r.medicamento, detalle: detalleItem(r) })),
+                    indicaciones: consulta.indicaciones,
+                    proximoControl: consulta.proximoControl,
+                  })
+                }
+              />
+            )}
             {!editando && (
               <>
                 <Button variant="outline" onClick={() => setFacturarAbierto(true)}>
@@ -470,6 +493,22 @@ export function AtencionPage() {
                 <Printer />
                 Imprimir receta
               </Button>
+            )}
+            {consulta && (consulta.recetaItems.length > 0 || consulta.indicaciones) && (
+              <WhatsAppBoton
+                size="sm"
+                pacienteId={paciente.id}
+                etiqueta="Enviar indicaciones"
+                mensaje={(p) =>
+                  mensajeIndicaciones({
+                    paciente: p.nombre,
+                    doctor: cita.doctorNombre,
+                    medicamentos: consulta.recetaItems.map((r) => ({ medicamento: r.medicamento, detalle: detalleItem(r) })),
+                    indicaciones: consulta.indicaciones,
+                    proximoControl: consulta.proximoControl,
+                  })
+                }
+              />
             )}
             <Button size="sm" variant="outline" onClick={() => setFacturarAbierto(true)}>
               <Receipt />

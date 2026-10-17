@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { esConsultorio, etiquetaRol, puede, useAuth } from '@/lib/auth-context'
 import { CitaFormDialog } from '@/components/agenda/cita-form-dialog'
 import { CitaDetailDialog } from '@/components/agenda/cita-detail-dialog'
-import { apiFetch } from '@/lib/api'
-import type { CitaResponse, FacturaResponse, PacienteResponse, SuscripcionResponse } from '@/types'
+import { apiFetch, ApiRequestError } from '@/lib/api'
+import { ESTADOS_POR_ATENDER, type CitaResponse, type FacturaResponse, type PacienteResponse, type SuscripcionResponse } from '@/types'
+import { PrimerosPasos } from '@/components/primeros-pasos'
+import { toast } from 'sonner'
 import { PageHeader, Seccion } from '@/components/page-header'
 import { CodigoPaciente } from '@/components/codigo-paciente'
 import { EstadoChip } from '@/components/estado-chip'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { ArrowRight, CalendarPlus } from 'lucide-react'
+import { AlertTriangle, ArrowRight, Armchair, CalendarPlus, ChevronRight, Stethoscope } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 function esHoy(fechaIso: string) {
@@ -66,6 +68,26 @@ export function DashboardPage() {
   const [recarga, setRecarga] = useState(0)
   const [nuevaCitaAbierta, setNuevaCitaAbierta] = useState(false)
   const [citaDetalle, setCitaDetalle] = useState<CitaResponse | null>(null)
+  const [sinCerrar, setSinCerrar] = useState<CitaResponse[]>([])
+  const [, setReloj] = useState(0)
+  const navigate = useNavigate()
+  const clinico = puede(sesion, 'clinico')
+
+  // los minutos de espera se actualizan solos
+  useEffect(() => {
+    const t = setInterval(() => setReloj((n) => n + 1), 30000)
+    return () => clearInterval(t)
+  }, [])
+
+  async function cambiarEstado(cita: CitaResponse, estado: string, mensaje: string) {
+    try {
+      await apiFetch(`/api/v1/citas/${cita.id}/estado`, { method: 'PATCH', body: { estado } })
+      toast.success(mensaje)
+      setRecarga((n) => n + 1)
+    } catch (err) {
+      toast.error(err instanceof ApiRequestError ? (err.body?.message ?? 'No se pudo actualizar la cita') : 'No se pudo conectar con el servidor')
+    }
+  }
 
   useEffect(() => {
     if (sesion?.rol === 'SUPER_ADMIN') {
@@ -81,6 +103,13 @@ export function DashboardPage() {
     ])
       .then(([citas, facturas, pacientes, suscripcionData]) => {
         setCitasHoy(citas.filter((c) => esHoy(c.fechaHora)).sort((a, b) => a.fechaHora.localeCompare(b.fechaHora)))
+        const inicioHoy = new Date()
+        inicioHoy.setHours(0, 0, 0, 0)
+        setSinCerrar(
+          citas
+            .filter((c) => ESTADOS_POR_ATENDER.includes(c.estado) && new Date(c.fechaHora) < inicioHoy)
+            .sort((a, b) => b.fechaHora.localeCompare(a.fechaHora)),
+        )
         setCitasMes(citas.filter((c) => esEsteMes(c.fechaHora) && c.estado !== 'CANCELADA').length)
         setIngresosMes(
           facturas
@@ -100,7 +129,10 @@ export function DashboardPage() {
   const siguienteId = citasHoy.find(
     (c) => new Date(c.fechaHora).getTime() + c.duracionMinutos * 60000 > ahora && ['PROGRAMADA', 'CONFIRMADA'].includes(c.estado),
   )?.id
-  const pendientesHoy = citasHoy.filter((c) => ['PROGRAMADA', 'CONFIRMADA'].includes(c.estado)).length
+  const pendientesHoy = citasHoy.filter((c) => ESTADOS_POR_ATENDER.includes(c.estado)).length
+  const enEspera = citasHoy.filter((c) => c.estado === 'EN_ESPERA')
+  const minutosEspera = (c: CitaResponse) => (c.llegadaEn ? Math.max(0, Math.round((ahora - new Date(c.llegadaEn).getTime()) / 60000)) : 0)
+  const maxEspera = enEspera.reduce((m, c) => Math.max(m, minutosEspera(c)), 0)
   const mes = new Date().toLocaleDateString('es-SV', { month: 'long' })
 
   return (
@@ -133,6 +165,17 @@ export function DashboardPage() {
               </Link>
             }
           >
+            {enEspera.length > 0 && (
+              <div className="flex items-center gap-3 rounded-lg bg-aviso-suave px-4 py-2.5 text-sm text-aviso ring-1 ring-aviso/25 ring-inset">
+                <Armchair className="size-4 shrink-0" />
+                <span>
+                  <span className="font-semibold">
+                    {enEspera.length} {enEspera.length === 1 ? 'paciente en sala de espera' : 'pacientes en sala de espera'}
+                  </span>
+                  {maxEspera > 0 && ` · el que más lleva espera ${maxEspera} min`}
+                </span>
+              </div>
+            )}
             <div className="overflow-hidden rounded-lg border bg-card">
               {cargando ? (
                 <div className="flex flex-col divide-y">
@@ -169,6 +212,9 @@ export function DashboardPage() {
                         className={cn(
                           'grid cursor-pointer transition-colors hover:bg-accent/45 grid-cols-[5.25rem_minmax(0,1fr)] items-center gap-x-4 gap-y-2 px-4 py-3 sm:grid-cols-[5.5rem_auto_minmax(0,1fr)_auto]',
                           esSiguiente && 'bg-info-suave/60',
+                          cita.estado === 'EN_ESPERA' && 'bg-aviso-suave/50',
+                          cita.estado === 'EN_CONSULTA' && 'bg-info-suave/70',
+                          ['COMPLETADA', 'CANCELADA', 'NO_ASISTIO'].includes(cita.estado) && 'opacity-70',
                         )}
                       >
                         <div className="flex flex-col">
@@ -189,11 +235,41 @@ export function DashboardPage() {
                             {!consultorio && ` · ${cita.doctorNombre}`}
                           </p>
                         </div>
-                        <div className="col-start-2 flex items-center gap-2 sm:col-start-auto">
+                        <div className="col-start-2 flex flex-wrap items-center gap-2 sm:col-start-auto sm:justify-end">
                           {esSiguiente && (
                             <span className="text-xs font-semibold tracking-wide text-info uppercase">Siguiente</span>
                           )}
+                          {cita.estado === 'EN_ESPERA' && (
+                            <span className={cn('text-xs font-medium tabular-nums', minutosEspera(cita) >= 20 ? 'text-destructive' : 'text-aviso')}>
+                              Espera {minutosEspera(cita)} min
+                            </span>
+                          )}
                           <EstadoChip estado={cita.estado} />
+                          {['PROGRAMADA', 'CONFIRMADA'].includes(cita.estado) && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                cambiarEstado(cita, 'EN_ESPERA', `${cita.pacienteNombre} está en sala de espera`)
+                              }}
+                            >
+                              <Armchair />
+                              Llegó
+                            </Button>
+                          )}
+                          {clinico && ['EN_ESPERA', 'EN_CONSULTA'].includes(cita.estado) && (
+                            <Button
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                navigate(`/atencion/${cita.id}`)
+                              }}
+                            >
+                              <Stethoscope />
+                              {cita.estado === 'EN_CONSULTA' ? 'Continuar' : 'Atender'}
+                            </Button>
+                          )}
                         </div>
                       </li>
                     )
@@ -204,6 +280,53 @@ export function DashboardPage() {
           </Seccion>
 
           <div className="flex flex-col gap-8">
+            {sinCerrar.length > 0 && (
+              <Seccion titulo="Citas sin cerrar">
+                <div className="flex flex-col rounded-lg border bg-card">
+                  <p className="flex items-start gap-2 border-b px-4 py-3 text-sm text-aviso">
+                    <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+                    {sinCerrar.length === 1 ? 'Una cita de días anteriores' : `${sinCerrar.length} citas de días anteriores`} sin registrar. Cerralas para que tus reportes sean exactos.
+                  </p>
+                  <ul className="divide-y">
+                    {sinCerrar.slice(0, 4).map((c) => (
+                      <li key={c.id} className="flex flex-col gap-2 px-4 py-3">
+                        <div className="flex items-center gap-2.5">
+                          <CodigoPaciente id={c.pacienteId} />
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-medium text-tinta">{c.pacienteNombre}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(c.fechaHora).toLocaleDateString('es-SV', { day: 'numeric', month: 'short' })} · {hora(c.fechaHora)}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {clinico && (
+                            <Button size="sm" variant="outline" onClick={() => navigate(`/atencion/${c.id}`)}>
+                              Registrar consulta
+                            </Button>
+                          )}
+                          <Button size="sm" variant="ghost" onClick={() => cambiarEstado(c, 'NO_ASISTIO', 'Marcada como no asistió')}>
+                            No asistió
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => cambiarEstado(c, 'CANCELADA', 'Cita cancelada')}>
+                            Cancelar
+                          </Button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                  {sinCerrar.length > 4 && (
+                    <Link to="/consultas" className="flex items-center justify-between border-t px-4 py-2.5 text-sm font-medium text-primary hover:bg-accent/40">
+                      Ver las {sinCerrar.length} pendientes
+                      <ChevronRight className="size-4" />
+                    </Link>
+                  )}
+                </div>
+              </Seccion>
+            )}
+
+            {puede(sesion, 'administrar') && <PrimerosPasos />}
+
             <Seccion titulo={`Resumen de ${mes}`}>
               <div className="rounded-lg border bg-card px-4">
                 {cargando ? (

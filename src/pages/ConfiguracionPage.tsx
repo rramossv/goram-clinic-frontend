@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { FarmaciasConfig } from '@/components/farmacias/farmacias-config'
+import { HorarioEditor } from '@/components/agenda/horario-editor'
 import { toast } from 'sonner'
 import { Check, ImageIcon, Pencil, Plus, Upload, X } from 'lucide-react'
 
@@ -285,19 +286,27 @@ function ServiciosTarifas() {
 
 export function ConfiguracionPage() {
   useEffect(() => {
-    if (window.location.hash === '#farmacias') {
-      setTimeout(() => document.getElementById('farmacias')?.scrollIntoView({ behavior: 'smooth' }), 300)
+    const ancla = window.location.hash.slice(1)
+    if (ancla) {
+      setTimeout(() => document.getElementById(ancla)?.scrollIntoView({ behavior: 'smooth' }), 400)
     }
   }, [])
   return (
     <div className="flex flex-col gap-8">
-      <PageHeader titulo="Configuración" descripcion="Datos de tu clínica, servicios que cobrás y farmacias de referencia." />
+      <PageHeader titulo="Configuración" descripcion="Datos de tu clínica, horario de atención, servicios que cobrás y farmacias de referencia." />
       <Seccion titulo="Datos de la clínica">
         <DatosClinica />
       </Seccion>
-      <Seccion titulo="Servicios y tarifas">
-        <ServiciosTarifas />
-      </Seccion>
+      <div id="horario" className="scroll-mt-20">
+        <Seccion titulo="Horario de atención">
+          <HorarioEditor />
+        </Seccion>
+      </div>
+      <div id="servicios" className="scroll-mt-20">
+        <Seccion titulo="Servicios y tarifas">
+          <ServiciosTarifas />
+        </Seccion>
+      </div>
       <div id="farmacias" className="scroll-mt-20">
         <Seccion titulo="Farmacias de referencia">
           <FarmaciasConfig />

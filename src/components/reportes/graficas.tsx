@@ -48,7 +48,7 @@ export function GraficaBarras({
   )
 }
 
-const ESTADOS_ORDEN = ['PROGRAMADA', 'CONFIRMADA', 'COMPLETADA', 'CANCELADA', 'NO_ASISTIO']
+const ESTADOS_ORDEN = ['PROGRAMADA', 'CONFIRMADA', 'EN_ESPERA', 'EN_CONSULTA', 'COMPLETADA', 'CANCELADA', 'NO_ASISTIO']
 
 // Mismos tonos que los estados del resto de la app.
 const COLOR_TONO: Record<string, string> = {
@@ -64,10 +64,10 @@ export function GraficaEstados({ conteos }: { conteos: Record<string, number> })
 
   return (
     <div className="flex flex-col gap-3.5">
-      {ESTADOS_ORDEN.map((estado) => {
+      {ESTADOS_ORDEN.filter((e) => !['EN_ESPERA', 'EN_CONSULTA'].includes(e) || conteos[e]).map((estado) => {
         const valor = conteos[estado] ?? 0
         return (
-          <div key={estado} className="grid grid-cols-[6.5rem_minmax(0,1fr)_2rem] items-center gap-3 text-sm">
+          <div key={estado} className="grid grid-cols-[8.5rem_minmax(0,1fr)_2rem] items-center gap-3 text-sm">
             <span className="text-muted-foreground">{etiquetaEstado(estado)}</span>
             <div className="h-2.5 overflow-hidden rounded-[2px] bg-carton">
               <div

@@ -40,7 +40,31 @@ export interface CitaResponse {
   estado: string
   motivo: string | null
   recordatorioEnviado: boolean
+  /** hora en que el paciente llego a la sala de espera */
+  llegadaEn: string | null
+  atencionInicioEn: string | null
   creadoEn: string
+}
+
+/** Estados en que la cita todavia espera ser atendida. */
+export const ESTADOS_POR_ATENDER = ['PROGRAMADA', 'CONFIRMADA', 'EN_ESPERA', 'EN_CONSULTA']
+
+export interface HorarioFranja {
+  doctorId: string
+  /** 1 = lunes ... 7 = domingo */
+  diaSemana: number
+  /** "08:00:00" */
+  horaInicio: string
+  horaFin: string
+}
+
+export interface BloqueoAgenda {
+  id: string
+  doctorId: string
+  doctorNombre: string
+  desde: string
+  hasta: string
+  motivo: string | null
 }
 
 export interface DiagnosticoItem {

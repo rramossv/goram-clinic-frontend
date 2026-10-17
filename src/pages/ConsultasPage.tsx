@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { apiFetch } from '@/lib/api'
-import type { CitaResponse, ConsultaResponse } from '@/types'
+import { ESTADOS_POR_ATENDER, type CitaResponse, type ConsultaResponse } from '@/types'
 import { fechaCorta, fechaHora, hora } from '@/lib/clinica'
 import { normalizar } from '@/lib/cie10'
 import { cn } from '@/lib/utils'
@@ -46,7 +46,7 @@ export function ConsultasPage() {
   const pendientes = useMemo(() => {
     const limite = finDeHoy()
     return citas
-      .filter((c) => ['PROGRAMADA', 'CONFIRMADA'].includes(c.estado) && new Date(c.fechaHora) <= limite)
+      .filter((c) => ESTADOS_POR_ATENDER.includes(c.estado) && new Date(c.fechaHora) <= limite)
       .sort((a, b) => a.fechaHora.localeCompare(b.fechaHora))
   }, [citas])
 

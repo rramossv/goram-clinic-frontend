@@ -1,52 +1,62 @@
 import { useEffect, useRef } from 'react'
-import type { CitaResponse, UsuarioResumen } from '@/types'
+import type { BloqueoAgenda, CitaResponse, HorarioFranja } from '@/types'
 import { useScrollShadows } from '@/hooks/use-scroll-shadows'
+import { bloqueosDelDia, esMismoDia, franjasDelDia, horaLegible } from '@/lib/agenda'
 import { CodigoPaciente } from '@/components/codigo-paciente'
 import { etiquetaEstado } from '@/components/estado-chip'
+import { cn } from '@/lib/utils'
+import { Ban } from 'lucide-react'
 
 const HORA_INICIO = 7
-const HORA_FIN = 19
+const HORA_FIN = 20
 const SLOT_MINUTOS = 30
 const TOTAL_SLOTS = ((HORA_FIN - HORA_INICIO) * 60) / SLOT_MINUTOS
+const ALTO_SLOT_REM = 3
 
 const COLOR_ESTADO: Record<string, string> = {
   PROGRAMADA: 'bg-info-suave text-info ring-info/25',
   CONFIRMADA: 'bg-exito-suave text-exito ring-exito/30',
+  EN_ESPERA: 'bg-aviso-suave text-aviso ring-aviso/40',
+  EN_CONSULTA: 'bg-info-suave text-info ring-info/50 ring-2',
   COMPLETADA: 'bg-muted text-muted-foreground ring-border',
   CANCELADA: 'bg-peligro-suave text-destructive ring-destructive/20 line-through',
   NO_ASISTIO: 'bg-aviso-suave text-aviso ring-aviso/25',
 }
 
-function etiquetaHora(minutosDesdeMedianoche: number) {
-  const h = Math.floor(minutosDesdeMedianoche / 60)
-  const m = minutosDesdeMedianoche % 60
-  const periodo = h < 12 ? 'a. m.' : 'p. m.'
-  const h12 = h % 12 === 0 ? 12 : h % 12
-  return `${h12}:${String(m).padStart(2, '0')} ${periodo}`
-}
-
-function esMismoDia(a: Date, b: Date) {
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
-}
-
-interface DayCalendarProps {
+/** Una columna de la agenda: un medico en un dia (vista diaria) o un dia de un medico (vista semanal). */
+export interface ColumnaAgenda {
+  clave: string
+  titulo: React.ReactNode
+  doctorId: string
   fecha: Date
-  doctores: UsuarioResumen[]
+  resaltada?: boolean
+}
+
+interface Props {
+  columnas: ColumnaAgenda[]
   citas: CitaResponse[]
+  horarios: HorarioFranja[]
+  bloqueos: BloqueoAgenda[]
   onCeldaVacia: (doctorId: string, fechaHora: Date) => void
   onCita: (cita: CitaResponse) => void
+  onBloqueo?: (bloqueo: BloqueoAgenda) => void
+  /** ancho minimo de columna; la vista semanal usa columnas mas angostas */
+  anchoColumna?: string
 }
 
-export function DayCalendar({ fecha, doctores, citas, onCeldaVacia, onCita }: DayCalendarProps) {
+export function AgendaGrid({ columnas, citas, horarios, bloqueos, onCeldaVacia, onCita, onBloqueo, anchoColumna = '10rem' }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const gridRef = useRef<HTMLDivElement>(null)
   const { puedeScrollIzq, puedeScrollDer, alHacerScroll } = useScrollShadows(containerRef, gridRef)
 
-  // Cada dia abre donde importa: hoy, una hora antes de la actual; otro dia,
-  // media hora antes de su primera cita (o a las 8:00 si esta libre).
-  const claveDia = fecha.toDateString()
+  const ahora = new Date()
+  const columnaDeHoy = columnas.find((c) => esMismoDia(c.fecha, ahora))
+  const clave = columnas.map((c) => c.clave).join('|')
+
+  // Abre donde importa: hoy, una hora antes de la actual; si no, media hora
+  // antes de la primera cita visible (o a las 8:00 si esta libre).
   const primeraCita = citas
-    .filter((c) => esMismoDia(new Date(c.fechaHora), fecha))
+    .filter((c) => columnas.some((col) => col.doctorId === c.doctorId && esMismoDia(new Date(c.fechaHora), col.fecha)))
     .reduce<number | null>((min, c) => {
       const d = new Date(c.fechaHora)
       const m = d.getHours() * 60 + d.getMinutes()
@@ -55,150 +65,160 @@ export function DayCalendar({ fecha, doctores, citas, onCeldaVacia, onCita }: Da
   useEffect(() => {
     const contenedor = containerRef.current
     if (!contenedor) return
-    const ahora = new Date()
-    const objetivo = esMismoDia(fecha, ahora)
-      ? ahora.getHours() * 60 - 60
-      : primeraCita !== null
-        ? primeraCita - 30
-        : 8 * 60
+    const objetivo = columnaDeHoy ? ahora.getHours() * 60 - 60 : primeraCita !== null ? primeraCita - 30 : 8 * 60
     const filas = Math.max(0, (objetivo - HORA_INICIO * 60) / SLOT_MINUTOS)
     const remPx = parseFloat(getComputedStyle(document.documentElement).fontSize)
-    contenedor.scrollTop = filas * 3 * remPx
+    contenedor.scrollTop = filas * ALTO_SLOT_REM * remPx
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [claveDia, primeraCita, doctores.length])
+  }, [clave, primeraCita])
 
-  if (doctores.length === 0) {
+  if (columnas.length === 0) {
     return (
       <div className="rounded-lg border bg-card p-8 text-center text-muted-foreground">
-        No hay doctores registrados. Agrega uno en la seccion Personal para poder agendar citas.
+        No hay médicos registrados. Agregá uno en Personal para poder agendar citas.
       </div>
     )
   }
 
-  const ahora = new Date()
-  const esHoy = esMismoDia(fecha, ahora)
+  const filaDe = (minutos: number) => 2 + (minutos - HORA_INICIO * 60) / SLOT_MINUTOS
   const minutosAhora = ahora.getHours() * 60 + ahora.getMinutes()
+  const filaAhora = columnaDeHoy ? filaDe(minutosAhora) : null
+  const mismoDia = columnas.every((c) => esMismoDia(c.fecha, columnas[0].fecha))
 
-  function posicion(cita: CitaResponse) {
-    const inicio = new Date(cita.fechaHora)
-    const minutosDelDia = inicio.getHours() * 60 + inicio.getMinutes()
-    const minutosDesdeInicio = minutosDelDia - HORA_INICIO * 60
-    const filaInicio = Math.max(2, Math.round(minutosDesdeInicio / SLOT_MINUTOS) + 2)
-    const filaSpan = Math.max(1, Math.round(cita.duracionMinutos / SLOT_MINUTOS))
-    return { filaInicio, filaSpan }
-  }
-
-  const columnasTemplate = `5.25rem repeat(${doctores.length}, minmax(10rem, 1fr))`
-  const filasTemplate = `2.5rem repeat(${TOTAL_SLOTS}, 3rem)`
-
-  // fila (fraccional) donde cae la hora actual, para la linea indicadora
-  const filaAhora = esHoy ? 2 + (minutosAhora - HORA_INICIO * 60) / SLOT_MINUTOS : null
+  const columnasTemplate = `5.25rem repeat(${columnas.length}, minmax(${anchoColumna}, 1fr))`
+  const filasTemplate = `2.75rem repeat(${TOTAL_SLOTS}, ${ALTO_SLOT_REM}rem)`
 
   return (
     <div className="relative">
-      <div
-        ref={containerRef}
-        onScroll={alHacerScroll}
-        className="max-h-[calc(100vh-15rem)] overflow-auto rounded-lg border bg-card"
-      >
-      <div
-        ref={gridRef}
-        className="grid"
-        style={{ gridTemplateColumns: columnasTemplate, gridTemplateRows: filasTemplate }}
-      >
-        <div className="sticky top-0 left-0 z-30 border-b bg-carton" style={{ gridColumn: 1, gridRow: 1 }} />
-        {doctores.map((doctor, indice) => (
-          <div
-            key={doctor.id}
-            className="sticky top-0 z-20 flex items-center justify-center border-b border-l bg-carton px-2 text-sm font-semibold text-tinta"
-            style={{ gridColumn: indice + 2, gridRow: 1 }}
-          >
-            {doctor.nombre}
-          </div>
-        ))}
-
-        {Array.from({ length: TOTAL_SLOTS }).map((_, indiceSlot) => {
-          const minutos = HORA_INICIO * 60 + indiceSlot * SLOT_MINUTOS
-          return (
+      <div ref={containerRef} onScroll={alHacerScroll} className="max-h-[calc(100vh-15rem)] min-h-[24rem] overflow-auto rounded-lg border bg-card">
+        <div ref={gridRef} className="grid" style={{ gridTemplateColumns: columnasTemplate, gridTemplateRows: filasTemplate }}>
+          <div className="sticky top-0 left-0 z-30 border-b bg-carton" style={{ gridColumn: 1, gridRow: 1 }} />
+          {columnas.map((col, i) => (
             <div
-              key={`hora-${indiceSlot}`}
-              className="sticky left-0 z-10 flex items-start justify-end border-b bg-carton pr-2.5 pt-1 text-[11px] font-medium whitespace-nowrap text-carton-foreground [font-variant-numeric:tabular-nums]"
-              style={{ gridColumn: 1, gridRow: indiceSlot + 2 }}
+              key={col.clave}
+              className={cn(
+                'sticky top-0 z-20 flex items-center justify-center border-b border-l px-2 text-center text-sm font-semibold text-tinta',
+                col.resaltada ? 'bg-info-suave' : 'bg-carton',
+              )}
+              style={{ gridColumn: i + 2, gridRow: 1 }}
             >
-              {indiceSlot % 2 === 0 ? etiquetaHora(minutos) : null}
+              {col.titulo}
             </div>
-          )
-        })}
+          ))}
 
-        {doctores.flatMap((doctor, indiceDoctor) =>
-          Array.from({ length: TOTAL_SLOTS }).map((_, indiceSlot) => {
-            const minutos = HORA_INICIO * 60 + indiceSlot * SLOT_MINUTOS
-            const celda = new Date(fecha)
-            celda.setHours(0, minutos, 0, 0)
-            const yaPaso = celda.getTime() < ahora.getTime()
+          {Array.from({ length: TOTAL_SLOTS }).map((_, s) => (
+            <div
+              key={`hora-${s}`}
+              className="sticky left-0 z-10 flex items-start justify-end border-b bg-carton pt-1 pr-2.5 text-[11px] font-medium whitespace-nowrap text-carton-foreground [font-variant-numeric:tabular-nums]"
+              style={{ gridColumn: 1, gridRow: s + 2 }}
+            >
+              {s % 2 === 0 ? horaLegible(HORA_INICIO * 60 + s * SLOT_MINUTOS) : null}
+            </div>
+          ))}
 
-            return (
-              <button
-                key={`celda-${doctor.id}-${indiceSlot}`}
-                type="button"
-                disabled={yaPaso}
-                title={yaPaso ? 'Este horario ya paso' : undefined}
-                className={
-                  yaPaso
-                    ? 'border-b border-l bg-[repeating-linear-gradient(135deg,transparent,transparent_6px,var(--border)_6px,var(--border)_7px)] cursor-not-allowed'
-                    : 'border-b border-l transition-colors hover:bg-accent/70'
-                }
-                style={{ gridColumn: indiceDoctor + 2, gridRow: indiceSlot + 2 }}
-                onClick={() => onCeldaVacia(doctor.id, celda)}
-              />
-            )
-          }),
-        )}
-
-        {doctores.flatMap((doctor, indiceDoctor) =>
-          citas
-            .filter((cita) => cita.doctorId === doctor.id && esMismoDia(new Date(cita.fechaHora), fecha))
-            .map((cita) => {
-              const { filaInicio, filaSpan } = posicion(cita)
+          {columnas.flatMap((col, i) => {
+            const franjas = franjasDelDia(horarios, col.doctorId, col.fecha)
+            return Array.from({ length: TOTAL_SLOTS }).map((_, s) => {
+              const minutos = HORA_INICIO * 60 + s * SLOT_MINUTOS
+              const celda = new Date(col.fecha)
+              celda.setHours(0, minutos, 0, 0)
+              const yaPaso = celda.getTime() < ahora.getTime()
+              const fueraDeHorario = franjas !== null && !franjas.some(([a, b]) => minutos >= a && minutos < b)
               return (
                 <button
-                  key={cita.id}
+                  key={`celda-${col.clave}-${s}`}
                   type="button"
-                  onClick={() => onCita(cita)}
-                  className={`z-10 m-0.5 overflow-hidden rounded-[5px] px-2 py-1 text-left text-xs ring-1 ring-inset shadow-[0_1px_2px_rgb(16_38_59/0.08)] transition-shadow hover:shadow-[0_4px_12px_-4px_rgb(16_38_59/0.3)] ${COLOR_ESTADO[cita.estado] ?? ''}`}
-                  style={{ gridColumn: indiceDoctor + 2, gridRow: `${filaInicio} / span ${filaSpan}` }}
+                  disabled={yaPaso}
+                  title={yaPaso ? 'Este horario ya pasó' : fueraDeHorario ? 'Fuera del horario de atención' : undefined}
+                  aria-label={yaPaso ? undefined : `Agendar ${horaLegible(minutos)}`}
+                  className={cn(
+                    'border-b border-l',
+                    yaPaso
+                      ? 'cursor-not-allowed bg-[repeating-linear-gradient(135deg,transparent,transparent_6px,var(--border)_6px,var(--border)_7px)]'
+                      : 'transition-colors hover:bg-accent/70',
+                    !yaPaso && fueraDeHorario && 'bg-carton/55',
+                  )}
+                  style={{ gridColumn: i + 2, gridRow: s + 2 }}
+                  onClick={() => onCeldaVacia(col.doctorId, celda)}
+                />
+              )
+            })
+          })}
+
+          {columnas.flatMap((col, i) =>
+            bloqueosDelDia(bloqueos, col.doctorId, col.fecha).map(({ bloqueo, desde, hasta }) => {
+              const inicio = Math.max(desde, HORA_INICIO * 60)
+              const fin = Math.min(hasta, HORA_FIN * 60)
+              if (fin <= inicio) return null
+              return (
+                <button
+                  key={`${col.clave}-${bloqueo.id}`}
+                  type="button"
+                  onClick={() => onBloqueo?.(bloqueo)}
+                  className="z-[5] m-0.5 flex flex-col justify-start rounded-[5px] bg-[repeating-linear-gradient(135deg,var(--muted),var(--muted)_8px,var(--card)_8px,var(--card)_14px)] px-2 py-1.5 text-left text-xs text-muted-foreground ring-1 ring-border ring-inset"
+                  style={{ gridColumn: i + 2, gridRow: `${Math.floor(filaDe(inicio))} / ${Math.ceil(filaDe(fin))}` }}
                 >
-                  <span className="flex items-center gap-1.5">
-                    <CodigoPaciente id={cita.pacienteId} />
-                    <span className="truncate font-semibold text-tinta">{cita.pacienteNombre}</span>
-                  </span>
-                  <span className="mt-0.5 block truncate">
-                    {new Date(cita.fechaHora).toLocaleTimeString('es-SV', { hour: 'numeric', minute: '2-digit' })}
-                    {' · '}
-                    {cita.motivo || etiquetaEstado(cita.estado)}
+                  {/* la etiqueta acompana el scroll: un bloqueo de dias completos sigue diciendo por que */}
+                  <span className="sticky top-[3.25rem] flex flex-col items-start gap-0.5">
+                    <span className="inline-flex items-center gap-1 rounded bg-card/95 px-1 font-semibold text-tinta">
+                      <Ban className="size-3" />
+                      No atiende
+                    </span>
+                    {bloqueo.motivo && <span className="rounded bg-card/95 px-1">{bloqueo.motivo}</span>}
                   </span>
                 </button>
               )
             }),
-        )}
+          )}
 
-        {filaAhora !== null && filaAhora >= 2 && filaAhora <= TOTAL_SLOTS + 2 && (
-          <div
-            className="pointer-events-none z-20 flex items-center"
-            style={{ gridColumn: `1 / span ${doctores.length + 1}`, gridRow: 2, marginTop: `${(filaAhora - 2) * 3}rem` }}
-          >
-            <div className="h-2 w-2 shrink-0 rounded-full bg-aviso" style={{ marginLeft: '5rem' }} />
-            <div className="h-0.5 flex-1 bg-aviso" />
-          </div>
-        )}
+          {columnas.flatMap((col, i) =>
+            citas
+              .filter((c) => c.doctorId === col.doctorId && esMismoDia(new Date(c.fechaHora), col.fecha))
+              .map((cita) => {
+                const inicio = new Date(cita.fechaHora)
+                const minutos = inicio.getHours() * 60 + inicio.getMinutes()
+                const filaInicio = Math.max(2, Math.round(filaDe(minutos)))
+                const filaSpan = Math.max(1, Math.round(cita.duracionMinutos / SLOT_MINUTOS))
+                return (
+                  <button
+                    key={cita.id}
+                    type="button"
+                    onClick={() => onCita(cita)}
+                    className={`z-10 m-0.5 overflow-hidden rounded-[5px] px-2 py-1 text-left text-xs shadow-[0_1px_2px_rgb(16_38_59/0.08)] ring-1 transition-shadow ring-inset hover:shadow-[0_4px_12px_-4px_rgb(16_38_59/0.3)] ${COLOR_ESTADO[cita.estado] ?? ''}`}
+                    style={{ gridColumn: i + 2, gridRow: `${filaInicio} / span ${filaSpan}` }}
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <CodigoPaciente id={cita.pacienteId} />
+                      <span className="truncate font-semibold text-tinta">{cita.pacienteNombre}</span>
+                    </span>
+                    <span className="mt-0.5 block truncate">
+                      {inicio.toLocaleTimeString('es-SV', { hour: 'numeric', minute: '2-digit' })}
+                      {' · '}
+                      {['EN_ESPERA', 'EN_CONSULTA'].includes(cita.estado) ? etiquetaEstado(cita.estado) : cita.motivo || etiquetaEstado(cita.estado)}
+                    </span>
+                  </button>
+                )
+              }),
+          )}
+
+          {filaAhora !== null && filaAhora >= 2 && filaAhora <= TOTAL_SLOTS + 2 && (
+            <div
+              className="pointer-events-none z-20 flex items-center"
+              style={{
+                // vista diaria: cruza todos los medicos; semanal: solo la columna de hoy
+                gridColumn: mismoDia ? `1 / span ${columnas.length + 1}` : `${columnas.indexOf(columnaDeHoy!) + 2}`,
+                gridRow: 2,
+                marginTop: `${(filaAhora - 2) * ALTO_SLOT_REM}rem`,
+              }}
+            >
+              <div className="size-2 shrink-0 rounded-full bg-aviso" style={{ marginLeft: mismoDia ? '5rem' : '-0.25rem' }} />
+              <div className="h-0.5 flex-1 bg-aviso" />
+            </div>
+          )}
+        </div>
       </div>
-      </div>
-      {puedeScrollIzq && (
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-card to-transparent" />
-      )}
-      {puedeScrollDer && (
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-card to-transparent" />
-      )}
+      {puedeScrollIzq && <div className="pointer-events-none absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-card to-transparent" />}
+      {puedeScrollDer && <div className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-card to-transparent" />}
     </div>
   )
 }

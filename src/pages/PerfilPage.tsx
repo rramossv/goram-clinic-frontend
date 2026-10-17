@@ -3,6 +3,7 @@ import { apiFetch, ApiRequestError } from '@/lib/api'
 import { etiquetaRol, useAuth } from '@/lib/auth-context'
 import { PageHeader, Seccion } from '@/components/page-header'
 import { MembreteProfesional } from '@/components/perfil/membrete-profesional'
+import { HorarioEditor } from '@/components/agenda/horario-editor'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -83,6 +84,11 @@ export function PerfilPage() {
       {esMedico && (
         <Seccion titulo="Membrete profesional">
           <MembreteProfesional />
+        </Seccion>
+      )}
+      {sesion.rol === 'DOCTOR' && (
+        <Seccion titulo="Mi horario de atención">
+          <HorarioEditor soloPropio />
         </Seccion>
       )}
 

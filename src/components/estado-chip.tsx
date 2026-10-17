@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
 import {
+  Armchair,
   Ban,
   CheckCheck,
   CircleAlert,
@@ -8,6 +9,7 @@ import {
   CircleOff,
   Clock,
   FileCheck2,
+  Stethoscope,
   UserX,
   XCircle,
 } from 'lucide-react'
@@ -27,6 +29,8 @@ const ESTADOS: Record<string, DefinicionEstado> = {
   // citas
   PROGRAMADA: { etiqueta: 'Programada', tono: 'info', icono: Clock },
   CONFIRMADA: { etiqueta: 'Confirmada', tono: 'exito', icono: CircleCheck },
+  EN_ESPERA: { etiqueta: 'En sala de espera', tono: 'aviso', icono: Armchair },
+  EN_CONSULTA: { etiqueta: 'En consulta', tono: 'info', icono: Stethoscope },
   COMPLETADA: { etiqueta: 'Atendida', tono: 'neutro', icono: CheckCheck },
   CANCELADA: { etiqueta: 'Cancelada', tono: 'peligro', icono: XCircle },
   NO_ASISTIO: { etiqueta: 'No asistió', tono: 'aviso', icono: UserX },

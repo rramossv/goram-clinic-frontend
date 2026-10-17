@@ -1,3 +1,4 @@
+import { fechaCorta } from '@/lib/clinica'
 import { useEffect, useMemo, useState } from 'react'
 import { apiFetch, ApiRequestError } from '@/lib/api'
 import type { FacturaResponse } from '@/types'
@@ -117,14 +118,14 @@ export function FacturasPage() {
             )}
             {visibles.map((factura) => (
               <TableRow key={factura.id}>
-                <TableCell>{new Date(factura.creadoEn).toLocaleDateString('es-SV')}</TableCell>
+                <TableCell>{fechaCorta(factura.creadoEn)}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <CodigoPaciente id={factura.pacienteId} />
                     <span className="font-medium text-tinta">{factura.pacienteNombre}</span>
                   </div>
                 </TableCell>
-                <TableCell>{factura.tipoDte === 'FE' ? 'Electrónica' : 'Simple'}</TableCell>
+                <TableCell>{factura.tipoDte === 'FE' ? 'Electrónica' : 'Interna'}</TableCell>
                 <TableCell className="text-right font-semibold text-tinta">${factura.total.toFixed(2)}</TableCell>
                 <TableCell>
                   <EstadoChip estado={factura.estado} />
