@@ -7,6 +7,9 @@ import App from './App.tsx'
 import { AuthProvider } from '@/lib/auth-context'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { registrarServiceWorker } from '@/lib/push'
+
+registrarServiceWorker()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -15,7 +18,7 @@ createRoot(document.getElementById('root')!).render(
         <AuthProvider>
           <TooltipProvider>
             <App />
-            <Toaster />
+            <Toaster mobileOffset={{ bottom: 88 }} />
           </TooltipProvider>
         </AuthProvider>
       </BrowserRouter>

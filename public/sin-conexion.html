@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1B2D4A" />
+    <title>Sin conexión · GoRam Clinic</title>
+    <style>
+      :root { color-scheme: light dark; }
+      body { margin: 0; min-height: 100svh; display: grid; place-items: center; background: #f7f9fb; color: #1b2433;
+             font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; }
+      @media (prefers-color-scheme: dark) { body { background: #161f2e; color: #e6ebf2; } p { color: #a9b4c4 !important; } }
+      main { max-width: 22rem; padding: 2rem 1.5rem; text-align: center; }
+      img { width: 64px; height: 64px; border-radius: 14px; }
+      h1 { font-size: 1.25rem; margin: 1.25rem 0 0.5rem; }
+      p { color: #5a667a; line-height: 1.5; margin: 0 0 1.5rem; }
+      button { font: inherit; font-weight: 600; color: #fff; background: #26446e; border: 0; border-radius: 8px; padding: 0.7rem 1.4rem; cursor: pointer; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img src="/iconos/icono-192.png" alt="" />
+      <h1>Sin conexión a internet</h1>
+      <p>GoRam Clinic necesita internet para mostrar tu agenda y los expedientes. Revisá tu conexión e intentá de nuevo.</p>
+      <button onclick="location.reload()">Reintentar</button>
+    </main>
+  </body>
+</html>

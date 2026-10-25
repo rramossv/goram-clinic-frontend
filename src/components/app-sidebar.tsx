@@ -37,7 +37,11 @@ import {
   ChevronsUpDown,
   Settings,
   Pill,
+  Bell,
+  Download,
 } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { alCambiarInstalable, instalarApp, puedeInstalar } from '@/lib/push'
 
 export const NAV_ATENCION = [
   { to: '/panel', label: 'Hoja del día', icon: LayoutDashboard, end: true },
@@ -135,6 +139,8 @@ export function AppSidebar() {
   const navigate = useNavigate()
   const { resolvedTheme, setTheme } = useTheme()
   const esOscuro = resolvedTheme === 'dark'
+  const [instalable, setInstalable] = useState(puedeInstalar())
+  useEffect(() => alCambiarInstalable(() => setInstalable(puedeInstalar())), [])
   const consultorio = esConsultorio(sesion)
   const permitido = (item: ItemNav) => !item.permiso || puede(sesion, item.permiso)
   const atencion = NAV_ATENCION.filter(permitido)
@@ -181,6 +187,18 @@ export function AppSidebar() {
               <User />
               Mi perfil
             </DropdownMenuItem>
+            {(sesion?.rol === 'DOCTOR' || sesion?.atiendePacientes) && (
+              <DropdownMenuItem onSelect={() => navigate('/perfil#avisos')}>
+                <Bell />
+                Avisos en el teléfono
+              </DropdownMenuItem>
+            )}
+            {instalable && (
+              <DropdownMenuItem onSelect={() => instalarApp()}>
+                <Download />
+                Instalar la app
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem onSelect={() => setTheme(esOscuro ? 'light' : 'dark')}>
               {esOscuro ? <Sun /> : <Moon />}
               {esOscuro ? 'Modo claro' : 'Modo oscuro'}

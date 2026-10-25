@@ -1,9 +1,10 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { apiFetch, ApiRequestError } from '@/lib/api'
 import { etiquetaRol, useAuth } from '@/lib/auth-context'
 import { PageHeader, Seccion } from '@/components/page-header'
 import { MembreteProfesional } from '@/components/perfil/membrete-profesional'
 import { HorarioEditor } from '@/components/agenda/horario-editor'
+import { PanelNotificaciones } from '@/components/notificaciones/panel-notificaciones'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -74,6 +75,11 @@ export function PerfilPage() {
     }
   }
 
+  // llega desde el aviso "Como activarlos" o desde el menu
+  useEffect(() => {
+    if (window.location.hash === '#avisos') setTimeout(() => document.getElementById('avisos')?.scrollIntoView({ behavior: 'smooth' }), 400)
+  }, [])
+
   if (!sesion) return null
   const esMedico = sesion.rol === 'DOCTOR' || !!sesion.atiendePacientes
 
@@ -81,6 +87,13 @@ export function PerfilPage() {
     <div className="flex flex-col gap-6">
       <PageHeader titulo="Mi perfil" descripcion={esMedico ? 'Tu membrete profesional, tus datos de acceso y tu contraseña.' : 'Tus datos de acceso y tu contraseña.'} />
 
+      {esMedico && (
+        <div id="avisos" className="scroll-mt-20">
+          <Seccion titulo="Avisos en tu teléfono">
+            <PanelNotificaciones />
+          </Seccion>
+        </div>
+      )}
       {esMedico && (
         <Seccion titulo="Membrete profesional">
           <MembreteProfesional />

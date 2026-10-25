@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
+import { TextareaDictable } from '@/components/consultas/dictado'
 import { PageHeader } from '@/components/page-header'
 import { CodigoPaciente } from '@/components/codigo-paciente'
 import { EstadoChip } from '@/components/estado-chip'
@@ -541,10 +542,10 @@ export function AtencionPage() {
         ) : (
           <form ref={formRef} onSubmit={(e) => guardar(e)} className="relative rounded-lg border bg-card">
             <Hoja titulo="Motivo de consulta">
-              <Textarea
+              <TextareaDictable
                 rows={2}
                 value={form.motivoConsulta}
-                onChange={(e) => actualizar('motivoConsulta', e.target.value)}
+                onValueChange={(v) => actualizar('motivoConsulta', v)}
                 placeholder="¿Por qué consulta hoy? En palabras del paciente."
                 className="text-[15px]"
               />
@@ -558,11 +559,11 @@ export function AtencionPage() {
               <div className="grid gap-4 lg:grid-cols-2">
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="notas" className="text-xs text-muted-foreground">Historia de la enfermedad actual</Label>
-                  <Textarea id="notas" rows={5} value={form.notas} onChange={(e) => actualizar('notas', e.target.value)} placeholder="Inicio, evolución, síntomas asociados, tratamientos previos…" />
+                  <TextareaDictable id="notas" rows={5} value={form.notas} onValueChange={(v) => actualizar('notas', v)} placeholder="Inicio, evolución, síntomas asociados, tratamientos previos…" />
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="examen" className="text-xs text-muted-foreground">Examen físico</Label>
-                  <Textarea id="examen" rows={5} value={form.examenFisico} onChange={(e) => actualizar('examenFisico', e.target.value)} placeholder="Hallazgos por sistemas…" />
+                  <TextareaDictable id="examen" rows={5} value={form.examenFisico} onValueChange={(v) => actualizar('examenFisico', v)} placeholder="Hallazgos por sistemas…" />
                 </div>
               </div>
             </Hoja>
@@ -587,7 +588,7 @@ export function AtencionPage() {
             </Hoja>
 
             <Hoja titulo="Indicaciones y próximo control">
-              <Textarea rows={3} value={form.indicaciones} onChange={(e) => actualizar('indicaciones', e.target.value)} placeholder="Dieta, reposo, signos de alarma, exámenes a realizar…" />
+              <TextareaDictable rows={3} value={form.indicaciones} onValueChange={(v) => actualizar('indicaciones', v)} placeholder="Dieta, reposo, signos de alarma, exámenes a realizar…" />
               <div className="flex flex-wrap items-center gap-2">
                 <Label htmlFor="control" className="mr-1 text-sm">Próximo control</Label>
                 <Input id="control" type="date" value={form.proximoControl} min={sumarDias(0)} onChange={(e) => actualizar('proximoControl', e.target.value)} className="w-44" />
@@ -609,7 +610,7 @@ export function AtencionPage() {
               </div>
             </Hoja>
 
-            <div className="sticky bottom-0 z-10 flex flex-col gap-3 rounded-b-lg border-t bg-card/95 px-4 py-3 backdrop-blur sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <div className="sticky bottom-[calc(4.25rem+env(safe-area-inset-bottom))] z-10 flex flex-col gap-3 rounded-b-lg border-t md:bottom-0 bg-card/95 px-4 py-3 backdrop-blur sm:flex-row sm:items-center sm:justify-between sm:px-6">
               <p className="text-xs text-muted-foreground">
                 {borradorGuardadoEn ? `Borrador guardado en este equipo a las ${borradorGuardadoEn.toLocaleTimeString('es-SV', { hour: 'numeric', minute: '2-digit' })}` : 'Se guarda un borrador mientras escribís'}
                 <span className="hidden md:inline"> · Ctrl+S para guardar</span>
