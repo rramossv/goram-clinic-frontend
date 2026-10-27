@@ -12,6 +12,8 @@ export default defineConfig({
     },
   },
   server: {
+    // dominio de un tunel https temporal (cloudflared), solo si se abre uno
+    allowedHosts: ['.trycloudflare.com'],
     // Para probar desde un telefono en la misma red (VITE_API_URL vacio): la
     // app y la API salen por el mismo origen y Vite reenvia /api al backend.
     proxy: {
