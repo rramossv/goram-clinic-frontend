@@ -1,389 +1,412 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { useAuth } from '@/lib/auth-context'
 import { apiFetch } from '@/lib/api'
 import type { PlanResponse } from '@/types'
+import { useAsistente } from '@/lib/asistente'
+import { MarcaArchivo } from '@/components/app-sidebar'
+import { AsistenteChat } from '@/components/landing/asistente-chat'
+import { HojaPantalla, Notificacion, PantallaAvisos, Telefono } from '@/components/landing/pantallas'
+import { cn } from '@/lib/utils'
+import { ArrowRight, ArrowUp, Check, MessageCircle, Minus, X } from 'lucide-react'
 import './LandingPage.css'
 
-const DESCRIPCIONES_PLAN: Record<string, string> = {
-  CONSULTORIO: 'Para el médico con consultorio propio: pacientes, agenda, consultas y factura interna.',
-  CONSULTORIO_PRO: 'Todo lo de Consultorio, más facturación electrónica a tu nombre ante Hacienda.',
-  CLINICA: 'Para clínicas con varios doctores, recepción y facturación electrónica de la clínica.',
-  CLINICA_PLUS: 'Para clínicas grandes: doctores y personal sin limite.',
+/*
+ * Pagina de inicio publica. Contrato de diseno (seed 03e27317) en index.html.
+ * Mundo: el archivo de expedientes del panel llevado a escala de portada.
+ */
+
+const DIA = [
+  {
+    hora: '6:30',
+    periodo: 'a. m.',
+    titulo: 'Su teléfono le resume el día',
+    texto: 'Antes de salir de casa sabe cuántas citas tiene y con quién empieza.',
+    visual: 'avisos',
+  },
+  {
+    hora: '8:51',
+    periodo: 'a. m.',
+    titulo: 'Llega el paciente y usted se entera',
+    texto: 'La recepción lo marca en sala de espera, su teléfono vibra y la hoja del día muestra cuánto lleva esperando.',
+    visual: 'hoja-del-dia',
+  },
+  {
+    hora: '9:00',
+    periodo: 'a. m.',
+    titulo: 'Consulta con el expediente al lado',
+    texto: 'Alergias en rojo, la presión anterior para comparar, diagnóstico con CIE-10 y notas que puede dictar con la voz.',
+    visual: 'consulta',
+  },
+  {
+    hora: '9:20',
+    periodo: 'a. m.',
+    titulo: 'Receta con su firma y un código QR',
+    texto: 'Con su logo, su J.V.P.M. y su firma. La farmacia escanea el código y confirma que es auténtica.',
+    visual: 'receta',
+  },
+  {
+    hora: '9:25',
+    periodo: 'a. m.',
+    titulo: 'Las indicaciones, por WhatsApp',
+    texto: 'Con un toque el paciente recibe sus medicamentos y la fecha de su próximo control.',
+    visual: 'whatsapp',
+  },
+  {
+    hora: '6:00',
+    periodo: 'p. m.',
+    titulo: 'La evolución de cada paciente, a la vista',
+    texto: 'Peso y presión en el tiempo, el historial completo y las facturas en el mismo expediente.',
+    visual: 'evolucion',
+  },
+] as const
+
+const EL_SALVADOR = [
+  ['J.V.P.M. en cada documento', 'Recetas, constancias e incapacidades salen con su número de la Junta de Vigilancia y su firma.'],
+  ['IVA del 13 %', 'Calculado sobre el subtotal en cada factura, desde su propio catálogo de servicios y tarifas.'],
+  ['Facturación electrónica DTE', 'Incluida en Consultorio Pro, Clínica y Clínica Plus. La conexión con el proveedor autorizado por Hacienda está en su etapa final.'],
+  ['DUI y NIT', 'En la ficha de cada paciente y en sus facturas, con el formato de aquí.'],
+  ['Consultorio o clínica', 'Si atiende solo, el sistema se simplifica: sin selector de médicos y con "Mi asistente" para su recepción.'],
+] as const
+
+const SEGURIDAD = [
+  ['Cada consultorio, aislado', 'La información de su consultorio está separada en la base de datos: nadie de otra clínica puede verla.'],
+  ['Cada quien ve lo suyo', 'La recepción agenda y cobra; las notas clínicas y los diagnósticos los ve el médico.'],
+  ['Privacidad en la receta', 'La verificación pública de una receta solo muestra las iniciales del paciente.'],
+  ['Nada se pierde a medias', 'Si se va la luz a mitad de una consulta, lo escrito queda guardado como borrador en su equipo.'],
+] as const
+
+function precio(p: PlanResponse) {
+  return Number(p.precioMensual).toFixed(0)
 }
 
-const CARACTERISTICAS_PLAN: Record<string, string[]> = {
-  CONSULTORIO: ['1 médico + 1 asistente', 'Pacientes ilimitados', 'Agenda y expediente', 'Factura interna'],
-  CONSULTORIO_PRO: ['1 médico + 1 asistente', 'Pacientes ilimitados', 'Facturación electrónica DTE', 'Todo lo del plan Consultorio'],
-  CLINICA: ['Hasta 5 médicos', 'Hasta 10 usuarios', 'Facturación electrónica DTE', 'Agenda por doctor'],
-  CLINICA_PLUS: ['Medicos ilimitados', 'Usuarios ilimitados', 'Facturación electrónica DTE', 'Soporte prioritario'],
+function VisualDia({ visual }: { visual: (typeof DIA)[number]['visual'] }) {
+  if (visual === 'avisos') {
+    return (
+      <div className="gl-dia-telefono">
+        <Telefono>
+          <PantallaAvisos />
+        </Telefono>
+      </div>
+    )
+  }
+  if (visual === 'whatsapp') {
+    return (
+      <div className="gl-dia-telefono">
+        <Telefono>
+          <div className="gl-whatsapp">
+            <p className="gl-whatsapp-contacto">Consultorio Dra. Demo</p>
+            <div className="gl-whatsapp-burbuja">
+              <p>Hola Gabriela, estas son las indicaciones de su consulta con Dra. Andrea Demo:</p>
+              <p className="mt-2 font-semibold">Medicamentos</p>
+              <p>1. Levotiroxina 75 mcg tabletas — 1 tableta · cada 24 horas · uso continuo</p>
+              <p>2. Vitamina D3 1,000 UI cápsulas — 1 cápsula · cada 24 horas · uso continuo</p>
+              <p className="mt-2">
+                <span className="font-semibold">Próximo control:</span> lunes, 11 de enero
+              </p>
+              <span className="gl-whatsapp-hora">9:25</span>
+            </div>
+          </div>
+        </Telefono>
+        <Notificacion className="gl-dia-notif" hora="9:25" titulo="Consultorio Dra. Demo" cuerpo="Hola Gabriela, estas son las indicaciones de su consulta…" />
+      </div>
+    )
+  }
+  const imagenes = {
+    'hoja-del-dia': { src: '/landing/hoja-del-dia.png', alt: 'Hoja del día con un paciente en sala de espera' },
+    consulta: { src: '/landing/consulta.png', alt: 'Consulta con signos vitales, valores anteriores y expediente al lado' },
+    receta: { src: '/landing/receta.png', alt: 'Receta impresa con logo, J.V.P.M., firma y código QR' },
+    evolucion: { src: '/landing/evolucion.png', alt: 'Gráficas de presión arterial y peso del paciente' },
+  } as const
+  const img = imagenes[visual]
+  return (
+    <div className={cn('gl-dia-hoja', visual === 'receta' && 'gl-dia-receta')}>
+      <img src={img.src} alt={`${img.alt} (datos de demostración)`} loading="lazy" decoding="async" />
+      {visual === 'receta' && (
+        <div className="gl-dia-verificacion">
+          <Telefono>
+            <img src="/landing/verificacion.png" alt="La farmacia verifica la receta desde su teléfono" loading="lazy" />
+          </Telefono>
+        </div>
+      )}
+    </div>
+  )
 }
-
-// Plan resaltado en la landing. "Recomendado" y no "Mas popular": todavia no
-// hay datos de uso que respalden lo segundo.
-const PLAN_DESTACADO = 'CONSULTORIO_PRO'
 
 export function LandingPage() {
   const { sesion } = useAuth()
+  const asistente = useAsistente()
   const [planes, setPlanes] = useState<PlanResponse[]>([])
+  const [flotanteVisible, setFlotanteVisible] = useState(false)
+  const [flotanteAbierto, setFlotanteAbierto] = useState(false)
+  const [pregunta, setPregunta] = useState('')
+  const portada = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    document.documentElement.style.scrollBehavior = 'smooth'
-    return () => {
-      document.documentElement.style.scrollBehavior = ''
-    }
-  }, [])
-
-  useEffect(() => {
+    document.title = 'GoRam Clinic · Sistema para consultorios y clínicas de El Salvador'
     apiFetch<PlanResponse[]>('/api/v1/planes', { auth: false })
       .then(setPlanes)
       .catch(() => setPlanes([]))
+  }, [])
+
+  // el asistente flotante aparece cuando el de la portada sale de vista
+  useEffect(() => {
+    const el = portada.current
+    if (!el) return
+    const io = new IntersectionObserver(([e]) => setFlotanteVisible(!e.isIntersecting), { threshold: 0.05 })
+    io.observe(el)
+    return () => io.disconnect()
   }, [])
 
   if (sesion) {
     return <Navigate to="/panel" replace />
   }
 
+  const desde = planes.length ? `$${precio(planes[0])}` : null
+
+  function abrirConPregunta(texto: string) {
+    setFlotanteAbierto(true)
+    if (texto.trim()) asistente.preguntar(texto)
+  }
+
+  function enviarCierre(e: FormEvent) {
+    e.preventDefault()
+    abrirConPregunta(pregunta)
+    setPregunta('')
+  }
+
   return (
-    <div className="gr-landing">
-      <header className="wrap nav">
-        <div className="brand">
-          <span className="mark">
-            <i></i>
-          </span>
-          GoRam Clinic
-        </div>
-        <nav className="links">
-          <a href="#sistema">Sistema</a>
-          <a href="#experiencia">Experiencia</a>
-          <a href="#planes">Planes</a>
-          <Link to="/login">Iniciar sesión</Link>
-        </nav>
-        <Link to="/registro" className="navCta">
-          Comenzar
-        </Link>
-      </header>
+    <div className="gl">
+      <a href="#contenido" className="gl-saltar">
+        Saltar al contenido
+      </a>
 
-      <section className="hero wrap heroGrid">
-        <div>
-          <p className="eyebrow">Plataforma para clínicas en El Salvador</p>
-          <h1>
-            La clinica <em>organizada</em> que tus pacientes notan.
-          </h1>
-          <p className="lead">
-            Pacientes, agenda, consultas y facturación electrónica en un solo sistema.
-            Reemplaza el cuaderno y las hojas de Excel por un panel que tu equipo
-            realmente disfruta usar.
-          </p>
-          <div className="actions">
-            <Link to="/registro" className="btn primary">
-              Comenzar prueba gratis
+      {/* ---------- portada: la gaveta ---------- */}
+      <div className="gl-gaveta">
+        <header className="gl-nav gl-ancho">
+          <Link to="/" className="gl-marca" aria-label="GoRam Clinic, inicio">
+            <MarcaArchivo />
+            <span>GoRam Clinic</span>
+          </Link>
+          <nav aria-label="Secciones" className="gl-nav-enlaces">
+            <a href="#dia">Cómo funciona</a>
+            <a href="#planes">Planes</a>
+            <a href="#seguridad">Seguridad</a>
+          </nav>
+          <div className="gl-nav-acciones">
+            <Link to="/login" className="gl-enlace-claro">
+              Ingresar
             </Link>
-            <a href="#planes" className="btn secondary">
-              Ver planes
-            </a>
+            <Link to="/registro" className="gl-boton-claro">
+              Crear cuenta
+            </Link>
           </div>
-          <p className="note">7 días gratis · sin tarjeta requerida</p>
-        </div>
+        </header>
 
-        <div className="heroVisual">
-          <div
-            className="heroImg"
-            style={{ backgroundImage: "url('/images/landing/hero-doctor-tel.jpg')" }}
-          ></div>
-          <div className="productCard">
-            <div className="topbar">
-              <i></i>
-              <i></i>
-              <i></i>
-              <span>GoRam Clinic — Panel</span>
-            </div>
-            <div className="dashboard">
-              <div className="side">
-                <b></b>
-                <b></b>
-                <b></b>
-                <b></b>
-                <b></b>
-              </div>
-              <div className="content">
-                <div className="contentHead">
-                  Agenda de hoy
-                  <span className="badge">En vivo</span>
+        <main id="contenido" className="gl-portada gl-ancho">
+          <div className="gl-portada-cabeza">
+            <h1>Su consultorio en orden, de la agenda a la receta.</h1>
+            <div className="gl-portada-aside">
+              <p className="gl-bajada">
+                GoRam Clinic es el sistema para médicos y clínicas de El Salvador. Pregúntele al asistente lo que quiera: le responde a cualquier hora y le muestra el sistema funcionando.
+              </p>
+              <dl className="gl-hechos">
+                <div>
+                  <dt>Precio</dt>
+                  <dd>{desde ? <>Desde {desde} al mes</> : 'Planes mensuales'}</dd>
                 </div>
-                <div className="metrics">
-                  <div className="metric">
-                    <small>PACIENTES</small>
-                    <strong>842</strong>
-                  </div>
-                  <div className="metric">
-                    <small>CITAS HOY</small>
-                    <strong>17</strong>
-                  </div>
-                  <div className="metric">
-                    <small>INGRESOS</small>
-                    <strong>$3,120</strong>
-                  </div>
+                <div>
+                  <dt>Recetas</dt>
+                  <dd>Con QR verificable</dd>
                 </div>
-                <div className="graph"></div>
-              </div>
+                <div>
+                  <dt>Funciona en</dt>
+                  <dd>Computadora, tablet y teléfono</dd>
+                </div>
+              </dl>
             </div>
           </div>
-          <div className="float f1">
-            <small>Proxima cita</small>
-            <b>10:30 AM — Maria L.</b>
-          </div>
-          <div className="float f2">
-            <small>Ingresos del mes</small>
-            <b>$4,890</b>
-            <div className="green">▲ 18% vs. mes anterior</div>
-          </div>
-        </div>
-      </section>
 
-      <div className="trust wrap trustIn">
-        <p>Hecho para clínicas y consultorios en El Salvador</p>
-        <div className="trustLogos">
-          <span>IVA calculado automaticamente</span>
-          <span>Datos aislados por clínica</span>
-          <span>Recordatorios de citas por correo</span>
-          <span>Sin instalar nada</span>
-        </div>
+          <div ref={portada} className="gl-escritorio">
+            <div className="gl-escritorio-hoja">
+              <HojaPantalla pantalla={asistente.pantalla} planes={planes} prioridad />
+            </div>
+            <div className="gl-escritorio-chat">
+              <AsistenteChat asistente={asistente} />
+            </div>
+          </div>
+        </main>
+        <p className="gl-ancho gl-nota-demo">Pantallas reales del sistema con datos de demostración.</p>
       </div>
 
-      <section id="sistema" className="section wrap">
-        <div className="intro">
-          <div>
-            <p className="kicker">El sistema</p>
-            <h2>Todo lo que tu clínica necesita para operar, sin hojas sueltas.</h2>
-          </div>
-          <p className="desc">
-            Seis modulos conectados entre si — lo que registra tu recepcionista
-            lo ve el doctor, y lo que cierra el doctor llega directo a facturacion.
-          </p>
+      {/* ---------- un dia de consultorio ---------- */}
+      <section id="dia" className="gl-seccion gl-ancho" aria-labelledby="dia-titulo">
+        <div className="gl-seccion-cabecera">
+          <h2 id="dia-titulo">Un día con GoRam Clinic</h2>
+          <p>Así se ve una jornada de consultorio, de la primera alarma a la última consulta. Pantallas reales del sistema con datos de demostración.</p>
         </div>
-        <div className="modules">
-          <div className="module">
-            <span className="num">01</span>
-            <div className="icon">Pa</div>
-            <h3>Pacientes</h3>
-            <p>Expediente digital con historial, contacto y antecedentes de cada paciente.</p>
-          </div>
-          <div className="module">
-            <span className="num">02</span>
-            <div className="icon">Ag</div>
-            <h3>Agenda</h3>
-            <p>Calendario por doctor con disponibilidad real y recordatorios automaticos.</p>
-          </div>
-          <div className="module">
-            <span className="num">03</span>
-            <div className="icon">Co</div>
-            <h3>Consultas</h3>
-            <p>Notas clínicas, diagnóstico y receta, ligados a la cita correspondiente.</p>
-          </div>
-          <div className="module">
-            <span className="num">04</span>
-            <div className="icon">Fa</div>
-            <h3>Facturación electrónica</h3>
-            <p>Documentos tributarios (DTE) transmitidos al Ministerio de Hacienda.</p>
-          </div>
-          <div className="module">
-            <span className="num">05</span>
-            <div className="icon">Re</div>
-            <h3>Reportes</h3>
-            <p>Ingresos, citas atendidas y pacientes nuevos, siempre al día.</p>
-          </div>
-          <div className="module">
-            <span className="num">06</span>
-            <div className="icon">Pe</div>
-            <h3>Personal</h3>
-            <p>Roles y permisos para doctores, recepcionistas y administradores.</p>
-          </div>
-        </div>
-      </section>
-
-      <section className="photoBand wrap">
-        <div className="photoGrid">
-          <div className="photoTile large">
-            <img src="/images/landing/doctora-parque.jpg" alt="Doctora sonriendo" />
-            <div className="caption">
-              <small>Hecho para tu equipo</small>
-              <b>Menos administración, mas pacientes.</b>
-            </div>
-          </div>
-          <div className="sidePhotos">
-            <div className="photoTile small">
-              <img src="/images/landing/estetoscopio.jpg" alt="Estetoscopio" />
-            </div>
-            <div className="photoTile small">
-              <img src="/images/landing/pasillo-equipo.jpg" alt="Equipo médico caminando" />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="section dark">
-        <div className="wrap intro">
-          <div>
-            <p className="kicker">Sin letra pequena</p>
-            <h2>Deja el cuaderno atras sin complicarte.</h2>
-          </div>
-          <p className="desc">Lo que obtenés desde el primer día, en cualquier plan.</p>
-        </div>
-        <div className="wrap stats">
-          <div className="stat">
-            <strong>13%</strong>
-            <span>IVA calculado sobre el subtotal, sin errores</span>
-          </div>
-          <div className="stat">
-            <strong>&infin;</strong>
-            <span>Pacientes en todos los planes</span>
-          </div>
-          <div className="stat">
-            <strong>0</strong>
-            <span>Instalaciones: entras desde el navegador</span>
-          </div>
-          <div className="stat">
-            <strong>Mes a mes</strong>
-            <span>Sin permanencia forzada</span>
-          </div>
-        </div>
-      </section>
-
-      <section id="experiencia" className="section wrap workflow">
-        <div>
-          <p className="kicker">La experiencia</p>
-          <h2>De la cita a la factura, sin salir del sistema.</h2>
-          <p className="desc">
-            Cada paso queda conectado: la recepcionista agenda, el doctor atiende
-            y factura, y el reporte se actualiza solo.
-          </p>
-          <div className="steps">
-            <div className="step">
-              <span className="stepN">1</span>
-              <div>
-                <b>Se agenda la cita</b>
-                <p>La recepcionista busca disponibilidad real del doctor y confirma en segundos.</p>
+        <ol className="gl-dia">
+          {DIA.map((d, i) => (
+            <li key={d.hora + d.periodo} className={cn('gl-dia-fila', i % 2 === 1 && 'gl-dia-fila-par')}>
+              <div className="gl-dia-hora">
+                <time>
+                  {d.hora}
+                  <span>{d.periodo}</span>
+                </time>
               </div>
-            </div>
-            <div className="step">
-              <span className="stepN">2</span>
-              <div>
-                <b>El doctor atiende</b>
-                <p>Registra diagnóstico, receta y notas directo desde la cita del calendario.</p>
+              <div className="gl-dia-texto">
+                <h3>{d.titulo}</h3>
+                <p>{d.texto}</p>
               </div>
-            </div>
-            <div className="step">
-              <span className="stepN">3</span>
-              <div>
-                <b>Se factura al instante</b>
-                <p>El documento tributario electrónico se genera y transmite a Hacienda.</p>
+              <div className="gl-dia-visual">
+                <VisualDia visual={d.visual} />
               </div>
-            </div>
-            <div className="step">
-              <span className="stepN">4</span>
-              <div>
-                <b>El reporte se actualiza</b>
-                <p>Ingresos y pacientes nuevos quedan reflejados sin trabajo manual.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="screen">
-          <div className="screenInner">
-            <div className="screenHead">
-              Agenda — hoy
-              <span>4 citas</span>
-            </div>
-            <div className="rows">
-              <div className="row">
-                <div className="avatar"></div>
-                <div className="line"></div>
-                <div className="line line2"></div>
-                <span className="state">Confirmada</span>
-              </div>
-              <div className="row">
-                <div className="avatar"></div>
-                <div className="line"></div>
-                <div className="line line2"></div>
-                <span className="state">En consulta</span>
-              </div>
-              <div className="row">
-                <div className="avatar"></div>
-                <div className="line"></div>
-                <div className="line line2"></div>
-                <span className="state">Confirmada</span>
-              </div>
-              <div className="row">
-                <div className="avatar"></div>
-                <div className="line"></div>
-                <div className="line line2"></div>
-                <span className="state">Pendiente</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="planes" className="section pricing">
-        <div className="wrap intro">
-          <div>
-            <p className="kicker">Planes</p>
-            <h2>Del consultorio individual a la clínica completa.</h2>
-          </div>
-          <p className="desc">Cambia de plan cuando quieras. Sin permanencia forzada.</p>
-        </div>
-        <div className="wrap plans">
-          {planes.map((plan) => (
-            <div key={plan.id} className={plan.codigo === PLAN_DESTACADO ? 'plan featured' : 'plan'}>
-              {plan.codigo === PLAN_DESTACADO && <span className="tag">Recomendado</span>}
-              <p className="planName">{plan.nombre}</p>
-              <p className="price">
-                ${plan.precioMensual.toFixed(0)}
-                <small> /mes</small>
-              </p>
-              <p className="desc" style={{ marginBottom: 20 }}>
-                {DESCRIPCIONES_PLAN[plan.codigo] ?? ''}
-              </p>
-              <div className="features">
-                {(CARACTERISTICAS_PLAN[plan.codigo] ?? []).map((item) => (
-                  <div key={item}>{item}</div>
-                ))}
-              </div>
-              <Link
-                to={`/registro?plan=${plan.codigo}`}
-                className="btn primary"
-                style={{ marginTop: 24 }}
-              >
-                Elegir {plan.nombre}
-              </Link>
-            </div>
+            </li>
           ))}
-        </div>
+        </ol>
       </section>
 
-      <section className="final wrap">
-        <div className="finalBox">
-          <div>
-            <p className="kicker">Empieza hoy</p>
-            <h2>Tu clínica, organizada desde la primera semana.</h2>
-            <p>
-              Crea tu cuenta y empieza a usar GoRam Clinic hoy mismo. 7 dias gratis,
-              sin tarjeta requerida.
-            </p>
+      {/* ---------- hecho para El Salvador ---------- */}
+      <section className="gl-carton" aria-labelledby="sv-titulo">
+        <div className="gl-seccion gl-ancho gl-libro">
+          <div className="gl-seccion-cabecera">
+            <h2 id="sv-titulo">Hecho para la consulta en El Salvador</h2>
+            <p>Los detalles de aquí, resueltos desde el primer día.</p>
           </div>
-          <Link to="/registro" className="btn primary">
-            Crear mi cuenta
-          </Link>
+          <dl className="gl-renglones">
+            {EL_SALVADOR.map(([t, d]) => (
+              <div key={t}>
+                <dt>{t}</dt>
+                <dd>{d}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </section>
 
-      <footer>
-        <div className="wrap foot">
-          <span>GoRam Clinic — un producto de la marca GoRam</span>
-          <span>© {new Date().getFullYear()} GoRam. Todos los derechos reservados.</span>
+      {/* ---------- planes: el tarifario ---------- */}
+      <section id="planes" className="gl-seccion gl-ancho" aria-labelledby="planes-titulo">
+        <div className="gl-seccion-cabecera">
+          <h2 id="planes-titulo">Planes</h2>
+          <p>Un precio mensual por consultorio o clínica. Pacientes sin límite en todos los planes.</p>
         </div>
+        {planes.length === 0 ? (
+          <p className="gl-cargando">Cargando planes…</p>
+        ) : (
+          <div className="gl-tarifario" role="list">
+            {planes.map((p) => (
+              <article key={p.id} role="listitem" className={cn('gl-plan', p.codigo === 'CONSULTORIO_PRO' && 'gl-plan-destacado')}>
+                <header>
+                  <h3>{p.nombre}</h3>
+                  {p.codigo === 'CONSULTORIO_PRO' && <span className="gl-plan-marca">Recomendado para consultorio</span>}
+                </header>
+                <p className="gl-plan-precio">
+                  <span className="gl-plan-moneda">$</span>
+                  {precio(p)}
+                  <span className="gl-plan-periodo">al mes</span>
+                </p>
+                <ul>
+                  <li>
+                    <Check aria-hidden="true" />
+                    {p.limiteDoctores === null ? 'Médicos sin límite' : p.limiteDoctores === 1 ? '1 médico' : `Hasta ${p.limiteDoctores} médicos`}
+                  </li>
+                  <li>
+                    <Check aria-hidden="true" />
+                    {p.limiteUsuarios === null ? 'Usuarios sin límite' : `${p.limiteUsuarios} usuarios en total`}
+                  </li>
+                  <li className={cn(!p.incluyeFacturacionElectronica && 'gl-plan-no')}>
+                    {p.incluyeFacturacionElectronica ? <Check aria-hidden="true" /> : <Minus aria-hidden="true" />}
+                    {p.incluyeFacturacionElectronica ? 'Facturación electrónica DTE' : 'Factura interna, sin DTE'}
+                  </li>
+                  <li>
+                    <Check aria-hidden="true" />
+                    Agenda, expedientes, recetas y avisos
+                  </li>
+                </ul>
+                <Link to="/registro" className={p.codigo === 'CONSULTORIO_PRO' ? 'gl-boton' : 'gl-boton-linea'}>
+                  Crear cuenta
+                </Link>
+              </article>
+            ))}
+          </div>
+        )}
+        <button type="button" className="gl-preguntar-plan" onClick={() => abrirConPregunta('¿Cuál plan me conviene?')}>
+          <MessageCircle className="size-4" />
+          ¿No sabe cuál le conviene? Pregúntele al asistente
+          <ArrowRight className="size-4" />
+        </button>
+      </section>
+
+      {/* ---------- seguridad ---------- */}
+      <section id="seguridad" className="gl-carton" aria-labelledby="seg-titulo">
+        <div className="gl-seccion gl-ancho gl-libro">
+          <div className="gl-seccion-cabecera">
+            <h2 id="seg-titulo">Su información y la de sus pacientes, protegida</h2>
+            <p>Datos de salud tratados como lo que son.</p>
+          </div>
+          <dl className="gl-renglones">
+            {SEGURIDAD.map(([t, d]) => (
+              <div key={t}>
+                <dt>{t}</dt>
+                <dd>{d}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </section>
+
+      {/* ---------- cierre ---------- */}
+      <section className="gl-cierre" aria-labelledby="cierre-titulo">
+        <div className="gl-ancho gl-cierre-interior">
+          <h2 id="cierre-titulo">¿Le quedó alguna duda?</h2>
+          <p>El asistente le responde ahora mismo, a cualquier hora del día.</p>
+          <form onSubmit={enviarCierre} className="gl-cierre-campo">
+            <input value={pregunta} onChange={(e) => setPregunta(e.target.value)} maxLength={500} placeholder="Escriba su pregunta…" aria-label="Su pregunta para el asistente" />
+            <button type="submit" aria-label="Preguntar al asistente">
+              <ArrowUp className="size-4" />
+            </button>
+          </form>
+          <div className="gl-cierre-acciones">
+            <Link to="/registro" className="gl-boton-claro">
+              Crear cuenta
+            </Link>
+            <Link to="/login" className="gl-enlace-claro">
+              Ya tengo cuenta · Ingresar
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <footer className="gl-pie gl-ancho">
+        <span className="gl-marca gl-marca-pie">
+          <MarcaArchivo />
+          <span>GoRam Clinic</span>
+        </span>
+        <span>Un producto de GoRam · El Salvador · {new Date().getFullYear()}</span>
+        <nav aria-label="Enlaces del pie" className="gl-pie-enlaces">
+          <Link to="/verificar">Verificar una receta</Link>
+          <Link to="/login">Ingresar</Link>
+        </nav>
       </footer>
+
+      {/* ---------- el mismo asistente, siempre a mano ---------- */}
+      {(flotanteVisible || flotanteAbierto) && (
+        <div className={cn('gl-flotante', flotanteAbierto && 'gl-flotante-abierto')}>
+          {flotanteAbierto ? (
+            <div className="gl-flotante-panel" role="dialog" aria-label="Asistente de GoRam Clinic">
+              <button type="button" className="gl-flotante-cerrar" onClick={() => setFlotanteAbierto(false)} aria-label="Cerrar asistente">
+                <X className="size-4" />
+              </button>
+              <AsistenteChat asistente={asistente} variante="flotante" autoFoco />
+            </div>
+          ) : (
+            <button type="button" className="gl-flotante-boton" onClick={() => setFlotanteAbierto(true)}>
+              <img src="/iconos/icono-192.png" alt="" width={28} height={28} />
+              Pregúntele al asistente
+            </button>
+          )}
+        </div>
+      )}
     </div>
   )
 }

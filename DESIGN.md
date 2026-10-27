@@ -209,3 +209,17 @@ Fondo suave del tono del estado, anillo interior, codigo de paciente + nombre en
 - **Don't** construir paneles con tarjetas de metricas gigantes (numero enorme + icono + etiqueta); los resumenes van como filas de libro contable.
 - **Don't** poner antetitulos encima de los titulos.
 - **Don't** agregar franjas laterales de color a tarjetas o alertas.
+
+## Superficie pública: página de inicio (/)
+
+**Modo:** persuadir. **Idea central:** la portada es el asistente; el médico pregunta y una hoja de expediente con pestaña le muestra la pantalla real que corresponde a cada respuesta. Contrato completo en `index.html` (seed 03e27317).
+
+- **Estilos aislados:** todo vive bajo `.gl` en `src/pages/LandingPage.css` con sus propias variables `--gl-*` (nunca en `:root`, porque Vite junta el CSS y pisaría los tokens del panel). Los enlaces se resetean con `:where(.gl) a` para no ganarle a las clases de botón.
+- **Portada (gaveta):** fondo azul marino `#17273f` con filetes horizontales cada 4.5rem (los cajones del archivo) y un degradado radial suave. Titular blanco Public Sans 680, `clamp(2.5rem, 4.4vw, 4rem)`, tracking -0.035em. A la derecha, bajada y tres renglones de libro contable (dato / valor).
+- **Escritorio:** asistente de 24rem a la izquierda, montado 2.5rem sobre la hoja; la hoja lleva pestaña color hoja con las dos bandas de la marca (azul `#2457a6`, verde `#3b8c3e`). Al cambiar de pantalla la hoja nueva sube con `clip-path` (620 ms, ease-out exponencial): el único movimiento de autor, además de la salida inicial de la gaveta.
+- **Sugerencias del asistente:** pestañas de folder (esquina superior 8px, inferior 3px, filete interior), nunca chips redondos.
+- **Un día con GoRam Clinic:** regla horaria como la columna de horas de la agenda (hora en 2.6rem tabular, periodo debajo), filetes entre filas, capturas reales a la derecha. Teléfonos dibujados en CSS (marco degradado, isla, notificaciones con desenfoque solo como material de iOS).
+- **Libro contable:** "Hecho para El Salvador" y "Seguridad" son renglones término/detalle sobre cartón `#e9eef3`, sin tarjetas.
+- **Tarifario:** columnas separadas por filete dentro de un solo contenedor; el plan recomendado se distingue por la etiqueta y el botón relleno, nunca por franjas de color.
+- **Verdad:** capturas reales tomadas con datos de demostración (rotuladas). Los precios salen en vivo de `GET /api/v1/planes`. No hay prueba gratis, cifras de clientes ni comparaciones con la competencia.
+- **Asistente flotante:** aparece cuando el de la portada sale de vista; comparte la misma conversación (`useAsistente`, guardada en `sessionStorage`).

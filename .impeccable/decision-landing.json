@@ -1,0 +1,75 @@
+{
+  "title": "Elegí la estructura de la nueva página de inicio",
+  "question": "Las tres usan el mismo mundo visual del sistema (azul marino, hojas frías, códigos de color de expediente) y ponen al asistente 24/7 al centro. Cambia cómo se recorre la página. Elegí una, pedí otra tanda o escribí un ajuste.",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "Preguntá primero",
+      "kicker": "THE ROLL",
+      "lineage": "Mostrador de recepción de una clínica: primero te atienden, después te explican",
+      "thesis": "La primera pantalla entera es el asistente: el doctor pregunta y la página se arma con sus respuestas.",
+      "palette": ["#1B2D4A", "#F7F9FB", "#26446E", "#E9EEF3"],
+      "materials": ["hoja fría", "gaveta azul marino", "códigos de color de expediente"],
+      "viewport": "Fondo azul marino a pantalla completa; al centro, el asistente con su saludo y cinco preguntas sugeridas grandes (¿Cuánto cuesta?, ¿Sirve en el teléfono?, ¿Cómo hago una receta?); cada respuesta muestra una pantalla real del sistema.",
+      "risk": "Quien no quiere conversar necesita ver rápido qué es y cuánto cuesta; por eso nombre, frase y precio van fijos arriba.",
+      "wireframe": {
+        "cols": 12,
+        "rows": 10,
+        "regions": [
+          { "label": "marca · Ingresar", "x": 0, "y": 0, "w": 12, "h": 1 },
+          { "label": "frase de valor", "x": 2, "y": 1, "w": 8, "h": 1 },
+          { "label": "asistente 24/7 (conversación)", "x": 2, "y": 2, "w": 8, "h": 4, "accent": true },
+          { "label": "preguntas sugeridas", "x": 2, "y": 6, "w": 8, "h": 1 },
+          { "label": "pantalla real que responde", "x": 1, "y": 7, "w": 10, "h": 2 },
+          { "label": "planes", "x": 0, "y": 9, "w": 12, "h": 1 }
+        ]
+      }
+    },
+    {
+      "id": "dia-consultorio",
+      "label": "Un día en el consultorio",
+      "lineage": "La hoja del día de una clínica, de 6:30 a. m. a 6:00 p. m.",
+      "thesis": "La página es un día de trabajo real: cada hora muestra lo que el sistema hace por el doctor, con el asistente como compañero fijo.",
+      "palette": ["#F7F9FB", "#1B2D4A", "#26446E", "#B9651F"],
+      "materials": ["hoja fría", "regla horaria", "bloques de cita", "aviso del teléfono"],
+      "viewport": "A la izquierda, frase y asistente abierto; a la derecha, un teléfono con el aviso de las 6:30 a. m. ('Hoy tenés 8 citas'). Al bajar, una línea de horas: llega el paciente, consulta, receta con QR, factura, reporte.",
+      "risk": "Es la más larga de recorrer; si alguien solo quiere el precio, tiene que llegar al final o preguntarle al asistente.",
+      "wireframe": {
+        "cols": 12,
+        "rows": 10,
+        "regions": [
+          { "label": "marca · Ingresar", "x": 0, "y": 0, "w": 12, "h": 1 },
+          { "label": "frase + asistente", "x": 0, "y": 1, "w": 6, "h": 4, "accent": true },
+          { "label": "teléfono con aviso 6:30", "x": 7, "y": 1, "w": 4, "h": 4 },
+          { "label": "regla horaria: llegada, consulta, receta, factura", "x": 0, "y": 5, "w": 12, "h": 3 },
+          { "label": "planes", "x": 0, "y": 8, "w": 12, "h": 2 }
+        ]
+      }
+    },
+    {
+      "id": "planes-primero",
+      "label": "Los planes al frente",
+      "lineage": "La lista de tarifas de una clínica, colgada en recepción",
+      "thesis": "Precio y plan arriba de todo, sin rodeos; el asistente ayuda a elegir el plan correcto y explica cada uno.",
+      "palette": ["#F7F9FB", "#1B2D4A", "#26446E", "#E9EEF3"],
+      "materials": ["libro contable", "filetes finos", "cifras tabulares"],
+      "viewport": "Frase corta y, debajo, los cuatro planes como una tarifa ordenada con su precio grande; a un lado el asistente: '¿Atendés solo o con más médicos? Te digo cuál te conviene'.",
+      "risk": "Muestra el precio antes de mostrar el valor: un doctor que todavía no ve el sistema puede sentirlo caro.",
+      "wireframe": {
+        "cols": 12,
+        "rows": 10,
+        "regions": [
+          { "label": "marca · Ingresar", "x": 0, "y": 0, "w": 12, "h": 1 },
+          { "label": "frase", "x": 0, "y": 1, "w": 8, "h": 1 },
+          { "label": "tarifa de 4 planes", "x": 0, "y": 2, "w": 8, "h": 4 },
+          { "label": "asistente: elegí tu plan", "x": 8, "y": 1, "w": 4, "h": 5, "accent": true },
+          { "label": "pantallas reales del sistema", "x": 0, "y": 6, "w": 12, "h": 3 },
+          { "label": "cierre", "x": 0, "y": 9, "w": 12, "h": 1 }
+        ]
+      }
+    }
+  ],
+  "reroll": { "registers": ["safer", "bolder"] },
+  "buildPath": { "value": "code", "toggle": false },
+  "steer": true
+}
